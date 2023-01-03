@@ -1,6 +1,4 @@
-# FSTLinalg
-
-
+# FSA
 
 ## Getting started
 
