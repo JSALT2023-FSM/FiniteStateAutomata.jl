@@ -1,4 +1,3 @@
-
 """
     abstract type AbstractFSA{K,L} end
 
@@ -9,7 +8,7 @@ abstract type AbstractFSA{K,L} end
 
 #= Graph representation of a FSA using GraphViz =#
 
-function Base.show(io::IO, ::MIME"image/svg+xml", fsa::FSA)
+function Base.show(io::IO, ::MIME"image/svg+xml", fsa::AbstractFSA)
     dotfsa = dot(fsa)
     dotpath, dotfile = mktemp()
     try
@@ -40,7 +39,7 @@ function dot(fsa::AbstractFSA)
     out *= "rankdir=LR;\n"
     out = dot_write_nodes(out, fsa.T, fsa.λ)
     out = dot_write_initedges(out, fsa.α)
-    out = dot_write_edges(out, fsa.T, fsa.λ)
+    out = dot_write_edges(out, fsa.T, fsa.ρ, fsa.λ)
     out = dot_write_finaledges(out, fsa.ω)
     out *= "}\n"
 end
@@ -49,7 +48,7 @@ function dot_write_nodes(out, T, λ)
     N = size(T, 1) # number of states
     out *= "n0 [shape=\"point\"];\n"
     for i in 1:N
-        out *= "n$(i) [label=$(λ[i]), shape=\"circle\""
+        out *= "n$(i) [label=\"$i|$(λ[i])\", shape=\"circle\""
         out *= "];\n"
     end
     out *= "n$(N+1) [shape=\"point\"];\n"
@@ -64,13 +63,17 @@ function dot_write_initedges(out, α)
     out
 end
 
-function dot_write_edges(out, T, λ)
+function dot_write_edges(out, T, ρ, λ)
     for i in 1:size(T, 1)
         for j in 1:size(T, 2)
             if ! iszero(T[i,j])
                 out = dot_write_edge(out, i, j, T[i, j])
             end
         end
+    end
+
+    if ! iszero(ρ)
+        out = dot_write_edge(out, 0, size(T, 2) + 1, ρ)
     end
     out
 end
