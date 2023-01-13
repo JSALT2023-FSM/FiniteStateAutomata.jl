@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: CECILL-2.1
 
 """
     struct FSA{K,L} <: AbstractFSA{K,L}
@@ -19,3 +19,8 @@ struct FSA{K,L} <: AbstractFSA{K,L}
     λ::AbstractVector{L}
 end
 
+α(fsa::FSA) = fsa.α
+T(fsa::FSA) = fsa.T
+ω(fsa::FSA) = fsa.ω
+ρ(fsa::FSA) = fsa.ρ
+λ(fsa::FSA) = fsa.λ

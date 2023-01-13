@@ -1,4 +1,4 @@
-# SPDX
+# SPDX-License-Identifier: CECILL-2.1
 
 module FSALinalg
 

@@ -10,9 +10,9 @@ In construction...
 
 ## License
 
-This software is provided under the CeCILL-B license see `~/LICENSE`.
+This software is provided under the CeCILL license see `/LICENSE`.
 
-## Supporting institution
+## Supporting institutions
 
 ![logos](/misc/logos.png)
 

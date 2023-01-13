@@ -1,10 +1,50 @@
+# SPDX identifier: CECILL-2.1
+
 """
     abstract type AbstractFSA{K,L} end
 
 Abstract base type for all finite state automata. `K` is the weight
-semiring and `L` is the label type.
+semiring and `L` is the label type. Subtypes should implement the
+following accessors.
 """
 abstract type AbstractFSA{K,L} end
+
+"""
+    α(fsa)
+
+Return the vector of initial states of `fsa`.
+"""
+α(::AbstractFSA)
+
+"""
+    T(fsa)
+
+Return the transition matrix of `fsa`.
+"""
+T(::AbstractFSA)
+
+"""
+    ω(fsa)
+
+Return the vector of final states of `fsa`.
+"""
+ω(::AbstractFSA)
+
+"""
+    ρ(fsa)
+
+Return the weight of the emtpy string.
+"""
+ρ(::AbstractFSA)
+
+"""
+    λ(fsa)
+
+Return the states' label.
+"""
+λ(::AbstractFSA)
+
+Base.parent(fsa::AbstractFSA) = fsa
 
 #= Graph representation of a FSA using GraphViz =#
 
