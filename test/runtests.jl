@@ -51,11 +51,20 @@ end
         @test all(ρ(A2) ≈ ρ2)
         @test all(λ(A2) .== λ2)
 
+        # union
         B12 = convert((w, l) -> f(L, w, l), union(A1, A2))
         cs_B12 = cumsum(B12)
         cs_B1_B2 = cumsum(B1) + cumsum(B2)
         @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
         @test cs_B12.tval[2] == cs_B1_B2.tval[2]
+
+        # concatenation
+        B12 = convert((w, l) -> f(L, w, l), cat(A1, A2))
+        cs_B12 = cumsum(B12)
+        cs_B1_B2 = cumsum(B2) * cumsum(B1)
+        @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
+        @test cs_B12.tval[2] == cs_B1_B2.tval[2]
+
     end
 end
 

@@ -9,7 +9,7 @@ Accumulate the weight of all the paths of length less or equal to
 function Base.cumsum(A::AbstractFSA; v₀ = α(A), n = nstates(A))
     v = v₀
     σ = dot(v, ω(A)) + ρ(A)
-    for i in 2:n
+    for i in 1:n
         v = T(A)' * v
         σ += dot(v, ω(A))
     end
@@ -43,12 +43,12 @@ Return the concatenation of the given FSA.
 function Base.cat(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
     D1, D2 = size(T(A1), 1), size(T(A2), 1)
     FSA(
-        vcat(α(A1), zero(K) * α(A2)),
+        vcat(α(A1), iszero(ρ(A1)) ? spzeros(K, D2) :  ρ(A1) * α(A2)),
         [T(A1) (ω(A1) * α(A2)');
          spzeros(K, D2, D1) T(A2)],
-        vcat(zero(K) * ω(A1), ω(A2)),
+        vcat(iszero(ρ(A2)) ? spzeros(K, D1) : ω(A1) * ρ(A2), ω(A2)),
         ρ(A1) * ρ(A2),
-        vcat(λ(A2), λ(A2))
+        vcat(λ(A1), λ(A2))
     )
 end
 Base.cat(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =

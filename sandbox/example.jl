@@ -13,6 +13,7 @@ begin
 	using FSALinalg
 	using LinearAlgebra
 	using SparseArrays
+	using Semirings
 end
 
 # ╔═╡ 33a02e4e-44a6-4d66-9a1a-0372b96695d6
@@ -38,7 +39,7 @@ where:
 """
 
 # ╔═╡ 87e1cf8e-da52-4c85-ab6a-bb352a84d779
-K = Float32
+K = LogSemiring{Float32}
 
 # ╔═╡ 8602a2b5-16ca-4cec-8041-c6362aa66a48
 M1 = FSA(
@@ -46,7 +47,7 @@ M1 = FSA(
 	sparse([3, 2, 2], [1, 1, 3], K[2.5, 2.5, 1.5], 3, 3),
 	sparsevec([1], K[3.5], 3),
 	K(0.5),
-	["1", "2", "3"]
+	["a", "b", "c"]
 )
 
 # ╔═╡ 9400b791-605f-4cb5-a3d7-71af5a034504
@@ -60,6 +61,97 @@ M2 = FSA(
 
 # ╔═╡ 78aa5aa2-87a7-4bf6-80a2-71fd79bf03d1
 parent(M1)
+
+# ╔═╡ 45d44224-9e88-482c-95d8-d1a793b3fd79
+renorm(M1)
+
+# ╔═╡ 6d6c0896-dbd3-41d1-8f90-04120bd26087
+cumsum(M1 |> renorm)
+
+# ╔═╡ 1bfd0d49-8833-4b05-978c-9830d5c6bc33
+M1
+
+# ╔═╡ e7a6ab1c-262e-4a3b-a34b-e2485dfbeedf
+R = ProductSemiring{Tuple{ProbSemiring{Float64}, UnionConcatSemiring{StringMonoid}}}
+
+# ╔═╡ 992b92d0-e402-4cec-a232-0a2c6e71d9c7
+one(zero(R))
+
+# ╔═╡ 57c74af2-73fe-4c57-af46-7eedff77e119
+T1 = UnionConcatSemiring{StringMonoid}
+
+# ╔═╡ edf219c8-9663-4af9-8ace-3ace909fad07
+T1(Set(StringMonoid["b"])) * T1(Set(StringMonoid["a"]))
+
+# ╔═╡ ff37939d-195b-4a80-863d-89baf53c2341
+convert(M1) do v, l
+	if isnothing(l) && iszero(v)
+		return ProductSemiring(
+			(
+				v, 
+				zero(UnionConcatSemiring{StringMonoid})
+			)
+		)
+	elseif isnothing(l)
+		return ProductSemiring(
+			(
+				v, 
+				one(UnionConcatSemiring{StringMonoid})
+			)
+		)
+	else
+		return ProductSemiring((v, UnionConcatSemiring{StringMonoid}(Set(StringMonoid[l]))))
+	end
+end
+
+# ╔═╡ 08ad3fe4-5be2-4512-b11e-07c6c0a9b786
+function Base.isequal(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
+	L = UnionConcatSemiring{StringMonoid}
+	R = ProductSemiring{Tuple{K, L}}
+	
+
+	Dₗ = spdiagm(
+		[R((one(K), Set(StringMonoid[l]))) for l in A1.λ]
+	)
+	[ProductSemiring((v, L(Set(StringMonoid[λ(A1)[i]])))) for (i, v) in zip(initstates(A1)...)]
+	[ProductSemiring((v, L(Set(StringMonoid[λ(A1)[i]])))) for (i, v) in zip(finalstates(A1)...)]
+	# FSA(
+	# 	Dₗ * sparsevec(initstates(A1)[1], one())
+	# )
+end
+
+# ╔═╡ 6b4504c0-6775-49bf-91fb-759c8d528395
+isequal(M1, M2)
+
+# ╔═╡ 7a4e1c92-e01a-4b08-9b98-416a502aef17
+L = [R((one(ProbSemiring{Float64}), Set(StringMonoid[l]))) for l in M1.λ]
+
+# ╔═╡ b34b0f0c-1bfc-4e4b-a388-8550fd62d628
+SM1 = FSA(
+	spdiagm(L) * sparsevec(findnz(α(M1))[1], one(R), nstates(M1)),
+	sparse(findnz(T(M1))[1:2]..., one(R), nstates(M1), nstates(M1)) * spdiagm(L),
+	sparsevec(findnz(ω(M1))[1], one(R), nstates(M1)),
+	! iszero(ρ(M1)) ? one(R) : zero(R),
+	M1.λ
+)
+
+# ╔═╡ a7b8be4a-a77c-4b26-85d8-f38b2d91965d
+cumsum(SM1) == cumsum(SM1)
+
+# ╔═╡ 780eb548-9bb3-40a4-8c95-f5dbb371f070
+sum(T(SM1)' * spdiagm(α(SM1)), dims = 2)
+
+# ╔═╡ 6413cd1f-22d1-4cc0-bd03-39d3df88c823
+sum(spdiagm(α(SM1)) * T(SM1), dims=2)
+
+# ╔═╡ 0fae1d09-a501-43d3-89f7-2245f6f6d1fd
+T(SM1)' * α(SM1)
+
+# ╔═╡ a7e8863d-73cb-4921-8c1a-cd68ba3c5e5b
+v₀ = α(SM1) .* λ(SM1) 
+
+# ╔═╡ ce204f13-d907-47df-84bc-7a6aca678583
+SM1.T' * SM1.T' * v₀
 
 # ╔═╡ 50a6809e-c10d-41be-9217-00512fd387e2
 md"""
@@ -98,7 +190,7 @@ where:
 """
 
 # ╔═╡ 590ea7ba-eeae-4f03-8189-a199714001fe
-M1 ∪ M2
+M1 ∪ M2 |> renorm
 
 # ╔═╡ 5a2320c0-69c9-4ab2-b350-767b9db2d228
 md"""
@@ -270,6 +362,15 @@ M1.T' * spdiagm(M1.α)
 # ╔═╡ e7dd85e6-e03e-48ad-96fd-6b9e7c4cb968
 M2
 
+# ╔═╡ 6d64bbd1-dbe5-463d-9fd5-bf72fb92ad45
+Tuple{LogSemiring{Float64}, BoolSemiring}.parameters
+
+# ╔═╡ 235dfa07-9c56-47a2-a4a8-0b540625bc26
+
+
+# ╔═╡ 941c7e7a-6b6d-48a8-8426-426b9ddcb9e1
+isbitstype(Core.SimpleVector)
+
 # ╔═╡ 7ad2f7f3-e6b6-4707-ac81-22c51d4a8316
 function DFS(M, v, visited, order)
 	ws = v == 0 ? M.α : M.T[v,:]
@@ -418,6 +519,16 @@ end
 # ╔═╡ 5433be8c-61fa-4262-839a-d9a137c05377
 edges, states = determinize(M3)
 
+# ╔═╡ 03289f26-13cf-418f-853a-228b6427cf33
+function conv(f::Function, A::AbstractFSA{K}) where K
+
+	sparsevec(initstates(A)[1], [f(i, v) for (i, v) in zip(initstates(A)...)], nstates(A))
+	sparse(edges(A)[1], edges(A)[2], [f(j, v) for (i, j, v) in zip(edges(A)...)], nstates(A), nstates(A))
+end
+
+# ╔═╡ aea78dcc-02a2-44d4-a24e-acb088d61bc3
+edges
+
 # ╔═╡ 143d6069-6978-43ed-815f-5cf19de83fbf
 function fsadet(M, edges, states)
 	state2idx = Dict(q => i for (i, q) in enumerate(sort(collect(states))))
@@ -493,6 +604,26 @@ C .* Z3
 # ╠═8602a2b5-16ca-4cec-8041-c6362aa66a48
 # ╠═9400b791-605f-4cb5-a3d7-71af5a034504
 # ╠═78aa5aa2-87a7-4bf6-80a2-71fd79bf03d1
+# ╠═45d44224-9e88-482c-95d8-d1a793b3fd79
+# ╠═6d6c0896-dbd3-41d1-8f90-04120bd26087
+# ╠═1bfd0d49-8833-4b05-978c-9830d5c6bc33
+# ╠═e7a6ab1c-262e-4a3b-a34b-e2485dfbeedf
+# ╠═992b92d0-e402-4cec-a232-0a2c6e71d9c7
+# ╠═57c74af2-73fe-4c57-af46-7eedff77e119
+# ╠═edf219c8-9663-4af9-8ace-3ace909fad07
+# ╠═b34b0f0c-1bfc-4e4b-a388-8550fd62d628
+# ╠═03289f26-13cf-418f-853a-228b6427cf33
+# ╠═aea78dcc-02a2-44d4-a24e-acb088d61bc3
+# ╠═ff37939d-195b-4a80-863d-89baf53c2341
+# ╠═08ad3fe4-5be2-4512-b11e-07c6c0a9b786
+# ╠═6b4504c0-6775-49bf-91fb-759c8d528395
+# ╠═7a4e1c92-e01a-4b08-9b98-416a502aef17
+# ╠═a7b8be4a-a77c-4b26-85d8-f38b2d91965d
+# ╠═780eb548-9bb3-40a4-8c95-f5dbb371f070
+# ╠═6413cd1f-22d1-4cc0-bd03-39d3df88c823
+# ╠═0fae1d09-a501-43d3-89f7-2245f6f6d1fd
+# ╠═a7e8863d-73cb-4921-8c1a-cd68ba3c5e5b
+# ╠═ce204f13-d907-47df-84bc-7a6aca678583
 # ╟─50a6809e-c10d-41be-9217-00512fd387e2
 # ╟─e252d8ea-9763-4030-9440-59e3a63ec4c2
 # ╠═590ea7ba-eeae-4f03-8189-a199714001fe
@@ -519,6 +650,9 @@ C .* Z3
 # ╠═d3256762-6488-4b11-8490-261a98fad0b2
 # ╠═747e8dbb-d41a-442d-a483-bef308ef7f40
 # ╠═e7dd85e6-e03e-48ad-96fd-6b9e7c4cb968
+# ╠═6d64bbd1-dbe5-463d-9fd5-bf72fb92ad45
+# ╠═235dfa07-9c56-47a2-a4a8-0b540625bc26
+# ╠═941c7e7a-6b6d-48a8-8426-426b9ddcb9e1
 # ╠═7ad2f7f3-e6b6-4707-ac81-22c51d4a8316
 # ╠═6b705783-890d-49f2-b3a2-6228897e2fb4
 # ╠═2a1daba5-9035-4a5c-b32d-c73c022135c6
