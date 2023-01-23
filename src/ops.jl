@@ -1,80 +1,98 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    union(fsa1[, fsa2, ...])
-    fsa1 ∪ fsa2
+    Base.cumsum(A[; n = nstates(A)])
+
+Accumulate the weight of all the paths of length less or equal to
+`n`.
+"""
+function Base.cumsum(A::AbstractFSA; v₀ = α(A), n = nstates(A))
+    v = v₀
+    σ = dot(v, ω(A)) + ρ(A)
+    for i in 2:n
+        v = T(A)' * v
+        σ += dot(v, ω(A))
+    end
+    σ
+end
+
+
+"""
+    union(A1[, A2, ...])
+    A1 ∪ A2
 
 Return the union of the given FSA.
 """
-function Base.union(fsa1::AbstractFSA{K,L}, fsa2::AbstractFSA{K,L}) where {K,L}
+function Base.union(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
     FSA(
-        vcat(α(fsa1), α(fsa2)),
-        blockdiag(T(fsa1), T(fsa2)),
-        vcat(ω(fsa1), ω(fsa2)),
-        ρ(fsa1) + ρ(fsa2),
-        vcat(λ(fsa2), λ(fsa2))
+        vcat(α(A1), α(A2)),
+        blockdiag(T(A1), T(A2)),
+        vcat(ω(A1), ω(A2)),
+        ρ(A1) + ρ(A2),
+        vcat(λ(A1), λ(A2))
     )
 end
-Base.union(fsa1::AbstractFSA{K,L}, fsaN::AbstractFSA{K,L}...) where {K,L} =
-    foldl(union, fsaN, init = fsa1)
+Base.union(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =
+    foldl(union, AN, init = A1)
 
 """
-    cat(fsa1[, fsa2, ...])
+    cat(A1[, A2, ...])
 
 Return the concatenation of the given FSA.
 """
-function Base.cat(fsa1::AbstractFSA{K,L}, fsa2::AbstractFSA{K,L}) where {K,L}
-    D1, D2 = size(T(fsa1), 1), size(T(fsa2), 1)
+function Base.cat(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
+    D1, D2 = size(T(A1), 1), size(T(A2), 1)
     FSA(
-        vcat(α(fsa1), zero(K) * α(fsa2)),
-        [T(fsa1) (ω(fsa1) * α(fsa2)');
-         spzeros(K, D2, D1) T(fsa2)],
-        vcat(zero(K) * ω(fsa1), ω(fsa2)),
-        ρ(fsa1) * ρ(fsa2),
-        vcat(λ(fsa2), λ(fsa2))
+        vcat(α(A1), zero(K) * α(A2)),
+        [T(A1) (ω(A1) * α(A2)');
+         spzeros(K, D2, D1) T(A2)],
+        vcat(zero(K) * ω(A1), ω(A2)),
+        ρ(A1) * ρ(A2),
+        vcat(λ(A2), λ(A2))
     )
 end
-Base.cat(fsa1::AbstractFSA{K,L}, fsaN::AbstractFSA{K,L}...) where {K,L} =
-    foldl(cat, fsaN, init = fsa1)
+Base.cat(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =
+    foldl(cat, AN, init = A1)
 
 """
-    closure(fsa; plus = false)
+    closure(A; plus = false)
 
 Return the closure (or the closure plus if `plus` is `true`) of the FSA.
 """
-function closure(fsa::AbstractFSA{K}; plus = false) where K
+function closure(A::AbstractFSA{K}; plus = false) where K
     FSA(
-        α(fsa),
-        T(fsa) + ω(fsa) * α(fsa)',
-        ω(fsa),
-        iszero(ρ(fsa)) && ! plus ? one(K) : ρ(fsa),
-        λ(fsa)
+        α(A),
+        T(A) + ω(A) * α(A)',
+        ω(A),
+        iszero(ρ(A)) && ! plus ? one(K) : ρ(A),
+        λ(A)
     )
 end
 
 """
-    reverse(fsa)
+    reverse(A)
 
-Return the reversal of fsa.
+Return the reversal of A.
 """
-Base.reverse(fsa::AbstractFSA) = FSA(ω(fsa), T(fsa)', α(fsa), ρ(fsa), λ(fsa))
+Base.reverse(A::AbstractFSA) = FSA(ω(A), T(A)', α(A), ρ(A), λ(A))
 
 """
-    renorm(fsa::FSA)
+    renorm(A::FSA)
 
-For a state q, multiply each arc's weight by the inverse of the sum of
-all the arcs' weight leaving q. In the resulting FSA, sum of the all
-the arcs'weight of a state sum up to the semiring one.
+Local renormalization. For a state q, multiply each arc's weight by the
+inverse of the sum of all the arcs' weight leaving q. In the resulting
+FSA, sum of the all the arcs'weight of a state sum up to the semiring
+one.
 """
-
-function renorm(fsa::FSA{K}) where K
-    Z = one(K) ./ (sum(T(fsa), dims=2) .+ ω(fsa))
-    FSM(
-        inv(sum(α(fsa)) + ρ) * α(fsa),
-        T(fsa) .* Z,
-        ω(fsa) .* Z[:,1],
-        ρ,
-        λ(fsa)
+function renorm(A::FSA{K}) where K
+    Z = inv.((sum(T(A), dims=2) .+ ω(A)))
+    Zₐ = inv(sum(α(A)) + ρ(A))
+    FSA(
+        Zₐ * α(A),
+        Z .* T(A),
+        Z[:, 1] .* ω(A),
+        Zₐ * ρ(A),
+        λ(A)
     )
 end
 

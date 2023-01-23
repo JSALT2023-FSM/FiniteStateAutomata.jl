@@ -10,49 +10,102 @@ following accessors.
 abstract type AbstractFSA{K,L} end
 
 """
-    α(fsa)
+    semiring(A)
 
-Return the vector of initial states of `fsa`.
+Return the semiring type of `A`.
+"""
+semiring(A::AbstractFSA{K}) where K = K
+
+"""
+    α(A)
+
+Return the vector of initial states of `A`.
 """
 α(::AbstractFSA)
 
 """
-    T(fsa)
+    T(A)
 
-Return the transition matrix of `fsa`.
+Return the transition matrix of `A`.
 """
 T(::AbstractFSA)
 
 """
-    ω(fsa)
+    ω(A)
 
-Return the vector of final states of `fsa`.
+Return the vector of final states of `A`.
 """
 ω(::AbstractFSA)
 
 """
-    ρ(fsa)
+    ρ(A)
 
 Return the weight of the emtpy string.
 """
 ρ(::AbstractFSA)
 
 """
-    λ(fsa)
+    λ(A)
 
-Return the states' label.
+Return the states' label of `A`.
 """
 λ(::AbstractFSA)
 
-Base.parent(fsa::AbstractFSA) = fsa
+"""
+    nstates(A)
+
+Return the number of states in `A`.
+"""
+nstates(A) = length(λ(A))
+
+"""
+    nedges(A)
+
+Return the number of edges in `A`.
+"""
+nedges(A) = nnz(T(A))
+
+"""
+    I, V = initstates(A)
+
+Return the indices of the initial states `I` and their associated value
+`V`.
+"""
+initstates(A) = findnz(α(A))
+
+"""
+    I, J, V = finalstates(A)
+
+Return the edges where `I` is the array of source states, `J` is the
+array of destination states and `V` is the array of weights.
+"""
+edges(A::AbstractFSA) = findnz(T(A))
+
+"""
+    I, V = finalstates(A)
+
+Return the indices of the final states `I` and their associated value
+`V`.
+"""
+finalstates(A) = findnz(ω(A))
+
+Base.parent(A::AbstractFSA) = A
+
+"""
+    convert(f::Function, A::AbstractFSA)
+
+Convert the weight of `A`. The function `f` takes two arguments as
+input: weight and the label of an edge and returnes a new semiring
+value.
+"""
+Base.convert(f::Function, A::AbstractFSA)
 
 #= Graph representation of a FSA using GraphViz =#
 
-function Base.show(io::IO, ::MIME"image/svg+xml", fsa::AbstractFSA)
-    dotfsa = dot(fsa)
+function Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractFSA)
     dotpath, dotfile = mktemp()
     try
-        write(dotfile, dotfsa)
+        dot_write(IOContext(dotfile, :compact => true, :limit => true), A)
         close(dotfile)
         svgpath, svgfile = mktemp()
         try
@@ -69,69 +122,65 @@ function Base.show(io::IO, ::MIME"image/svg+xml", fsa::AbstractFSA)
 end
 
 """
-    dot(fsa)
+    dot_write(io::IO, A::AbstractFSA)
 
-Return a string describing `fsa` in the [DOT](https://graphviz.org/doc/info/lang.html)
+Write a description of `A` on `io` in the [DOT](https://graphviz.org/doc/info/lang.html)
 language.
 """
-function dot(fsa::AbstractFSA)
-    out = "Digraph {\n"
-    out *= "rankdir=LR;\n"
-    out = dot_write_nodes(out, fsa.T, fsa.λ)
-    out = dot_write_initedges(out, fsa.α)
-    out = dot_write_edges(out, fsa.T, fsa.ρ, fsa.λ)
-    out = dot_write_finaledges(out, fsa.ω)
-    out *= "}\n"
+function dot_write(io::IO, A::AbstractFSA)
+    println(io, "Digraph {")
+    println(io, "rankdir=LR;")
+    dot_write_nodes(io, A.T, A.λ)
+    dot_write_initedges(io, A.α, λ(A))
+    dot_write_edges(io, A.T, A.ρ, λ(A))
+    dot_write_finaledges(io, A.ω, λ(A))
+    println(io, "}")
 end
 
-function dot_write_nodes(out, T, λ)
+function dot_write_nodes(io::IO, T, λ)
     N = size(T, 1) # number of states
-    out *= "n0 [shape=\"point\"];\n"
+    println(io, "n0 [shape=\"point\"];")
     for i in 1:N
-        out *= "n$(i) [label=\"$i|$(λ[i])\", shape=\"circle\""
-        out *= "];\n"
+        #print(io, "n$(i) [label=\"$i|$(λ[i])\", shape=\"circle\"")
+        print(io, "n$(i) [label=\"", i, "\", shape=\"circle\"")
+        println(io, "];")
     end
-    out *= "n$(N+1) [shape=\"point\"];\n"
+    println(io, "n$(N+1) [shape=\"point\"];")
 end
 
-function dot_write_initedges(out, α)
+function dot_write_initedges(io::IO, α, λ)
     for i in 1:size(α, 1)
         if ! iszero(α[i])
-            out = dot_write_edge(out, 0, i, α[i])
+            dot_write_edge(io, 0, i, λ[i], α[i])
         end
     end
-    out
 end
 
-function dot_write_edges(out, T, ρ, λ)
+function dot_write_edges(io, T, ρ, λ)
     for i in 1:size(T, 1)
         for j in 1:size(T, 2)
             if ! iszero(T[i,j])
-                out = dot_write_edge(out, i, j, T[i, j])
+                dot_write_edge(io, i, j, λ[j], T[i, j])
             end
         end
     end
 
     if ! iszero(ρ)
-        out = dot_write_edge(out, 0, size(T, 2) + 1, ρ)
+        dot_write_edge(io, 0, size(T, 2) + 1, one(eltype(λ)), ρ)
     end
-    out
 end
 
-function dot_write_finaledges(out, ω)
+function dot_write_finaledges(io::IO, ω, λ)
     N = length(ω)
     for i in 1:size(ω, 1)
         if ! iszero(ω[i])
-            out = dot_write_edge(out, i, N+1, ω[i])
+            dot_write_edge(io, i, N+1, one(eltype(λ)), ω[i])
         end
     end
-    out
 end
 
-function dot_write_edge(out, src, dst, weight)
-    out *= "n$src -> n$dst [label=\""
-    #out *= isone(weight) ? "" : "/$(round(weight, digits=3))"
-    out *= "$(round(weight, digits=3))"
-    out *= "\"];\n"
+function dot_write_edge(io, src, dst, l, weight)
+    val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
+    print(io, "n$src -> n$dst [label=\"", l, "/", weight, "\"];")
 end
 

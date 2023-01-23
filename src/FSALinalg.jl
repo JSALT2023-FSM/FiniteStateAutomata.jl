@@ -7,12 +7,24 @@ using SparseArrays
 
 export
     # FSA types
+    AbstractFSA,
     FSA,
 
+    # Accessors / properties
+    α,
+    T,
+    ω,
+    ρ,
+    λ,
+    nstates,
+    nedges,
+    initstates,
+    edges,
+    finalstates,
+
     # FSA operations
-    # Base.union
-    # Base.cat
-    closure
+    closure,
+    renorm
 
 include("abstractfsa.jl")
 include("fsa.jl")
