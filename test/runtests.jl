@@ -90,6 +90,12 @@ end
         @test cs_cB2p.tval[2] == cs_B2p_n3.tval[2]
         @test cs_cB2.tval[1] ≈ cs_B2_n3.tval[1]
         @test cs_cB2.tval[2] == cs_B2_n3.tval[2]
+
+        # reverse
+        rB2 = convert((w, l) -> f(L, w, l), A2 |> reverse)
+        s1 = val(cumsum(B2).tval[2])
+        s2 = Set((StringMonoid ∘ reverse ∘ val).((val ∘ cumsum)(rB2)[2]))
+        @test s1 == s2
     end
 end
 

@@ -74,7 +74,7 @@ end
 
 Return the reversal of A.
 """
-Base.reverse(A::AbstractFSA) = FSA(ω(A), T(A)', α(A), ρ(A), λ(A))
+Base.reverse(A::AbstractFSA) = FSA(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
 
 """
     renorm(A::FSA)
