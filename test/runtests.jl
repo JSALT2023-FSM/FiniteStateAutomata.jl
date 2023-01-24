@@ -60,15 +60,15 @@ end
 
         # union
         B12 = convert((w, l) -> f(L, w, l), union(A1, A2))
-        cs_B12 = cumsum(B12)
-        cs_B1_B2 = cumsum(B1) + cumsum(B2)
+        cs_B12 = sum(B12)
+        cs_B1_B2 = sum(B1) + sum(B2)
         @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
         @test cs_B12.tval[2] == cs_B1_B2.tval[2]
 
         # concatenation
         B12 = convert((w, l) -> f(L, w, l), cat(A1, A2))
-        cs_B12 = cumsum(B12)
-        cs_B1_B2 = cumsum(B2) * cumsum(B1)
+        cs_B12 = sum(B12)
+        cs_B1_B2 = sum(B2) * sum(B1)
         @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
         @test cs_B12.tval[2] == cs_B1_B2.tval[2]
 
@@ -82,10 +82,10 @@ end
         B2_n3 = B2 ∪ cat(B2, B2) ∪ cat(B2, B2, B2) ∪ Bϵ
         cB2p = closure(B2; plus = true)
         cB2 = closure(B2; plus = false)
-        cs_B2p_n3 = cumsum(B2p_n3; n = n)
-        cs_B2_n3 = cumsum(B2_n3; n = n)
-        cs_cB2p = cumsum(cB2p; n = n)
-        cs_cB2 = cumsum(cB2; n = n)
+        cs_B2p_n3 = sum(B2p_n3; n = n)
+        cs_B2_n3 = sum(B2_n3; n = n)
+        cs_cB2p = sum(cB2p; n = n)
+        cs_cB2 = sum(cB2; n = n)
         @test cs_cB2p.tval[1] ≈ cs_B2p_n3.tval[1]
         @test cs_cB2p.tval[2] == cs_B2p_n3.tval[2]
         @test cs_cB2.tval[1] ≈ cs_B2_n3.tval[1]
@@ -93,13 +93,13 @@ end
 
         # reverse
         rB2 = convert((w, l) -> f(L, w, l), A2 |> reverse)
-        s1 = val(cumsum(B2).tval[2])
-        s2 = Set((StringMonoid ∘ reverse ∘ val).((val ∘ cumsum)(rB2)[2]))
+        s1 = val(sum(B2).tval[2])
+        s2 = Set((StringMonoid ∘ reverse ∘ val).((val ∘ sum)(rB2)[2]))
         @test s1 == s2
 
         # renorm
-        @test Base.isapprox(val(cumsum(A1 |> renorm; n = 100)), val(one(K)), atol=1e-6)
-        @test Base.isapprox(val(cumsum(A2 |> renorm; n = 100)), val(one(K)), atol=1e-6)
+        @test Base.isapprox(val(sum(A1 |> renorm; n = 100)), val(one(K)), atol=1e-6)
+        @test Base.isapprox(val(sum(A2 |> renorm; n = 100)), val(one(K)), atol=1e-6)
     end
 end
 

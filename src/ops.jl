@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    Base.cumsum(A[; n = nstates(A)])
+    Base.cumsum(A[; init = initstates(A), n = nstates(A)])
 
 Accumulate the weight of all the paths of length less or equal to
 `n`.
 """
-function Base.cumsum(A::AbstractFSA; v₀ = α(A), n = nstates(A))
-    v = v₀
+function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A))
+    v = init
     σ = dot(v, ω(A)) + ρ(A)
     for i in 1:n
         v = T(A)' * v
