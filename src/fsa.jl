@@ -27,6 +27,8 @@ T(fsa::FSA) = fsa.T
 
 function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
     l = λ(A)
+    ρ = f(emptystring(A), one(L))
+    U = typeof(ρ)
     α = sparsevec(
         initstates(A)[1],
         [f(v, l[i]) for (i, v) in zip(initstates(A)...)],
@@ -45,6 +47,6 @@ function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
         nstates(A)
     )
 
-    FSA(α, T, ω, iszero(ρ(A)) ? zero(eltype(α)) : f(ρ(A), one(L)), l)
+    FSA{U,L}(α, T, ω, ρ, l)
 end
 

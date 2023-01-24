@@ -18,7 +18,11 @@ Ls = [
 
 f(L, w, l) = begin
     S = UnionConcatSemiring{L}
-    ProductSemiring((w, S(Set(L[l]))))
+    if iszero(w)
+        return ProductSemiring((w, zero(S)))
+    else
+        return ProductSemiring((w, S(Set(L[l]))))
+    end
 end
 
 @testset "FSA" begin
@@ -38,6 +42,9 @@ end
         λ2 = [L("a"), L("b"), L("c"), L("d")]
         A2 = FSA(α2, T2, ω2, ρ2, λ2)
         B2 = convert((w, l) -> f(L, w, l), A2)
+
+        Aϵ = FSA(spzeros(K, 0), spzeros(K, 0, 0), spzeros(K, 0), one(K), L[])
+        Bϵ = convert((w, l) -> f(L, w, l), Aϵ)
 
         @test all(α(A1) .≈ α1)
         @test all(T(A1) .≈ T1)
@@ -65,6 +72,24 @@ end
         @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
         @test cs_B12.tval[2] == cs_B1_B2.tval[2]
 
+        # The number of iteration for the cumulative sum depends on the
+        # structure of the FSA for the test to pass.
+        # It should be 3 times the maximum path length of B2.
+        n = 6
+
+        # closure
+        B2p_n3 = B2 ∪ cat(B2, B2) ∪ cat(B2, B2, B2)
+        B2_n3 = B2 ∪ cat(B2, B2) ∪ cat(B2, B2, B2) ∪ Bϵ
+        cB2p = closure(B2; plus = true)
+        cB2 = closure(B2; plus = false)
+        cs_B2p_n3 = cumsum(B2p_n3; n = n)
+        cs_B2_n3 = cumsum(B2_n3; n = n)
+        cs_cB2p = cumsum(cB2p; n = n)
+        cs_cB2 = cumsum(cB2; n = n)
+        @test cs_cB2p.tval[1] ≈ cs_B2p_n3.tval[1]
+        @test cs_cB2p.tval[2] == cs_B2p_n3.tval[2]
+        @test cs_cB2.tval[1] ≈ cs_B2_n3.tval[1]
+        @test cs_cB2.tval[2] == cs_B2_n3.tval[2]
     end
 end
 

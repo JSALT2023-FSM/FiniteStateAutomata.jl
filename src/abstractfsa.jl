@@ -89,6 +89,14 @@ Return the indices of the final states `I` and their associated value
 """
 finalstates(A) = findnz(ω(A))
 
+"""
+    emptystring(A)
+
+Return the weight of the empty string "ϵ" in `A`.
+"""
+emptystring(A) = ρ(A)
+
+
 Base.parent(A::AbstractFSA) = A
 
 """
