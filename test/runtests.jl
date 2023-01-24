@@ -96,6 +96,10 @@ end
         s1 = val(cumsum(B2).tval[2])
         s2 = Set((StringMonoid ∘ reverse ∘ val).((val ∘ cumsum)(rB2)[2]))
         @test s1 == s2
+
+        # renorm
+        @test Base.isapprox(val(cumsum(A1 |> renorm; n = 100)), val(one(K)), atol=1e-6)
+        @test Base.isapprox(val(cumsum(A2 |> renorm; n = 100)), val(one(K)), atol=1e-6)
     end
 end
 
