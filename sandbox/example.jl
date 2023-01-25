@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.20
 
 using Markdown
 using InteractiveUtils
@@ -39,7 +39,7 @@ where:
 """
 
 # ╔═╡ 87e1cf8e-da52-4c85-ab6a-bb352a84d779
-K = LogSemiring{Float32}
+K = ProbSemiring{Float32}
 
 # ╔═╡ 8602a2b5-16ca-4cec-8041-c6362aa66a48
 M1 = FSA(
@@ -49,6 +49,12 @@ M1 = FSA(
 	K(0.5),
 	["a", "b", "c"]
 )
+
+# ╔═╡ 028ff41d-f9a7-4ff8-b254-7399be161a48
+Diagonal(Symmetric(randn(2, 2)))
+
+# ╔═╡ fe7c8892-2439-4b1d-b661-92f8bb6825bc
+StochasticFSA(M1)
 
 # ╔═╡ 9400b791-605f-4cb5-a3d7-71af5a034504
 M2 = FSA(
@@ -443,7 +449,7 @@ M3 = FSA(
 	sparsevec([3, 6], K[1, 1], 6),
 	one(K),
 	["a", "b", "a", "a", "b", "c"]
-)
+) 
 
 # ╔═╡ 3b04bdf7-24d8-4269-8576-02ac2bad6c97
 C = sparse(
@@ -516,19 +522,6 @@ function determinize(M::FSALinalg.AbstractFSA{K}) where K
 	edges, visited
 end
 
-# ╔═╡ 5433be8c-61fa-4262-839a-d9a137c05377
-edges, states = determinize(M3)
-
-# ╔═╡ 03289f26-13cf-418f-853a-228b6427cf33
-function conv(f::Function, A::AbstractFSA{K}) where K
-
-	sparsevec(initstates(A)[1], [f(i, v) for (i, v) in zip(initstates(A)...)], nstates(A))
-	sparse(edges(A)[1], edges(A)[2], [f(j, v) for (i, j, v) in zip(edges(A)...)], nstates(A), nstates(A))
-end
-
-# ╔═╡ aea78dcc-02a2-44d4-a24e-acb088d61bc3
-edges
-
 # ╔═╡ 143d6069-6978-43ed-815f-5cf19de83fbf
 function fsadet(M, edges, states)
 	state2idx = Dict(q => i for (i, q) in enumerate(sort(collect(states))))
@@ -569,14 +562,30 @@ function fsadet(M, edges, states)
 	FSA(α, T, ω, M.ρ, λ)
 end
 
+# ╔═╡ 5433be8c-61fa-4262-839a-d9a137c05377
+edges, states = determinize(M3)
+
+# ╔═╡ 03289f26-13cf-418f-853a-228b6427cf33
+function conv(f::Function, A::AbstractFSA{K}) where K
+
+	sparsevec(initstates(A)[1], [f(i, v) for (i, v) in zip(initstates(A)...)], nstates(A))
+	sparse(edges(A)[1], edges(A)[2], [f(j, v) for (i, j, v) in zip(edges(A)...)], nstates(A), nstates(A))
+end
+
+# ╔═╡ aea78dcc-02a2-44d4-a24e-acb088d61bc3
+edges
+
 # ╔═╡ c8d7966a-61c1-4ab2-856c-6ca5d10648cd
-fsadet(M3, edges, states)
+fsadet(M3 |> renorm, edges, states) |> renorm
+
+# ╔═╡ 358d297d-4def-44dc-b79d-6d23aa67d179
+sum(M3 |> renorm)
 
 # ╔═╡ c31ccfdc-3687-46cb-9eed-03791bde56d4
 sparsevec([2, 3], 1, 5)
 
 # ╔═╡ 75c4a277-9edb-4f47-bd5e-13dcb498bd96
-M3
+M3 
 
 # ╔═╡ 68b7380b-2514-4362-9504-552fb4e467f7
 Z1 = spdiagm(M3.α) * C
@@ -602,6 +611,8 @@ C .* Z3
 # ╟─0f68bc4e-3fcb-4d28-bba2-4d0032c80981
 # ╠═87e1cf8e-da52-4c85-ab6a-bb352a84d779
 # ╠═8602a2b5-16ca-4cec-8041-c6362aa66a48
+# ╠═028ff41d-f9a7-4ff8-b254-7399be161a48
+# ╠═fe7c8892-2439-4b1d-b661-92f8bb6825bc
 # ╠═9400b791-605f-4cb5-a3d7-71af5a034504
 # ╠═78aa5aa2-87a7-4bf6-80a2-71fd79bf03d1
 # ╠═45d44224-9e88-482c-95d8-d1a793b3fd79
@@ -670,9 +681,10 @@ C .* Z3
 # ╠═b2b15ac7-1574-4999-bbc9-3536d3aa18b1
 # ╠═09ca7aa2-70a7-4d1b-ae9f-bdd937bf5c94
 # ╠═e0e8eb60-7ad7-4015-b226-56af6d405fad
-# ╠═5433be8c-61fa-4262-839a-d9a137c05377
 # ╠═143d6069-6978-43ed-815f-5cf19de83fbf
+# ╠═5433be8c-61fa-4262-839a-d9a137c05377
 # ╠═c8d7966a-61c1-4ab2-856c-6ca5d10648cd
+# ╠═358d297d-4def-44dc-b79d-6d23aa67d179
 # ╠═c31ccfdc-3687-46cb-9eed-03791bde56d4
 # ╠═75c4a277-9edb-4f47-bd5e-13dcb498bd96
 # ╠═68b7380b-2514-4362-9504-552fb4e467f7

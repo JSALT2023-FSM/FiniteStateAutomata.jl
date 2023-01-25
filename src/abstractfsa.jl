@@ -9,6 +9,8 @@ following accessors.
 """
 abstract type AbstractFSA{K,L} end
 
+abstract type AbstractAcyclicFSA{K,L} <: AbstractFSA{K,L} end
+
 """
     semiring(A)
 

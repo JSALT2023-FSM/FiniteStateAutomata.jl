@@ -9,7 +9,7 @@ Accumulate the weight of all the paths of length less or equal to
 function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A))
     v = init
     σ = dot(v, ω(A)) + ρ(A)
-    for i in 1:n
+    for i in 2:n-1
         v = T(A)' * v
         σ += dot(v, ω(A))
     end
@@ -96,3 +96,21 @@ function renorm(A::FSA{K}) where K
     )
 end
 
+"""
+    globalrenorm(A::AbstractFSA)
+
+Global renormalization of the weight of `A`.
+"""
+function globalrenorm(A::FSA{K}) where K
+    # Accumulate the weight backward starting from the end state.
+    v = ω(A)
+    σ = v
+    while nnz(v) > 0
+        v = T(A) * v
+        σ += v
+    end
+    σ
+
+    D = spdiagm(σ)
+    FSA(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)) |> renorm
+end

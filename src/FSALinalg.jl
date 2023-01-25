@@ -24,7 +24,9 @@ export
 
     # FSA operations
     closure,
+    globalrenorm,
     renorm
+
 
 include("abstractfsa.jl")
 include("fsa.jl")
