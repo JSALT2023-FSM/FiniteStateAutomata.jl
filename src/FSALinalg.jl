@@ -6,8 +6,12 @@ using LinearAlgebra
 using SparseArrays
 
 export
-    # FSA types
+    # Abstract types
     AbstractFSA,
+    AbstractAcyclicFSA,
+
+    # concrete types
+    AcyclicFSA,
     FSA,
 
     # Accessors / properties

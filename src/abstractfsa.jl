@@ -9,6 +9,11 @@ following accessors.
 """
 abstract type AbstractFSA{K,L} end
 
+"""
+    abstract type AbstractAcyclicFSA{K,L} <: AbstractFSA{K,L} end
+
+Abstract base type for all cycle-free finite state automata.
+"""
 abstract type AbstractAcyclicFSA{K,L} <: AbstractFSA{K,L} end
 
 """

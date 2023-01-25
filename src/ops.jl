@@ -6,7 +6,7 @@
 Accumulate the weight of all the paths of length less or equal to
 `n`.
 """
-function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A))
+function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A) + 2)
     v = init
     σ = dot(v, ω(A)) + ρ(A)
     for i in 2:n-1
@@ -23,7 +23,7 @@ end
 
 Return the union of the given FSA.
 """
-function Base.union(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
+function Base.union(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
     FSA(
         vcat(α(A1), α(A2)),
         blockdiag(T(A1), T(A2)),
@@ -32,7 +32,7 @@ function Base.union(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
         vcat(λ(A1), λ(A2))
     )
 end
-Base.union(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =
+Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
     foldl(union, AN, init = A1)
 
 """
@@ -40,7 +40,7 @@ Base.union(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =
 
 Return the concatenation of the given FSA.
 """
-function Base.cat(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
+function Base.cat(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
     D1, D2 = size(T(A1), 1), size(T(A2), 1)
     FSA(
         vcat(α(A1), iszero(ρ(A1)) ? spzeros(K, D2) :  ρ(A1) * α(A2)),
@@ -51,7 +51,7 @@ function Base.cat(A1::AbstractFSA{K,L}, A2::AbstractFSA{K,L}) where {K,L}
         vcat(λ(A1), λ(A2))
     )
 end
-Base.cat(A1::AbstractFSA{K,L}, AN::AbstractFSA{K,L}...) where {K,L} =
+Base.cat(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
     foldl(cat, AN, init = A1)
 
 """
@@ -74,7 +74,7 @@ end
 
 Return the reversal of A.
 """
-Base.reverse(A::AbstractFSA) = FSA(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
+Base.reverse(A::AbstractFSA) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
 
 """
     renorm(A::FSA)
@@ -84,7 +84,7 @@ inverse of the sum of all the arcs' weight leaving q. In the resulting
 FSA, sum of the all the arcs'weight of a state sum up to the semiring
 one.
 """
-function renorm(A::FSA{K}) where K
+function renorm(A::AbstractFSA)
     Z = inv.((sum(T(A), dims=2) .+ ω(A)))
     Zₐ = inv(sum(α(A)) + ρ(A))
     FSA(
@@ -96,12 +96,14 @@ function renorm(A::FSA{K}) where K
     )
 end
 
+#= Functions for acyclic FSA =#
+
 """
-    globalrenorm(A::AbstractFSA)
+    globalrenorm(A::AbstractAcyclicFSA)
 
 Global renormalization of the weight of `A`.
 """
-function globalrenorm(A::FSA{K}) where K
+function globalrenorm(A::AbstractAcyclicFSA)
     # Accumulate the weight backward starting from the end state.
     v = ω(A)
     σ = v

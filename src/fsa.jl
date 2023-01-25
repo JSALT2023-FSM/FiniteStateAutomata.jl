@@ -19,11 +19,11 @@ struct FSA{K,L} <: AbstractFSA{K,L}
     λ::AbstractVector{L}
 end
 
-α(fsa::FSA) = fsa.α
-T(fsa::FSA) = fsa.T
-ω(fsa::FSA) = fsa.ω
-ρ(fsa::FSA) = fsa.ρ
-λ(fsa::FSA) = fsa.λ
+α(fsa::AbstractFSA) = parent(fsa).α
+T(fsa::AbstractFSA) = parent(fsa).T
+ω(fsa::AbstractFSA) = parent(fsa).ω
+ρ(fsa::AbstractFSA) = parent(fsa).ρ
+λ(fsa::AbstractFSA) = parent(fsa).λ
 
 function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
     l = λ(A)
@@ -49,4 +49,14 @@ function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
 
     FSA{U,L}(α, T, ω, ρ, l)
 end
+
+struct AcyclicFSA{K,L} <: AbstractAcyclicFSA{K,L}
+    fsa::FSA{K,L}
+end
+
+AcyclicFSA(α, T, ω, ρ, λ) = AcyclicFSA(FSA(α, T, ω, ρ, λ))
+
+Base.parent(A::AcyclicFSA) = A.fsa
+
+Base.convert(f, A::AbstractAcyclicFSA) = AcyclicFSA(convert(f, A.fsa))
 

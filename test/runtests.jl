@@ -104,7 +104,7 @@ end
         @test Base.isapprox(val(sum(A2 |> renorm; n = 100)), val(one(K)), atol=1e-6)
 
         # globalrenorm
-        @test Base.isapprox(val(sum(A2 |> globalrenorm; n = 100)), val(one(K)), atol=1e-6)
+        @test Base.isapprox(val(sum(AcyclicFSA(A2) |> globalrenorm; n = 100)), val(one(K)), atol=1e-6)
     end
 end
 
