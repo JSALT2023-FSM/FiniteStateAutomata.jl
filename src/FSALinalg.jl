@@ -20,6 +20,8 @@ export
     ω,
     ρ,
     λ,
+    accessible,
+    coaccessible,
     nstates,
     nedges,
     initstates,

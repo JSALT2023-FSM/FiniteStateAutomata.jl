@@ -103,6 +103,17 @@ end
         @test Base.isapprox(val(sum(A1 |> renorm; n = 100)), val(one(K)), atol=1e-6)
         @test Base.isapprox(val(sum(A2 |> renorm; n = 100)), val(one(K)), atol=1e-6)
 
+        # (co)accessibility
+        A = FSA(
+            sparsevec([1, 2], one(K), 5),
+            sparse([2, 3], [3, 3], one(K), 5, 5),
+            sparsevec([3, 4], one(K), 5),
+            zero(K),
+            [L("$i") for i in 1:5]
+        )
+        @test all(accessible(A) .== [true, true, true, false, false])
+        @test all(coaccessible(A) .== [false, true, true, true, false])
+
         # globalrenorm
         @test Base.isapprox(val(sum(AcyclicFSA(A2) |> globalrenorm; n = 100)), val(one(K)), atol=1e-6)
     end

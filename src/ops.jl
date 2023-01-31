@@ -26,7 +26,7 @@ function addskipedges(M, states, weights)
 end
 
 """
-    Base.cumsum(A[; init = initstates(A), n = nstates(A)])
+    Base.sum(A[; init = initstates(A), n = nstates(A)])
 
 Accumulate the weight of all the paths of length less or equal to
 `n`.
@@ -41,24 +41,6 @@ function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A) + 2)
     σ
 end
 
-
-"""
-    union(A1[, A2, ...])
-    A1 ∪ A2
-
-Return the union of the given FSA.
-"""
-function Base.union(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
-    FSA(
-        vcat(α(A1), α(A2)),
-        blockdiag(T(A1), T(A2)),
-        vcat(ω(A1), ω(A2)),
-        ρ(A1) + ρ(A2),
-        vcat(λ(A1), λ(A2))
-    )
-end
-Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
-    foldl(union, AN, init = A1)
 
 """
     cat(A1[, A2, ...])
@@ -94,12 +76,43 @@ function closure(A::AbstractFSA{K}; plus = false) where K
     )
 end
 
-"""
-    reverse(A)
+function _filter(A::AbstractFSA{K}, x::AbstractVector{Bool}) where K
+    J = findall(x)
+    M = sparse(1:length(J), J, one(K), length(J), nstates(A))
+    FSA(M * α(A), M * T(A) * M', M * ω(A), ρ(A), λ(A)[J])
+end
 
-Return the reversal of A.
+function Base.filter(f::Function, A::AbstractFSA)
+    _filter(A, f.(1:nstates(A)))
+end
+
 """
-Base.reverse(A::AbstractFSA) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
+    notaccessible(A::AbstractFSA{K}) where K
+
+Returns a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
+if the state `i` is not accessible, `zero(K)` otherwise.
+"""
+function accessible(A::AbstractFSA{K}) where K
+    vₙ = α(A)
+
+    m = ones(Bool, nstates(A))
+	m[findnz(vₙ)[1]] .= false
+
+	while nnz(vₙ) > 0
+		uₙ = T(A)' * vₙ
+		vₙ = uₙ .* m
+		m[findnz(uₙ)[1]] .= false
+	end
+	.! m
+end
+
+"""
+    coaccessible(A::AbstractFSA{K}) where K
+
+Returns a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
+if the state `i` is not accessible, `zero(K)` otherwise.
+"""
+coaccessible(A::AbstractFSA) = accessible(A |> reverse)
 
 """
     renorm(A::FSA)
@@ -141,6 +154,31 @@ end
 function Base.replace(new::Function, M::AbstractFSA)
     replace(M, [new(i) for i in 1:nstates(M)])
 end
+
+"""
+    reverse(A)
+
+Return the reversal of A.
+"""
+Base.reverse(A::AbstractFSA) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
+
+"""
+    union(A1[, A2, ...])
+    A1 ∪ A2
+
+Return the union of the given FSA.
+"""
+function Base.union(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
+    FSA(
+        vcat(α(A1), α(A2)),
+        blockdiag(T(A1), T(A2)),
+        vcat(ω(A1), ω(A2)),
+        ρ(A1) + ρ(A2),
+        vcat(λ(A1), λ(A2))
+    )
+end
+Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
+    foldl(union, AN, init = A1)
 
 #= Functions for acyclic FSA =#
 

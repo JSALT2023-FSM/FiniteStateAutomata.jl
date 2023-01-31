@@ -50,6 +50,9 @@ M1 = FSA(
 	["a", "b", "c"]
 )
 
+# ╔═╡ 3e34e635-3565-437d-acbe-6bd170bf4382
+findall([true, false, true])
+
 # ╔═╡ 028ff41d-f9a7-4ff8-b254-7399be161a48
 Diagonal(Symmetric(randn(2, 2)))
 
@@ -347,9 +350,6 @@ end
 # ╔═╡ 09a701f0-ea44-419f-9de4-f5b4682e9d94
 [1, 2, 3][[2, 1, 3]] 
 
-# ╔═╡ e77bb923-a6aa-4fd1-98fc-85d6483bf723
-
-
 # ╔═╡ 8a653fd5-f5c5-4fc6-88d7-6eeb4da81216
 topologicalorder(M1)
 
@@ -611,6 +611,7 @@ C .* Z3
 # ╟─0f68bc4e-3fcb-4d28-bba2-4d0032c80981
 # ╠═87e1cf8e-da52-4c85-ab6a-bb352a84d779
 # ╠═8602a2b5-16ca-4cec-8041-c6362aa66a48
+# ╠═3e34e635-3565-437d-acbe-6bd170bf4382
 # ╠═028ff41d-f9a7-4ff8-b254-7399be161a48
 # ╠═fe7c8892-2439-4b1d-b661-92f8bb6825bc
 # ╠═9400b791-605f-4cb5-a3d7-71af5a034504
@@ -654,7 +655,6 @@ C .* Z3
 # ╠═4977c8c7-8a43-4ef0-ad18-2aaa9c147706
 # ╠═998c5d5a-a28f-43ac-900f-508da56e9d3b
 # ╠═09a701f0-ea44-419f-9de4-f5b4682e9d94
-# ╠═e77bb923-a6aa-4fd1-98fc-85d6483bf723
 # ╠═8a653fd5-f5c5-4fc6-88d7-6eeb4da81216
 # ╠═5a3f44fc-2016-49a9-9e32-30c9a2bff081
 # ╠═67e55bab-f2cd-4181-b9a0-33b2181e207b
