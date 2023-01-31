@@ -1,6 +1,31 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
+    addskipedges(M, states, weights)
+
+Added edges such that each state `i` in `states` is potentially
+skipped with weight `weights[i]`. This operation does not remove
+any existing edge.
+"""
+function addskipedges(M, states, weights)
+	Tₙ = T(M)
+	αₙ = α(M)
+	ωₙ = ω(M)
+	ρₙ = ρ(M)
+	Q = nstates(M)
+
+	for (i, w) in zip(states, weights)
+		σeeᵀ = sparse([i], [i], [w], Q, Q)
+		αₙ = αₙ + Tₙ' * σeeᵀ * αₙ
+		Tₙ = Tₙ + Tₙ * σeeᵀ * Tₙ
+		ωₙ = ωₙ + Tₙ * σeeᵀ * ωₙ
+		ρₙ = ρₙ + αₙ' * σeeᵀ * ωₙ
+	end
+
+	FSA(αₙ, Tₙ, ωₙ, ρₙ, λ(M))
+end
+
+"""
     Base.cumsum(A[; init = initstates(A), n = nstates(A)])
 
 Accumulate the weight of all the paths of length less or equal to
@@ -96,12 +121,33 @@ function renorm(A::AbstractFSA)
     )
 end
 
+function Base.replace(M::AbstractFSA, Ms)
+    R = ρ.(Ms)
+    I = findall(! iszero, R)
+    M = addskipedges(M, I, R[I])
+
+    A = blockdiag([α(m)[:,1:1] for m in Ms]...)
+    Ω = blockdiag([ω(m)[:,1:1] for m in Ms]...)
+    D = spdiagm([ρ(m) for m in Ms])
+    FSA(
+        vcat([α(M)[i] * α(m) for (i, m) in enumerate(Ms)]...),
+        blockdiag([T(m) for m in Ms]...) + Ω * (T(M) + T(M) * D * T(M)') * A',
+        vcat([ω(M)[i] * ω(m) for (i, m) in enumerate(Ms)]...),
+        ρ(M),
+        vcat([λ(M)[i] * λ(m) for (i, m) in enumerate(Ms)]...)
+    )
+end
+
+function Base.replace(new::Function, M::AbstractFSA)
+    replace(M, [new(i) for i in 1:nstates(M)])
+end
+
 #= Functions for acyclic FSA =#
 
 """
     globalrenorm(A::AbstractAcyclicFSA)
 
-Global renormalization of the weight of `A`.
+Global renormalization of the weights of `A`.
 """
 function globalrenorm(A::AbstractAcyclicFSA)
     # Accumulate the weight backward starting from the end state.
@@ -116,3 +162,4 @@ function globalrenorm(A::AbstractAcyclicFSA)
     D = spdiagm(σ)
     FSA(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)) |> renorm
 end
+

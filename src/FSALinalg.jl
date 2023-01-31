@@ -27,10 +27,10 @@ export
     finalstates,
 
     # FSA operations
+    addskipedges,
     closure,
     globalrenorm,
     renorm
-
 
 include("abstractfsa.jl")
 include("fsa.jl")

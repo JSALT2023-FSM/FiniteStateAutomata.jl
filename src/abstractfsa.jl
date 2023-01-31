@@ -157,7 +157,7 @@ function dot_write_nodes(io::IO, T, λ)
     println(io, "n0 [shape=\"point\"];")
     for i in 1:N
         #print(io, "n$(i) [label=\"$i|$(λ[i])\", shape=\"circle\"")
-        print(io, "n$(i) [label=\"", i, "\", shape=\"circle\"")
+        print(io, "n$(i) [label=\"", λ[i], "\", shape=\"circle\"")
         println(io, "];")
     end
     println(io, "n$(N+1) [shape=\"point\"];")
@@ -196,6 +196,6 @@ end
 
 function dot_write_edge(io, src, dst, l, weight)
     val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-    print(io, "n$src -> n$dst [label=\"", l, "/", weight, "\"];")
+    print(io, "n$src -> n$dst [label=\"", weight, "\"];")
 end
 
