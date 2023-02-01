@@ -26,28 +26,27 @@ T(fsa::AbstractFSA) = parent(fsa).T
 λ(fsa::AbstractFSA) = parent(fsa).λ
 
 function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
-    l = λ(A)
-    ρ = f(emptystring(A), one(L))
+    ρ = f(emptystring(A), nstates(A) + 1)
     U = typeof(ρ)
     α = sparsevec(
         initstates(A)[1],
-        [f(v, l[i]) for (i, v) in zip(initstates(A)...)],
+        [f(v, i) for (i, v) in zip(initstates(A)...)],
         nstates(A)
     )
     T = sparse(
         edges(A)[1],
         edges(A)[2],
-        [f(v, l[j]) for (i, j, v) in zip(edges(A)...)],
+        [f(v, j) for (i, j, v) in zip(edges(A)...)],
         nstates(A),
         nstates(A)
     )
     ω = sparsevec(
         finalstates(A)[1],
-        [f(v, one(L)) for (i, v) in zip(finalstates(A)...)],
+        [f(v, nstates(A) + 1) for (i, v) in zip(finalstates(A)...)],
         nstates(A)
     )
 
-    FSA{U,L}(α, T, ω, ρ, l)
+    FSA{U,L}(α, T, ω, ρ, λ(A))
 end
 
 struct AcyclicFSA{K,L} <: AbstractAcyclicFSA{K,L}
