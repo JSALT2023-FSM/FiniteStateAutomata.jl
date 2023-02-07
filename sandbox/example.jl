@@ -576,16 +576,16 @@ end
 edges
 
 # ╔═╡ c8d7966a-61c1-4ab2-856c-6ca5d10648cd
-fsadet(M3 |> renorm, edges, states) |> renorm
+fsadet(M3, edges, states) |> renorm
 
 # ╔═╡ 358d297d-4def-44dc-b79d-6d23aa67d179
-sum(M3 |> renorm)
+M3
 
 # ╔═╡ c31ccfdc-3687-46cb-9eed-03791bde56d4
 sparsevec([2, 3], 1, 5)
 
 # ╔═╡ 75c4a277-9edb-4f47-bd5e-13dcb498bd96
-M3 
+sum(union(AcyclicFSA(M3), AcyclicFSA(M3)))
 
 # ╔═╡ 68b7380b-2514-4362-9504-552fb4e467f7
 Z1 = spdiagm(M3.α) * C

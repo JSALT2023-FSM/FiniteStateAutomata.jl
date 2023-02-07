@@ -87,9 +87,9 @@ function Base.filter(f::Function, A::AbstractFSA)
 end
 
 """
-    notaccessible(A::AbstractFSA{K}) where K
+    accessible(A::AbstractFSA{K}) where K
 
-Returns a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
+Return a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
 if the state `i` is not accessible, `zero(K)` otherwise.
 """
 function accessible(A::AbstractFSA{K}) where K
@@ -125,7 +125,7 @@ one.
 function renorm(A::AbstractFSA)
     Z = inv.((sum(T(A), dims=2) .+ ω(A)))
     Zₐ = inv(sum(α(A)) + ρ(A))
-    FSA(
+    typeof(A)(
         Zₐ * α(A),
         Z .* T(A),
         Z[:, 1] .* ω(A),
@@ -182,22 +182,38 @@ Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
 
 #= Functions for acyclic FSA =#
 
-"""
-    globalrenorm(A::AbstractAcyclicFSA)
+renorm(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> renorm)
+Base.reverse(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> reverse)
+Base.cat(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
+    AcyclicFSA(cat(parent(A1), parent(A2)))
+Base.union(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
+    AcyclicFSA(union(parent(A1), parent(A2)))
 
-Global renormalization of the weights of `A`.
 """
-function globalrenorm(A::AbstractAcyclicFSA)
-    # Accumulate the weight backward starting from the end state.
-    v = ω(A)
+    propagate(A::AbstractAcyclicFSA[; forward = true])
+
+Multiply the weight of each arc by the sum-product of all the prefix
+paths. If `forward` is `false` the arc's weight is multiply by the
+sum-product of all the suffix paths of this arc.
+"""
+function propagate(A::AbstractAcyclicFSA; forward = true)
+    v = forward ? α(A) : ω(A)
+    M = forward ? T(A)' : T(A)
     σ = v
     while nnz(v) > 0
-        v = T(A) * v
+        v = M * v
         σ += v
     end
     σ
 
     D = spdiagm(σ)
-    FSA(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)) |> renorm
+    AcyclicFSA(FSA(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)))
 end
+
+"""
+    globalrenorm(A::AbstractAcyclicFSA)
+
+Global renormalization of the weights of `A`.
+"""
+globalrenorm(A::AbstractAcyclicFSA) = propagate(A; forward = false) |> renorm
 

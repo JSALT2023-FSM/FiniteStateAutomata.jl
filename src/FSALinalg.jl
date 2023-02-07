@@ -32,6 +32,7 @@ export
     addskipedges,
     closure,
     globalrenorm,
+    propagate,
     renorm
 
 include("abstractfsa.jl")

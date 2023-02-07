@@ -50,12 +50,13 @@ function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
 end
 
 struct AcyclicFSA{K,L} <: AbstractAcyclicFSA{K,L}
-    fsa::FSA{K,L}
+    fsa::AbstractFSA{K,L}
 end
 
 AcyclicFSA(α, T, ω, ρ, λ) = AcyclicFSA(FSA(α, T, ω, ρ, λ))
 
-Base.parent(A::AcyclicFSA) = A.fsa
+Base.parent(A::AcyclicFSA) = parent(A.fsa)
 
-Base.convert(f, A::AbstractAcyclicFSA) = AcyclicFSA(convert(f, A.fsa))
+Base.convert(f::Function, A::AbstractAcyclicFSA{K,L}) where {K,L} =
+    AcyclicFSA(convert(f, parent(A)))
 

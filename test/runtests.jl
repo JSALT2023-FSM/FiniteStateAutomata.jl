@@ -41,7 +41,7 @@ for K in Ks, L in Ls
         ω2 = sparsevec([2, 4], K[5, 6], 4)
         ρ2 = zero(K)
         λ2 = [L("a"), L("b"), L("c"), L("d")]
-        A2 = FSA(α2, T2, ω2, ρ2, λ2)
+        A2 = AcyclicFSA(α2, T2, ω2, ρ2, λ2)
         B2 = convert((w, l) -> f(L, A2, w, l), A2)
 
         Aϵ = FSA(spzeros(K, 0), spzeros(K, 0, 0), spzeros(K, 0), one(K), L[])
@@ -71,6 +71,7 @@ for K in Ks, L in Ls
             cs_B1_B2 = sum(B1; n) + sum(B2; n)
             @test cs_B12.tval[1] ≈ cs_B1_B2.tval[1]
             @test cs_B12.tval[2] == cs_B1_B2.tval[2]
+            @test typeof(union(A2, A2)) <: AbstractAcyclicFSA
         end
 
         @testset verbose=true "concatenation" begin
@@ -79,6 +80,7 @@ for K in Ks, L in Ls
             cs_B12 = sum(B12; n = 2n)
             cs_B1_B2 = sum(B2; n) * sum(B1; n)
             @test cs_B12.tval[2] ⊇ cs_B1_B2.tval[2]
+            @test typeof(cat(A2, A2)) <: AbstractAcyclicFSA
         end
 
         # The number of iteration for the cumulative sum depends on the
@@ -107,6 +109,7 @@ for K in Ks, L in Ls
             s1 = val(sum(B2; n).tval[2])
             s2 = Set((StringMonoid ∘ reverse ∘ val).((val ∘ sum)(rB2)[2]))
             @test s1 == s2
+            @test typeof(rA2) <: AbstractAcyclicFSA
         end
 
         @testset verbose=true "renorm" begin
@@ -127,7 +130,9 @@ for K in Ks, L in Ls
         end
 
         @testset verbose=true "globalrenorm" begin
-            @test Base.isapprox(val(sum(AcyclicFSA(A2) |> globalrenorm; n = 100)), val(one(K)), atol=1e-6)
+            A = AcyclicFSA(A2) |> globalrenorm
+            @test Base.isapprox(val(sum(A; n = 100)), val(one(K)), atol=1e-6)
+            @test typeof(A) <: AbstractAcyclicFSA
         end
     end
 end
