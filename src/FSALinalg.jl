@@ -31,6 +31,7 @@ export
     # FSA operations
     addskipedges,
     closure,
+    determinize,
     globalrenorm,
     propagate,
     renorm

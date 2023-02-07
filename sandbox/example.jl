@@ -576,7 +576,7 @@ end
 edges
 
 # ╔═╡ c8d7966a-61c1-4ab2-856c-6ca5d10648cd
-fsadet(M3, edges, states) |> renorm
+fsadet(M3, edges, states) 
 
 # ╔═╡ 358d297d-4def-44dc-b79d-6d23aa67d179
 M3
