@@ -79,7 +79,7 @@ end
 function _fsadet(M, edges, states)
 	state2idx = Dict(q => i for (i, q) in enumerate(sort(collect(states))))
     D, Q = length(states), length(λ(M))
-	K = eltype(M.α)
+    K = eltype(α(M))
 
 	I, V = [], K[]
 	for i in edges[()]
@@ -105,8 +105,11 @@ function _fsadet(M, edges, states)
 	I, V = [], K[]
 	for i in states
 		eᵢ = sparsevec(collect(i), one(K), Q)
-		push!(I, state2idx[i])
-		push!(V, dot(ω(M), eᵢ))
+        v = dot(ω(M), eᵢ)
+        if v ≠ zero(K)
+            push!(I, state2idx[i])
+            push!(V, v)
+        end
 	end
 	o = sparsevec(I, V, D)
 
@@ -178,6 +181,12 @@ function determinize(A::FSALinalg.AbstractFSA{K,L}) where {K,L}
     _fsadet(A, edges, visited)
 end
 
+"""
+    minimize(A::AbstractFSA)
+
+Return a minimal equivalent FSA.
+"""
+minimize(A::AbstractFSA) = (reverse ∘ determinize ∘ reverse ∘ determinize)(A)
 
 function _filter(A::AbstractFSA{K}, x::AbstractVector{Bool}) where K
     J = findall(x)
@@ -285,10 +294,11 @@ Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
 
 #= Functions for acyclic FSA =#
 
-renorm(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> renorm)
-Base.reverse(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> reverse)
 Base.cat(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
     AcyclicFSA(cat(parent(A1), parent(A2)))
+minimize(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> minimize)
+renorm(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> renorm)
+Base.reverse(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> reverse)
 Base.union(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
     AcyclicFSA(union(parent(A1), parent(A2)))
 

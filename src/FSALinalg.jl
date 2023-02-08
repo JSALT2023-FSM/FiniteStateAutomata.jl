@@ -33,6 +33,7 @@ export
     closure,
     determinize,
     globalrenorm,
+    minimize,
     propagate,
     renorm
 

@@ -156,7 +156,7 @@ function dot_write_nodes(io::IO, T, λ)
     N = size(T, 1) # number of states
     println(io, "n0 [shape=\"point\"];")
     for i in 1:N
-        #print(io, "n$(i) [label=\"$i|$(λ[i])\", shape=\"circle\"")
+        #print(io, "n$(i) [label=\"$i|", λ[i], "\", shape=\"circle\"")
         print(io, "n$(i) [label=\"", λ[i], "\", shape=\"circle\"")
         println(io, "];")
     end

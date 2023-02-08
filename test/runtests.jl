@@ -44,6 +44,24 @@ for K in Ks, L in Ls
         A2 = AcyclicFSA(α2, T2, ω2, ρ2, λ2)
         B2 = convert((w, l) -> f(L, A2, w, l), A2)
 
+        A3 = FSA(
+            sparsevec([1, 4], one(K), 6),
+            sparse([1, 2, 4, 5], [2, 3, 5, 6], one(K), 6, 6),
+            sparsevec([3, 6], one(K), 6),
+            one(K),
+            [L("a"), L("b"), L("c"), L("a"), L("e"), L("c")]
+        )
+        B3 = convert((w, l) -> f(L, A3, w, l), A3)
+
+        A4 = FSA(
+            sparsevec([1], one(K) * 2, 4),
+            sparse([1, 1, 2, 3], [2, 3, 4, 4], one(K), 4, 4),
+            sparsevec([4], one(K) * 2, 4),
+            one(K),
+            [L("a"), L("b"), L("e"), L("c")]
+        )
+        B4 = convert((w, l) -> f(L, A4, w, l), A4)
+
         Aϵ = FSA(spzeros(K, 0), spzeros(K, 0, 0), spzeros(K, 0), one(K), L[])
         Bϵ = convert((w, l) -> f(L, Aϵ, w, l), Aϵ)
 
@@ -133,6 +151,16 @@ for K in Ks, L in Ls
             A = AcyclicFSA(A2) |> globalrenorm
             @test Base.isapprox(val(sum(A; n = 100)), val(one(K)), atol=1e-6)
             @test typeof(A) <: AbstractAcyclicFSA
+        end
+
+        @testset verbose=true "minimize" begin
+            mA3 = A3 |> minimize
+            mB3 = convert((w, l) -> f(L, mA3, w, l), mA3)
+            s1 = sum(B4; n = 4)
+            s2 = sum(mB3; n = 4)
+            @test s1.tval[1] ≈ s2.tval[1]
+            @test s1.tval[2] == s2.tval[2]
+            @test typeof(AcyclicFSA(A3) |> minimize) <: AbstractAcyclicFSA
         end
     end
 end
