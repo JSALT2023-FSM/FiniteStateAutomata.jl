@@ -1,4 +1,4 @@
-using FSALinalg
+using FiniteStateAutomata
 using Semirings
 using SparseArrays
 using Test

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-module FSALinalg
+module FiniteStateAutomata
 
 using LinearAlgebra
 using SparseArrays

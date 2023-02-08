@@ -135,7 +135,7 @@ weights of the merged paths are simply added and locally renormalized.
 Therefore, the resulting FSA may have different weighting than the
 original FSA.
 """
-function determinize(A::FSALinalg.AbstractFSA{K,L}) where {K,L}
+function determinize(A::AbstractFSA{K,L}) where {K,L}
     C = _spmap(K, λ(A))
 
 	# Edges of the determinized FSA.
