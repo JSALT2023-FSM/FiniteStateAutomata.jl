@@ -145,10 +145,10 @@ language.
 function dot_write(io::IO, A::AbstractFSA)
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
-    dot_write_nodes(io, A.T, A.λ)
-    dot_write_initedges(io, A.α)
-    dot_write_edges(io, A.T, A.ρ)
-    dot_write_finaledges(io, A.ω)
+    dot_write_nodes(io, T(A), λ(A))
+    dot_write_initedges(io, α(A))
+    dot_write_edges(io, T(A), ρ(A))
+    dot_write_finaledges(io, ω(A))
     println(io, "}")
 end
 
