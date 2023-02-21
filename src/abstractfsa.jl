@@ -146,9 +146,9 @@ function dot_write(io::IO, A::AbstractFSA)
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
     dot_write_nodes(io, A.T, A.λ)
-    dot_write_initedges(io, A.α, λ(A))
-    dot_write_edges(io, A.T, A.ρ, λ(A))
-    dot_write_finaledges(io, A.ω, λ(A))
+    dot_write_initedges(io, A.α)
+    dot_write_edges(io, A.T, A.ρ)
+    dot_write_finaledges(io, A.ω)
     println(io, "}")
 end
 
@@ -157,44 +157,44 @@ function dot_write_nodes(io::IO, T, λ)
     println(io, "n0 [shape=\"point\"];")
     for i in 1:N
         #print(io, "n$(i) [label=\"$i|", λ[i], "\", shape=\"circle\"")
-        print(io, "n$(i) [label=\"", λ[i], "\", shape=\"circle\"")
+        print(io, "n$(i) [label=\"", escape_string("$(λ[i])"), "\", shape=\"circle\"")
         println(io, "];")
     end
     println(io, "n$(N+1) [shape=\"point\"];")
 end
 
-function dot_write_initedges(io::IO, α, λ)
+function dot_write_initedges(io::IO, α)
     for i in 1:size(α, 1)
         if ! iszero(α[i])
-            dot_write_edge(io, 0, i, λ[i], α[i])
+            dot_write_edge(io, 0, i, α[i])
         end
     end
 end
 
-function dot_write_edges(io, T, ρ, λ)
+function dot_write_edges(io, T, ρ)
     for i in 1:size(T, 1)
         for j in 1:size(T, 2)
             if ! iszero(T[i,j])
-                dot_write_edge(io, i, j, λ[j], T[i, j])
+                dot_write_edge(io, i, j, T[i, j])
             end
         end
     end
 
     if ! iszero(ρ)
-        dot_write_edge(io, 0, size(T, 2) + 1, one(eltype(λ)), ρ)
+        dot_write_edge(io, 0, size(T, 2) + 1, ρ)
     end
 end
 
-function dot_write_finaledges(io::IO, ω, λ)
+function dot_write_finaledges(io::IO, ω)
     N = length(ω)
     for i in 1:size(ω, 1)
         if ! iszero(ω[i])
-            dot_write_edge(io, i, N+1, one(eltype(λ)), ω[i])
+            dot_write_edge(io, i, N+1, ω[i])
         end
     end
 end
 
-function dot_write_edge(io, src, dst, l, weight)
+function dot_write_edge(io, src, dst, weight)
     val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
     print(io, "n$src -> n$dst [label=\"", weight, "\"];")
 end

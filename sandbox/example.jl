@@ -10,7 +10,7 @@ begin
 	Pkg.activate("../")
 
 	using Revise
-	using FSALinalg
+	using FiniteStateAutomata
 	using LinearAlgebra
 	using SparseArrays
 	using Semirings
@@ -41,6 +41,12 @@ where:
 # ╔═╡ 87e1cf8e-da52-4c85-ab6a-bb352a84d779
 K = ProbSemiring{Float32}
 
+# ╔═╡ 7b07c21d-0fab-4933-aa60-78911e81f377
+Label = SequenceMonoid
+
+# ╔═╡ 1e350afd-45e2-4c7f-a1f2-67d50b943350
+one("a")
+
 # ╔═╡ 8602a2b5-16ca-4cec-8041-c6362aa66a48
 M1 = FSA(
 	sparsevec([3, 2], K[0.5, 1.5], 3),
@@ -49,6 +55,23 @@ M1 = FSA(
 	K(0.5),
 	["a", "b", "c"]
 )
+
+# ╔═╡ 47a88a06-6473-42dc-9727-48ae2c08bee3
+m = FSA(
+	sparsevec([3, 2], K[0.5, 1.5], 3),
+	sparse([3, 2, 2], [1, 1, 3], K[2.5, 2.5, 1.5], 3, 3),
+	sparsevec([1], K[3.5], 3),
+	K(0.5),
+	["a", "b", "c"]
+)
+
+# ╔═╡ 0fc08a13-80b3-49a9-8ee7-05cf2d777d61
+q = replace(M1, (x, y) -> "$x:$y") do i
+	return m
+end
+
+# ╔═╡ 51db32d2-586f-4e66-818c-b04927b1ab26
+λ(q)
 
 # ╔═╡ 3e34e635-3565-437d-acbe-6bd170bf4382
 findall([true, false, true])
@@ -610,7 +633,12 @@ C .* Z3
 # ╠═e783cfcc-8b82-11ed-147f-d18598bc60ff
 # ╟─0f68bc4e-3fcb-4d28-bba2-4d0032c80981
 # ╠═87e1cf8e-da52-4c85-ab6a-bb352a84d779
+# ╠═7b07c21d-0fab-4933-aa60-78911e81f377
+# ╠═1e350afd-45e2-4c7f-a1f2-67d50b943350
 # ╠═8602a2b5-16ca-4cec-8041-c6362aa66a48
+# ╠═47a88a06-6473-42dc-9727-48ae2c08bee3
+# ╠═0fc08a13-80b3-49a9-8ee7-05cf2d777d61
+# ╠═51db32d2-586f-4e66-818c-b04927b1ab26
 # ╠═3e34e635-3565-437d-acbe-6bd170bf4382
 # ╠═028ff41d-f9a7-4ff8-b254-7399be161a48
 # ╠═fe7c8892-2439-4b1d-b661-92f8bb6825bc

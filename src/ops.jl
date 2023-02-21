@@ -3,7 +3,7 @@
 """
     addskipedges(M, states, weights)
 
-Added edges such that each state `i` in `states` is potentially
+Add edges such that each state `i` in `states` is potentially
 skipped with weight `weights[i]`. This operation does not remove
 any existing edge.
 """
@@ -135,7 +135,7 @@ weights of the merged paths are simply added and locally renormalized.
 Therefore, the resulting FSA may have different weighting than the
 original FSA.
 """
-function determinize(A::AbstractFSA{K,L}) where {K,L}
+function determinize(A::AbstractFSA{K}) where K
     C = _spmap(K, λ(A))
 
 	# Edges of the determinized FSA.
@@ -246,7 +246,7 @@ function renorm(A::AbstractFSA)
     )
 end
 
-function Base.replace(M::AbstractFSA, Ms)
+function Base.replace(f::Function, M::AbstractFSA, Ms)
     R = ρ.(Ms)
     I = findall(! iszero, R)
     M = addskipedges(M, I, R[I])
@@ -259,13 +259,15 @@ function Base.replace(M::AbstractFSA, Ms)
         blockdiag([T(m) for m in Ms]...) + Ω * (T(M) + T(M) * D * T(M)') * A',
         vcat([ω(M)[i] * ω(m) for (i, m) in enumerate(Ms)]...),
         ρ(M),
-        vcat([λ(M)[i] * λ(m) for (i, m) in enumerate(Ms)]...)
+        vcat([f.(λ(M)[i], λ(m)) for (i, m) in enumerate(Ms)]...)
     )
 end
 
-function Base.replace(new::Function, M::AbstractFSA)
-    replace(M, [new(i) for i in 1:nstates(M)])
+function Base.replace(new::Function, M::AbstractFSA, labelfn::Function)
+    replace(labelfn, M, [new(i) for i in 1:nstates(M)])
 end
+
+Base.replace(new::Function, M::AbstractFSA) = replace(new, M, (x, y) -> (x, y))
 
 """
     reverse(A)
