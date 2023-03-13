@@ -246,6 +246,10 @@ function renorm(A::AbstractFSA)
     )
 end
 
+@inline mergelabels(x) = x
+@inline mergelabels(x, y) = (x..., y...)
+@inline mergelabels(x, y, z...) = mergelabels(mergelabels(x, y), z...)
+
 function Base.replace(f::Function, M::AbstractFSA, Ms)
     R = ρ.(Ms)
     I = findall(! iszero, R)
@@ -259,7 +263,7 @@ function Base.replace(f::Function, M::AbstractFSA, Ms)
         blockdiag([T(m) for m in Ms]...) + Ω * (T(M) + T(M) * D * T(M)') * A',
         vcat([ω(M)[i] * ω(m) for (i, m) in enumerate(Ms)]...),
         ρ(M),
-        vcat([f.(λ(M)[i], λ(m)) for (i, m) in enumerate(Ms)]...)
+        vcat([f.([λ(M)[i]], λ(m)) for (i, m) in enumerate(Ms)]...)
     )
 end
 
@@ -267,7 +271,8 @@ function Base.replace(new::Function, M::AbstractFSA, labelfn::Function)
     replace(labelfn, M, [new(i) for i in 1:nstates(M)])
 end
 
-Base.replace(new::Function, M::AbstractFSA) = replace(new, M, (x, y) -> (x, y))
+Base.replace(new::Function, M::AbstractFSA) =
+    replace(new, M, mergelabels)
 
 """
     reverse(A)
