@@ -13,6 +13,7 @@ export
     # concrete types
     AcyclicFSA,
     FSA,
+    DenseFSA,
 
     # Accessors / properties
     α,
@@ -39,6 +40,7 @@ export
 
 include("abstractfsa.jl")
 include("fsa.jl")
+include("dense_fsa.jl")
 include("ops.jl")
 
 end
