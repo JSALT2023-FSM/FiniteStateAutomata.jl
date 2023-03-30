@@ -19,6 +19,8 @@ struct FSA{K,L} <: AbstractFSA{K,L}
     λ::AbstractVector{L}
 end
 
+FSA(fsa::AbstractFSA) = FSA(α(fsa), T(fsa), ω(fsa), ρ(fsa), λ(fsa))
+
 α(fsa::AbstractFSA) = parent(fsa).α
 T(fsa::AbstractFSA) = parent(fsa).T
 ω(fsa::AbstractFSA) = parent(fsa).ω

@@ -14,6 +14,8 @@ export
     AcyclicFSA,
     FSA,
     DenseFSA,
+    IntersectedFSA,
+    IntersectedDenseFSA,
 
     # Accessors / properties
     α,
@@ -40,7 +42,8 @@ export
 
 include("abstractfsa.jl")
 include("fsa.jl")
-include("dense_fsa.jl")
 include("ops.jl")
+include("intersect.jl")
+include("dense_fsa.jl")
 
 end
