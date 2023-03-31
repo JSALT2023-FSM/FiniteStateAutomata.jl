@@ -224,7 +224,38 @@ end
 Returns a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
 if the state `i` is not accessible, `zero(K)` otherwise.
 """
-coaccessible(A::AbstractFSA) = accessible(A |> reverse)
+function coaccessible(A::AbstractFSA)
+    vₙ = ω(A)
+
+    m = ones(Bool, nstates(A))
+	m[findnz(vₙ)[1]] .= false
+
+	while nnz(vₙ) > 0
+		uₙ = T(A) * vₙ
+		vₙ = uₙ .* m
+		m[findnz(uₙ)[1]] .= false
+	end
+	.! m
+end
+
+"""
+    connect(A::AbstractFSA)
+
+Return a FSA ``B`` equivalent of ``A`` such that all states in ``B``
+are accessible and coaccessible.
+"""
+function connect(A::AbstractFSA{K}) where K
+    m = accessible(A) .* coaccessible(A)
+    I = findall(m)
+    M = sparse(I, 1:length(I), one(K), nstates(A), length(I))
+    FSA(
+        M' * α(A),
+        M' * T(A) * M,
+        M' * ω(A),
+        ρ(A),
+        λ(A)[I]
+    )
+end
 
 """
     renorm(A::FSA)

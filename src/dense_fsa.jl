@@ -39,6 +39,8 @@ end
 ρ(G::DenseFSA) = G.ρ
 λ(G::DenseFSA) = repeat(G.Σ, size(G.H, 2) - 1)
 
+Base.reverse(A::DenseFSA) = DenseFSA(A.H[:, end:-1:1], A.Σ, A.ρ)
+
 # Intersection with DenseFSA
 struct IntersectedDenseFSA{K, L, T<:AbstractFSA{K, L}} <: IntersectedAbstractFSA{K, L, DenseFSA{K, L}, T}
     A::DenseFSA{K, L}
@@ -71,6 +73,8 @@ end
 
 Base.intersect(A::DenseFSA, B::AbstractFSA) = IntersectedDenseFSA(A, B)
 Base.intersect(A::AbstractFSA, B::DenseFSA) = IntersectedDenseFSA(B, A) # we assume ∩ to be commutative w.r.t any K
+
+Base.reverse(A::IntersectedDenseFSA) = IntersectedDenseFSA(A.A |> reverse, A.B |> reverse, A.C)
 
 α(I::IntersectedDenseFSA) = begin
     h1 = I.A.H[:, 1]
@@ -113,3 +117,4 @@ end
 λ(I::IntersectedDenseFSA) = repeat(λ(I.B), size(I.A.H, 2) - 1)
 
 ρ(I::IntersectedDenseFSA) = ρ(I.B) * ρ(I.A)
+
