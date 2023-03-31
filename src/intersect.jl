@@ -1,6 +1,4 @@
-abstract type IntersectedAbstractFSA{K, L, T_A, T_B} <: AbstractFSA{K, L} end
-
-struct IntersectedFSA{K, L, T_A<:AbstractFSA{K,L}, T_B<:AbstractFSA{K,L}} <: IntersectedAbstractFSA{K,L,T_A,T_B}
+struct IntersectedFSA{K, L, T_A<:AbstractFSA{K,L}, T_B<:AbstractFSA{K,L}} <: AbstractFSA{K, L}
     A::T_A
     B::T_B
     M::AbstractMatrix{K}

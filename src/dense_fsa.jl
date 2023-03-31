@@ -38,7 +38,7 @@ end
 λ(G::DenseFSA) = repeat(G.Σ, size(G.H, 2) - 1)
 
 # Intersection with DenseFSA
-struct IntersectedDenseFSA{K, L, T<:AbstractFSA{K, L}} <: IntersectedAbstractFSA{K, L, DenseFSA{K, L}, T}
+struct IntersectedDenseFSA{K, L, T<:AbstractFSA{K, L}} <: AbstractAcyclicFSA{K, L}
     A::DenseFSA{K, L}
     B::T
     C::AbstractMatrix{K}  # of shape |Σ| x nstates(A)
