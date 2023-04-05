@@ -6,7 +6,7 @@ using InteractiveUtils
 
 # ╔═╡ 510f7d8a-ce11-11ed-2832-cdc20fa6f700
 begin
-	using Pkg; Pkg.activate("..")
+	using Pkg; Pkg.activate("./mmi")
 	using Revise
 	using FiniteStateAutomata
 	using Semirings
@@ -131,11 +131,14 @@ L
 # ╔═╡ 5ecadd35-feea-459f-9776-3a2762b0de9f
 # FSA(C)
 
-# ╔═╡ 2ea1644a-8836-443b-a1ee-8d13dbd4a534
-H[:, 2]
+# ╔═╡ 410d3e85-8946-4c74-9fd5-77c799e45277
+sum(G ∩ C) ≈ sum(FSA(G ∩ C))
 
-# ╔═╡ 68d8f4b3-48e1-49ca-b910-c65c2ec19768
-ones(K, 3) * H[:,2]'
+# ╔═╡ 895f0152-e4c6-4a1d-97e0-f4a4308fe362
+sum(FSA(G ∩ C))
+
+# ╔═╡ 584c1b63-3f12-4383-8bf0-8078e518910d
+≈
 
 # ╔═╡ Cell order:
 # ╠═510f7d8a-ce11-11ed-2832-cdc20fa6f700
@@ -163,5 +166,6 @@ ones(K, 3) * H[:,2]'
 # ╠═b2290feb-24a1-4f7d-8216-7c69ea363a67
 # ╠═5c3893f7-b64f-410f-9be2-5c2023fd9093
 # ╠═5ecadd35-feea-459f-9776-3a2762b0de9f
-# ╠═2ea1644a-8836-443b-a1ee-8d13dbd4a534
-# ╠═68d8f4b3-48e1-49ca-b910-c65c2ec19768
+# ╠═410d3e85-8946-4c74-9fd5-77c799e45277
+# ╠═895f0152-e4c6-4a1d-97e0-f4a4308fe362
+# ╠═584c1b63-3f12-4383-8bf0-8078e518910d

@@ -5,6 +5,8 @@ struct DenseFSA{K, L} <: AbstractAcyclicFSA{K, L}
     DenseFSA(H, Σ, ρ) = length(Σ) == size(H, 1) ? new{eltype(H), eltype(Σ)}(H, Σ, ρ) : error("Σ not compatible")
 end
 
+DenseFSA(H::AbstractMatrix{K}, Σ::AbstractVector) where K = DenseFSA(H, Σ, zero(K))
+
 α(G::DenseFSA) = begin
     L = length(G.Σ)
     N = size(G.H, 2)
@@ -111,3 +113,12 @@ end
 λ(I::IntersectedDenseFSA) = repeat(λ(I.B), size(I.A.H, 2) - 1)
 
 ρ(I::IntersectedDenseFSA) = ρ(I.B) * ρ(I.A)
+
+function Base.sum(I::IntersectedDenseFSA, n = size(I.A.H, 2) - 1)
+    CH = I.C' * I.A.H
+    v = CH[:, 1] .* α(I.B)
+    for n in 2:n
+        v = (T(I.B)' * v) .* CH[:, n]
+    end
+    dot(v, ω(I.B) .* CH[:, end]) + ρ(I)
+end
