@@ -162,6 +162,14 @@ for K in Ks, L in Ls
             @test s1.tval[2] == s2.tval[2]
             @test typeof(AcyclicFSA(A3) |> minimize) <: AbstractAcyclicFSA
         end
+
+        @testset verbose=true "intersection" begin
+            Σ = ["a", "b", "c"]
+            H = K.randn(length(Σ), 4)
+            dfsa = DenseFSA(H, Σ)
+            @test sum(dfsa ∩ A3) ≈ sum(FSA(dfsa ∩ A3))
+            @test sum(A3 ∩ dfsa) ≈ sum(FSA(dfsa ∩ A3))
+        end
     end
 end
 

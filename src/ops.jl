@@ -31,10 +31,10 @@ end
 Accumulate the weight of all the paths of length less or equal to
 `n`.
 """
-function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A) + 2)
+function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A))
     v = init
     σ = dot(v, ω(A)) + ρ(A)
-    for i in 2:n-1
+    for _ in 2:n
         v = T(A)' * v
         σ += dot(v, ω(A))
     end

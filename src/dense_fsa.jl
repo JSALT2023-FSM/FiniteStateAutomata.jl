@@ -5,7 +5,7 @@ struct DenseFSA{K, L} <: AbstractAcyclicFSA{K, L}
     DenseFSA(H, Σ, ρ) = length(Σ) == size(H, 1) ? new{eltype(H), eltype(Σ)}(H, Σ, ρ) : error("Σ not compatible")
 end
 
-DenseFSA(H::AbstractArray{K}, Σ) where K = DenseFSA(H, Σ, zero(K))
+DenseFSA(H::AbstractMatrix{K}, Σ::AbstractVector) where K = DenseFSA(H, Σ, zero(K))
 
 α(G::DenseFSA) = begin
     L = length(G.Σ)
@@ -39,10 +39,8 @@ end
 ρ(G::DenseFSA) = G.ρ
 λ(G::DenseFSA) = repeat(G.Σ, size(G.H, 2) - 1)
 
-Base.reverse(A::DenseFSA) = DenseFSA(A.H[:, end:-1:1], A.Σ, A.ρ)
-
 # Intersection with DenseFSA
-struct IntersectedDenseFSA{K, L, T<:AbstractFSA{K, L}} <: IntersectedAbstractFSA{K, L, DenseFSA{K, L}, T}
+struct IntersectedDenseFSA{K, L, T<:AbstractFSA{K, L}} <: AbstractAcyclicFSA{K, L}
     A::DenseFSA{K, L}
     B::T
     C::AbstractMatrix{K}  # of shape |Σ| x nstates(A)
@@ -71,10 +69,8 @@ IntersectedDenseFSA(A::DenseFSA{K}, B::AbstractFSA{K}) where K = begin
     # DenseFSA(Hn, λ(B), ρ(A) * ρ(B))
 end
 
-Base.intersect(A::DenseFSA, B::AbstractFSA) = IntersectedDenseFSA(A, B)
+Base.intersect(A::DenseFSA, B::AbstractFSA) = IntersectedDenseFSA(A, B) 
 Base.intersect(A::AbstractFSA, B::DenseFSA) = IntersectedDenseFSA(B, A) # we assume ∩ to be commutative w.r.t any K
-
-Base.reverse(A::IntersectedDenseFSA) = IntersectedDenseFSA(A.A |> reverse, A.B |> reverse, A.C)
 
 α(I::IntersectedDenseFSA) = begin
     h1 = I.A.H[:, 1]
@@ -118,3 +114,11 @@ end
 
 ρ(I::IntersectedDenseFSA) = ρ(I.B) * ρ(I.A)
 
+function Base.sum(I::IntersectedDenseFSA, n = size(I.A.H, 2) - 1)
+    CH = I.C' * I.A.H
+    v = CH[:, 1] .* α(I.B)
+    for n in 2:n
+        v = (T(I.B)' * v) .* CH[:, n]
+    end
+    dot(v, ω(I.B) .* CH[:, end]) + ρ(I)
+end
