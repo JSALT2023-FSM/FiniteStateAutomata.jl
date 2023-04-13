@@ -120,18 +120,42 @@ function Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractFST)
     end
 end
 
+function Base.show(io::IO, ::MIME"image/svg+xml", tup::Tuple{<:AbstractFST, <:AbstractArray})
+    A, highlights = tup
+    dotpath, dotfile = mktemp()
+    try
+        dot_write(IOContext(dotfile, :compact => true, :limit => true), A; highlights)
+        close(dotfile)
+        svgpath, svgfile = mktemp()
+        try
+            run(`dot -Tsvg $(dotpath) -o $(svgpath)`)
+            xml = read(svgfile, String)
+            write(io, xml)
+        finally
+            close(svgfile)
+            rm(svgpath)
+        end
+    finally
+        rm(dotpath)
+    end
+end
+
 """
     dot_write(io::IO, A::AbstractFST)
 
 Write a description of `A` on `io` in the [DOT](https://graphviz.org/doc/info/lang.html)
 language.
 """
-function dot_write(io::IO, A::AbstractFST)
+function dot_write(io::IO, A::AbstractFST; highlights = [], hcolor = "blue")
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
     dot_write_nodes(io, T(A), ω(A), ρ(A))
     dot_write_initedges(io, α(A), λ(A))
     dot_write_edges(io, T(A), ρ(A), λ(A))
+
+    if ! isempty(highlights)
+        println(io, join(highlights, ","), " [style=\"bold\", color=\"$hcolor\"];")
+    end
     println(io, "}")
 end
 
@@ -147,9 +171,9 @@ function dot_write_nodes(io::IO, T, ω, ρ)
     for i in 1:size(T, 1)
         if ! iszero(ω[i])
             if ! isone(ω[i])
-                print(io, "$(i) [label=\"$i/", ω[i], "\", shape=\"doublecircle\"];")
+                println(io, "$(i) [label=\"$i/", ω[i], "\", shape=\"doublecircle\"];")
             else
-                print(io, "$(i) [label=\"$i\", shape=\"doublecircle\"];")
+                println(io, "$(i) [label=\"$i\", shape=\"doublecircle\"];")
             end
         end
     end
@@ -175,19 +199,19 @@ end
 
 function dot_write_edge(io, src, dst, label::Pair, weight)
     if isone(weight)
-        print(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
+        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
     else
         val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        print(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\"];")
+        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\"];")
     end
 end
 
 function dot_write_edge(io, src, dst, label, weight)
     if isone(weight)
-        print(io, "$src -> $dst [label=\"", label, "\"];")
+        println(io, "$src -> $dst [label=\"", label, "\"];")
     else
         val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        print(io, "$src -> $dst [label=\"", label, "/", weight, "\"];")
+        println(io, "$src -> $dst [label=\"", label, "/", weight, "\"];")
     end
 end
 
