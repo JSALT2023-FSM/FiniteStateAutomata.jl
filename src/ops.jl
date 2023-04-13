@@ -306,13 +306,6 @@ Base.replace(new::Function, M::AbstractFST) =
     replace(new, M, mergelabels)
 
 """
-    reverse(A)
-
-Return the reversal of A.
-"""
-Base.reverse(A::AbstractFST) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
-
-"""
     union(A1[, A2, ...])
     A1 ∪ A2
 
@@ -336,7 +329,6 @@ Base.cat(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
     AcyclicFST(cat(parent(A1), parent(A2)))
 minimize(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> minimize)
 renorm(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> renorm)
-Base.reverse(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> reverse)
 Base.union(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
     AcyclicFST(union(parent(A1), parent(A2)))
 

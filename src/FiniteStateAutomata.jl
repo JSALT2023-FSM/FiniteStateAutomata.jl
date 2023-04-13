@@ -42,10 +42,14 @@ export
     renorm
 
 include("abstractfst.jl")
+include("iterate.jl")
+
 include("fst.jl")
+include("dense_fsa.jl")
+
+include("reverse.jl")
 include("ops.jl")
 include("intersect.jl")
-include("dense_fsa.jl")
 
 end
 
