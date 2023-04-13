@@ -162,7 +162,11 @@ function dot_write_nodes(io::IO, T, ω, ρ, λ)
 
     for i in 1:size(T, 1)
         if ! iszero(ω[i])
-            print(io, "$(i) [label=\"$i/", ω[i], "\", shape=\"doublecircle\"];")
+            if isone(ω[i])
+                print(io, "$(i) [label=\"$i\", shape=\"doublecircle\"];")
+            else
+                print(io, "$(i) [label=\"$i/", ω[i], "\", shape=\"doublecircle\"];")
+            end
         end
     end
 end
@@ -187,7 +191,10 @@ function dot_write_edges(io, T, ρ, λ)
 end
 
 function dot_write_edge(io, src, dst, label, weight)
-    val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-    print(io, "$src -> $dst [label=\"", label, "/", weight, "\"];")
+    if isone(weight)
+        print(io, "$src -> $dst [label=\"", label, "\"];")
+    else
+        print(io, "$src -> $dst [label=\"", label, "/", weight, "\"];")
+    end
 end
 
