@@ -44,7 +44,7 @@ export
 include("abstractfsa.jl")
 include("fsa.jl")
 include("ops.jl")
-include("intersect.jl")
 include("dense_fsa.jl")
+include("intersect.jl")
 
 end
