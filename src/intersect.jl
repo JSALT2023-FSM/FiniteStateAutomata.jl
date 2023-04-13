@@ -1,4 +1,4 @@
-struct IntersectedFSA{K, L, T_A<:AbstractFSA{K,L}, T_B<:AbstractFSA{K,L}} <: AbstractFSA{K, L}
+struct IntersectedFST{K, L, T_A<:AbstractFST{K,L}, T_B<:AbstractFST{K,L}} <: AbstractFST{K, L}
     A::T_A
     B::T_B
     M::AbstractMatrix{K}
@@ -21,15 +21,15 @@ _computeM(::Type{K}, λ₁::AbstractVector{L}, λ₂::AbstractVector{L}) where {
     sparse(rows, 1:q, one(K), length(λ₁) * length(λ₂), q), labels
 end
 
-IntersectedFSA(A::AbstractFSA{K}, B::AbstractFSA{K}) where K = begin 
+IntersectedFST(A::AbstractFST{K}, B::AbstractFST{K}) where K = begin
     M, labels = _computeM(K, λ(A), λ(B))
-    IntersectedFSA(A, B, M, labels)
+    IntersectedFST(A, B, M, labels)
 end
 
-Base.intersect(A::AbstractFSA, B::AbstractFSA) = IntersectedFSA(A, B)
+Base.intersect(A::AbstractFST, B::AbstractFST) = IntersectedFST(A, B)
 
-α(I::IntersectedFSA) = I.M' * kron(α(I.A), α(I.B))
-T(I::IntersectedFSA) = I.M' * kron(T(I.A), T(I.B)) * I.M
-ω(I::IntersectedFSA) = I.M' * kron(ω(I.A), ω(I.B))
-ρ(I::IntersectedFSA) = ρ(I.A) * ρ(I.B)
+α(I::IntersectedFST) = I.M' * kron(α(I.A), α(I.B))
+T(I::IntersectedFST) = I.M' * kron(T(I.A), T(I.B)) * I.M
+ω(I::IntersectedFST) = I.M' * kron(ω(I.A), ω(I.B))
+ρ(I::IntersectedFST) = ρ(I.A) * ρ(I.B)
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    struct FSA{K,L} <: AbstractFSA{K,L}
+    struct FST{K,L} <: AbstractFST{K,L}
         α::AbstractSparseVector{K}
         T::AbstractSparseMatrix{K}
         ω::AbstractSparseVector{K}
@@ -11,7 +11,7 @@
 
 Generic Finite State Automaton.
 """
-struct FSA{K,L} <: AbstractFSA{K,L}
+struct FST{K,L} <: AbstractFST{K,L}
     α::AbstractVector{K}
     T::AbstractMatrix{K}
     ω::AbstractVector{K}
@@ -19,15 +19,15 @@ struct FSA{K,L} <: AbstractFSA{K,L}
     λ::AbstractVector{L}
 end
 
-FSA(fsa::AbstractFSA) = FSA(α(fsa), T(fsa), ω(fsa), ρ(fsa), λ(fsa))
+FST(A::AbstractFST) = FST(α(A), T(A), ω(A), ρ(A), λ(A))
 
-α(fsa::AbstractFSA) = parent(fsa).α
-T(fsa::AbstractFSA) = parent(fsa).T
-ω(fsa::AbstractFSA) = parent(fsa).ω
-ρ(fsa::AbstractFSA) = parent(fsa).ρ
-λ(fsa::AbstractFSA) = parent(fsa).λ
+α(A::AbstractFST) = parent(A).α
+T(A::AbstractFST) = parent(A).T
+ω(A::AbstractFST) = parent(A).ω
+ρ(A::AbstractFST) = parent(A).ρ
+λ(A::AbstractFST) = parent(A).λ
 
-function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
+function Base.convert(f::Function, A::AbstractFST{K,L}) where {K,L}
     ρ = f(emptystring(A), nstates(A) + 1)
     U = typeof(ρ)
     α = sparsevec(
@@ -48,17 +48,17 @@ function Base.convert(f::Function, A::AbstractFSA{K,L}) where {K,L}
         nstates(A)
     )
 
-    FSA{U,L}(α, T, ω, ρ, λ(A))
+    FST{U,L}(α, T, ω, ρ, λ(A))
 end
 
-struct AcyclicFSA{K,L} <: AbstractAcyclicFSA{K,L}
-    fsa::AbstractFSA{K,L}
+struct AcyclicFST{K,L} <: AbstractAcyclicFST{K,L}
+    fsa::AbstractFST{K,L}
 end
 
-AcyclicFSA(α, T, ω, ρ, λ) = AcyclicFSA(FSA(α, T, ω, ρ, λ))
+AcyclicFST(α, T, ω, ρ, λ) = AcyclicFST(FST(α, T, ω, ρ, λ))
 
-Base.parent(A::AcyclicFSA) = parent(A.fsa)
+Base.parent(A::AcyclicFST) = parent(A.fsa)
 
-Base.convert(f::Function, A::AbstractAcyclicFSA{K,L}) where {K,L} =
-    AcyclicFSA(convert(f, parent(A)))
+Base.convert(f::Function, A::AbstractAcyclicFST{K,L}) where {K,L} =
+    AcyclicFST(convert(f, parent(A)))
 

@@ -22,16 +22,16 @@ function addskipedges(M, states, weights)
 		ρₙ = ρₙ + αₙ' * σeeᵀ * ωₙ
 	end
 
-	FSA(αₙ, Tₙ, ωₙ, ρₙ, λ(M))
+	FST(αₙ, Tₙ, ωₙ, ρₙ, λ(M))
 end
 
 """
-    Base.sum(A[; init = initstates(A), n = nstates(A)])
+    Base.sum(A[; init = α(A), n = nstates(A)])
 
 Accumulate the weight of all the paths of length less or equal to
 `n`.
 """
-function Base.sum(A::AbstractFSA; init = α(A), n = nstates(A))
+function Base.sum(A::AbstractFST; init = α(A), n = nstates(A))
     v = init
     σ = dot(v, ω(A)) + ρ(A)
     for _ in 2:n
@@ -45,11 +45,11 @@ end
 """
     cat(A1[, A2, ...])
 
-Return the concatenation of the given FSA.
+Return the concatenation of the given FST.
 """
-function Base.cat(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
+function Base.cat(A1::AbstractFST{K}, A2::AbstractFST{K}) where K
     D1, D2 = size(T(A1), 1), size(T(A2), 1)
-    FSA(
+    FST(
         vcat(α(A1), iszero(ρ(A1)) ? spzeros(K, D2) :  ρ(A1) * α(A2)),
         [T(A1) (ω(A1) * α(A2)');
          spzeros(K, D2, D1) T(A2)],
@@ -58,16 +58,16 @@ function Base.cat(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
         vcat(λ(A1), λ(A2))
     )
 end
-Base.cat(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
+Base.cat(A1::AbstractFST{K}, AN::AbstractFST{K}...) where K =
     foldl(cat, AN, init = A1)
 
 """
     closure(A; plus = false)
 
-Return the closure (or the closure plus if `plus` is `true`) of the FSA.
+Return the closure (or the closure plus if `plus` is `true`) of the FST.
 """
-function closure(A::AbstractFSA{K}; plus = false) where K
-    FSA(
+function closure(A::AbstractFST{K}; plus = false) where K
+    FST(
         α(A),
         T(A) + ω(A) * α(A)',
         ω(A),
@@ -115,7 +115,7 @@ function _fsadet(M, edges, states)
 
     l = [λ(M)[q[1]] for q in sort(collect(states))]
 
-    FSA(a, B, o, ρ(M), l)
+    FST(a, B, o, ρ(M), l)
 end
 
 function _spmap(K, mapping)
@@ -128,28 +128,28 @@ function _spmap(K, mapping)
 end
 
 """
-    determinize(A::AbstractFSA)
+    determinize(A::AbstractFST)
 
 Return an "equivalent" deterministic version of `A`. Note that the
 weights of the merged paths are simply added and locally renormalized.
-Therefore, the resulting FSA may have different weighting than the
-original FSA.
+Therefore, the resulting FST may have different weighting than the
+original FST.
 """
-function determinize(A::AbstractFSA{K}) where K
+function determinize(A::AbstractFST{K}) where K
     C = _spmap(K, λ(A))
 
-	# Edges of the determinized FSA.
+	# Edges of the determinized FST.
 	edges = Dict()
 
-	# Visited states of the determinized FSA.
+	# Visited states of the determinized FST.
 	visited = Set()
 
 	# Initialize the stack, `()` represents the initial state
-	# of the determinized FSA.
+	# of the determinized FST.
     stack = Any[((), α(A))]
 	while ! isempty(stack)
 		# Get the first element from the stack.
-		# `a` is the ancestor state (of the new FSA)
+		# `a` is the ancestor state (of the new FST)
 		# and `v` is the children of `a` in `A`.
 		a, v = pop!(stack)
 
@@ -182,29 +182,29 @@ function determinize(A::AbstractFSA{K}) where K
 end
 
 """
-    minimize(A::AbstractFSA)
+    minimize(A::AbstractFST)
 
-Return a minimal equivalent FSA.
+Return a minimal equivalent FST.
 """
-minimize(A::AbstractFSA) = (reverse ∘ determinize ∘ reverse ∘ determinize)(A)
+minimize(A::AbstractFST) = (reverse ∘ determinize ∘ reverse ∘ determinize)(A)
 
-function _filter(A::AbstractFSA{K}, x::AbstractVector{Bool}) where K
+function _filter(A::AbstractFST{K}, x::AbstractVector{Bool}) where K
     J = findall(x)
     M = sparse(1:length(J), J, one(K), length(J), nstates(A))
-    FSA(M * α(A), M * T(A) * M', M * ω(A), ρ(A), λ(A)[J])
+    FST(M * α(A), M * T(A) * M', M * ω(A), ρ(A), λ(A)[J])
 end
 
-function Base.filter(f::Function, A::AbstractFSA)
+function Base.filter(f::Function, A::AbstractFST)
     _filter(A, f.(1:nstates(A)))
 end
 
 """
-    accessible(A::AbstractFSA{K}) where K
+    accessible(A::AbstractFST{K}) where K
 
 Return a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
 if the state `i` is not accessible, `zero(K)` otherwise.
 """
-function accessible(A::AbstractFSA{K}) where K
+function accessible(A::AbstractFST{K}) where K
     vₙ = α(A)
 
     m = ones(Bool, nstates(A))
@@ -219,12 +219,12 @@ function accessible(A::AbstractFSA{K}) where K
 end
 
 """
-    coaccessible(A::AbstractFSA{K}) where K
+    coaccessible(A::AbstractFST{K}) where K
 
 Returns a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
 if the state `i` is not accessible, `zero(K)` otherwise.
 """
-function coaccessible(A::AbstractFSA)
+function coaccessible(A::AbstractFST)
     vₙ = ω(A)
 
     m = ones(Bool, nstates(A))
@@ -239,16 +239,16 @@ function coaccessible(A::AbstractFSA)
 end
 
 """
-    connect(A::AbstractFSA)
+    connect(A::AbstractFST)
 
-Return a FSA ``B`` equivalent of ``A`` such that all states in ``B``
+Return a FST ``B`` equivalent of ``A`` such that all states in ``B``
 are accessible and coaccessible.
 """
-function connect(A::AbstractFSA{K}) where K
+function connect(A::AbstractFST{K}) where K
     m = accessible(A) .* coaccessible(A)
     I = findall(m)
     M = sparse(I, 1:length(I), one(K), nstates(A), length(I))
-    FSA(
+    FST(
         M' * α(A),
         M' * T(A) * M,
         M' * ω(A),
@@ -258,14 +258,14 @@ function connect(A::AbstractFSA{K}) where K
 end
 
 """
-    renorm(A::FSA)
+    renorm(A::FST)
 
 Local renormalization. For a state q, multiply each arc's weight by the
 inverse of the sum of all the arcs' weight leaving q. In the resulting
-FSA, sum of the all the arcs'weight of a state sum up to the semiring
+FST, sum of the all the arcs'weight of a state sum up to the semiring
 one.
 """
-function renorm(A::AbstractFSA)
+function renorm(A::AbstractFST)
     Z = inv.((sum(T(A), dims=2) .+ ω(A)))
     Zₐ = inv(sum(α(A)) + ρ(A))
     typeof(A)(
@@ -281,7 +281,7 @@ end
 @inline mergelabels(x, y) = (x..., y...)
 @inline mergelabels(x, y, z...) = mergelabels(mergelabels(x, y), z...)
 
-function Base.replace(f::Function, M::AbstractFSA, Ms)
+function Base.replace(f::Function, M::AbstractFST, Ms)
     R = ρ.(Ms)
     I = findall(! iszero, R)
     M = addskipedges(M, I, R[I])
@@ -289,7 +289,7 @@ function Base.replace(f::Function, M::AbstractFSA, Ms)
     A = blockdiag([α(m)[:,1:1] for m in Ms]...)
     Ω = blockdiag([ω(m)[:,1:1] for m in Ms]...)
     D = spdiagm([ρ(m) for m in Ms])
-    FSA(
+    FST(
         vcat([α(M)[i] * α(m) for (i, m) in enumerate(Ms)]...),
         blockdiag([T(m) for m in Ms]...) + Ω * (T(M) + T(M) * D * T(M)') * A',
         vcat([ω(M)[i] * ω(m) for (i, m) in enumerate(Ms)]...),
@@ -298,11 +298,11 @@ function Base.replace(f::Function, M::AbstractFSA, Ms)
     )
 end
 
-function Base.replace(new::Function, M::AbstractFSA, labelfn::Function)
+function Base.replace(new::Function, M::AbstractFST, labelfn::Function)
     replace(labelfn, M, [new(i) for i in 1:nstates(M)])
 end
 
-Base.replace(new::Function, M::AbstractFSA) =
+Base.replace(new::Function, M::AbstractFST) =
     replace(new, M, mergelabels)
 
 """
@@ -310,16 +310,16 @@ Base.replace(new::Function, M::AbstractFSA) =
 
 Return the reversal of A.
 """
-Base.reverse(A::AbstractFSA) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
+Base.reverse(A::AbstractFST) = typeof(A)(ω(A), copy(T(A)'), α(A), ρ(A), λ(A))
 
 """
     union(A1[, A2, ...])
     A1 ∪ A2
 
-Return the union of the given FSA.
+Return the union of the given FST.
 """
-function Base.union(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
-    FSA(
+function Base.union(A1::AbstractFST{K}, A2::AbstractFST{K}) where K
+    FST(
         vcat(α(A1), α(A2)),
         blockdiag(T(A1), T(A2)),
         vcat(ω(A1), ω(A2)),
@@ -327,27 +327,27 @@ function Base.union(A1::AbstractFSA{K}, A2::AbstractFSA{K}) where K
         vcat(λ(A1), λ(A2))
     )
 end
-Base.union(A1::AbstractFSA{K}, AN::AbstractFSA{K}...) where K =
+Base.union(A1::AbstractFST{K}, AN::AbstractFST{K}...) where K =
     foldl(union, AN, init = A1)
 
-#= Functions for acyclic FSA =#
+#= Functions for acyclic FST =#
 
-Base.cat(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
-    AcyclicFSA(cat(parent(A1), parent(A2)))
-minimize(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> minimize)
-renorm(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> renorm)
-Base.reverse(A::AbstractAcyclicFSA) = AcyclicFSA(parent(A) |> reverse)
-Base.union(A1::AbstractAcyclicFSA, A2::AbstractAcyclicFSA) =
-    AcyclicFSA(union(parent(A1), parent(A2)))
+Base.cat(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
+    AcyclicFST(cat(parent(A1), parent(A2)))
+minimize(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> minimize)
+renorm(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> renorm)
+Base.reverse(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> reverse)
+Base.union(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
+    AcyclicFST(union(parent(A1), parent(A2)))
 
 """
-    propagate(A::AbstractAcyclicFSA[; forward = true])
+    propagate(A::AbstractAcyclicFST[; forward = true])
 
 Multiply the weight of each arc by the sum-product of all the prefix
 paths. If `forward` is `false` the arc's weight is multiply by the
 sum-product of all the suffix paths of this arc.
 """
-function propagate(A::AbstractAcyclicFSA; forward = true)
+function propagate(A::AbstractAcyclicFST; forward = true)
     v = forward ? α(A) : ω(A)
     M = forward ? T(A)' : T(A)
     σ = v
@@ -358,13 +358,13 @@ function propagate(A::AbstractAcyclicFSA; forward = true)
     σ
 
     D = spdiagm(σ)
-    AcyclicFSA(FSA(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)))
+    AcyclicFST(FST(σ .* α(A), T(A) * D, ω(A), ρ(A), λ(A)))
 end
 
 """
-    globalrenorm(A::AbstractAcyclicFSA)
+    globalrenorm(A::AbstractAcyclicFST)
 
 Global renormalization of the weights of `A`.
 """
-globalrenorm(A::AbstractAcyclicFSA) = propagate(A; forward = false) |> renorm
+globalrenorm(A::AbstractAcyclicFST) = propagate(A; forward = false) |> renorm
 

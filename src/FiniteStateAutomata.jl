@@ -7,15 +7,15 @@ using SparseArrays
 
 export
     # Abstract types
-    AbstractFSA,
-    AbstractAcyclicFSA,
+    AbstractFST,
+    AbstractAcyclicFST,
 
     # concrete types
-    AcyclicFSA,
-    FSA,
-    DenseFSA,
-    IntersectedFSA,
-    IntersectedDenseFSA,
+    AcyclicFST,
+    FST,
+    DenseFST,
+    IntersectedFST,
+    IntersectedDenseFST,
 
     # Accessors / properties
     α,
@@ -31,7 +31,7 @@ export
     edges,
     finalstates,
 
-    # FSA operations
+    # FST operations
     addskipedges,
     closure,
     connect,
@@ -41,10 +41,11 @@ export
     propagate,
     renorm
 
-include("abstractfsa.jl")
-include("fsa.jl")
+include("abstractfst.jl")
+include("fst.jl")
 include("ops.jl")
 include("intersect.jl")
 include("dense_fsa.jl")
 
 end
+
