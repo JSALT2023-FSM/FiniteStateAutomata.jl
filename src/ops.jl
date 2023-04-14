@@ -25,22 +25,6 @@ function addskipedges(M, states, weights)
 	FST(αₙ, Tₙ, ωₙ, ρₙ, λ(M))
 end
 
-"""
-    Base.sum(A[; init = α(A), n = nstates(A)])
-
-Accumulate the weight of all the paths of length less or equal to
-`n`.
-"""
-function Base.sum(A::AbstractFST; init = α(A), n = nstates(A))
-    v = init
-    σ = dot(v, ω(A)) + ρ(A)
-    for _ in 2:n
-        v = T(A)' * v
-        σ += dot(v, ω(A))
-    end
-    σ
-end
-
 
 """
     cat(A1[, A2, ...])

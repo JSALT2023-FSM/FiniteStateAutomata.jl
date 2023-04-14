@@ -3,7 +3,9 @@
 module FiniteStateAutomata
 
 using LinearAlgebra
+using ChainRulesCore
 using SparseArrays
+using Semirings
 
 export
     # Abstract types
@@ -48,6 +50,7 @@ include("fst.jl")
 include("dense_fsa.jl")
 
 include("reverse.jl")
+include("sum.jl")
 include("ops.jl")
 include("intersect.jl")
 
