@@ -172,16 +172,6 @@ Return a minimal equivalent FST.
 """
 minimize(A::AbstractFST) = (reverse ∘ determinize ∘ reverse ∘ determinize)(A)
 
-function _filter(A::AbstractFST{K}, x::AbstractVector{Bool}) where K
-    J = findall(x)
-    M = sparse(1:length(J), J, one(K), length(J), nstates(A))
-    FST(M * α(A), M * T(A) * M', M * ω(A), ρ(A), λ(A)[J])
-end
-
-function Base.filter(f::Function, A::AbstractFST)
-    _filter(A, f.(1:nstates(A)))
-end
-
 """
     accessible(A::AbstractFST{K}) where K
 

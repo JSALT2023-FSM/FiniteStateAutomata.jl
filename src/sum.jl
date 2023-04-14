@@ -6,14 +6,14 @@
 Accumulate the weights of all the paths. For cyclic FSTs sum after `n`
 steps.
 """
-#function Base.sum(A::AbstractFST; n = nstates(A))
-#    W = ρ(A)
-#    for (i, uₙ) in enumerate(A)
-#        i <= n || break
-#        W += dot(uₙ, ω(A))
-#    end
-#    W
-#end
+function Base.sum(A::AbstractFST; n = nstates(A))
+    W = ρ(A)
+    for (i, uₙ) in enumerate(A)
+        i <= n || break
+        W += dot(uₙ, ω(A))
+    end
+    W
+end
 
 function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{K}) where K
     W = ρ(A)

@@ -34,7 +34,7 @@ export
     finalstates,
 
     # FST operations
-    addskipedges,
+    statemap,
     closure,
     connect,
     determinize,
@@ -49,6 +49,7 @@ include("iterate.jl")
 include("fst.jl")
 include("dense_fsa.jl")
 
+include("filter.jl")
 include("reverse.jl")
 include("sum.jl")
 include("ops.jl")

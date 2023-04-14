@@ -122,3 +122,4 @@ function Base.sum(I::IntersectedDenseFST, n = size(I.A.H, 2) - 1)
     end
     dot(v, ω(I.B) .* CH[:, end]) + ρ(I)
 end
+

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: CECILL-2.1
+
 struct IntersectedFST{K, L, T_A<:AbstractFST{K,L}, T_B<:AbstractFST{K,L}} <: AbstractFST{K, L}
     A::T_A
     B::T_B
