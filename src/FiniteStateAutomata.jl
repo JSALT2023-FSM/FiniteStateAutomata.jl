@@ -39,12 +39,14 @@ export
     globalrenorm,
     minimize,
     propagate,
-    renorm
+    renorm,
+    gradient
 
 include("abstractfsa.jl")
 include("fsa.jl")
 include("ops.jl")
 include("dense_fsa.jl")
 include("intersect.jl")
+include("autograd.jl")
 
 end

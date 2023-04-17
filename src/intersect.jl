@@ -60,10 +60,6 @@ end
 IntersectedDenseFSA(A::DenseFSA{K}, B::AbstractFSA{K}) where K = begin
     C = _computeC(K, A.Σ, λ(B)) # TODO switch cols and rows
     IntersectedDenseFSA(A, B, C)
-    # Hn = C' * A.H
-    # Hn[:, 1] .*= α(B)
-    # Hn[:, end] .*= ω(B)
-    # DenseFSA(Hn, λ(B), ρ(A) * ρ(B))
 end
 
 Base.intersect(A::DenseFSA, B::AbstractFSA) = IntersectedDenseFSA(A, B) 
@@ -108,14 +104,37 @@ T(I::IntersectedDenseFSA) = begin
 end
 
 λ(I::IntersectedDenseFSA) = repeat(λ(I.B), size(I.A.H, 2) - 1)
-
 ρ(I::IntersectedDenseFSA) = ρ(I.B) * ρ(I.A)
 
-function Base.sum(I::IntersectedDenseFSA, n = size(I.A.H, 2) - 1)
-    CH = I.C' * I.A.H
-    v = CH[:, 1] .* α(I.B)
-    for n in 2:n
-        v = (T(I.B)' * v) .* CH[:, n]
+function forward_backward(I::IntersectedDenseFSA)
+    G = I.C' * I.A.H
+    N = size(G, 2) - 1
+    K = eltype(G)
+
+    # forward
+    u = fill!(similar(G, size(G, 1), N), zero(K))
+	u[:, 1] = α(I.B)
+	for n in 2:N
+        tmp = u[:, n - 1] .* G[:, n - 1]
+		u[:, n] = T(I.B)' * tmp
+	end
+
+    # backward
+	v = fill!(similar(G, size(G, 1), N), zero(K))
+    v[:, N] = G[:, N + 1] .* ω(I.B)
+	for n in N - 1: -1: 1
+        tmp = G[:, n + 1] .* v[:, n + 1]
+		v[:, n] = T(I.B) * tmp
+	end
+
+    u, v
+end
+
+function Base.sum(I::IntersectedDenseFSA, N=size(I.A.H, 2))
+    G = I.C' * I.A.H
+    u = G[:, 1] .* α(I.B)
+    for n in 2:N - 1
+        u = (T(I.B)' * u) .* G[:, n]
     end
-    dot(v, ω(I.B) .* CH[:, end]) + ρ(I)
+    dot(u, ω(I.B) .* G[:, end]) + ρ(I)
 end
