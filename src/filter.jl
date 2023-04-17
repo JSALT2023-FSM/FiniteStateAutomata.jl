@@ -6,7 +6,6 @@ struct StateMappedFST{K,L,TA<:AbstractFST{K,L}} <: AbstractFST{K,L}
     λ::AbstractVector{L}
 end
 
-
 statemap(A::AbstractFST, M, λ) = StateMappedFST(A, M, λ)
 statemap(mA::StateMappedFST, M, λ) = StateMappedFST(mA.A, M' * M, λ)
 
