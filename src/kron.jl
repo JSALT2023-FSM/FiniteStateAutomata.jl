@@ -9,6 +9,12 @@ end
 Base.kron(f, A::AbstractFST, B::AbstractFST) = KronFST(f, A, B)
 Base.kron(A::AbstractFST, B::AbstractFST) = kron((x, y) -> "($x, $y)", A, B)
 
+α(kA::KronFST) = kron(α(kA.A), α(kA.B))
+T(kA::KronFST) = kron(T(kA.A), T(kA.B))
+ω(kA::KronFST) = kron(ω(kA.A), ω(kA.B))
+ρ(kA::KronFST) = ρ(kA.A) * ρ(kA.B)
+λ(kA::KronFST) = vec([kA.f(l_a, l_b) for l_b in λ(kA.B), l_a in λ(kA.A)])
+
 function ChainRulesCore.rrule(::typeof(Base.kron), f, A::AbstractFST{K}, B::AbstractFST{K}) where K
     kC = KronFST(f, A, B)
 
@@ -67,10 +73,4 @@ function ChainRulesCore.rrule(::typeof(Base.kron), f, A::AbstractFST{K}, B::Abst
 
     kC, pullback
 end
-
-α(kA::KronFST) = kron(α(kA.A), α(kA.B))
-T(kA::KronFST) = kron(T(kA.A), T(kA.B))
-ω(kA::KronFST) = kron(ω(kA.A), ω(kA.B))
-ρ(kA::KronFST) = ρ(kA.A) * ρ(kA.B)
-λ(kA::KronFST) = vec([kA.f(l_a, l_b) for l_b in λ(kA.B), l_a in λ(kA.A)])
 

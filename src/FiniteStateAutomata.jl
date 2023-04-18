@@ -41,7 +41,8 @@ export
     globalrenorm,
     minimize,
     propagate,
-    renorm
+    renorm,
+    gradient
 
 include("abstractfst.jl")
 include("iterate.jl")
@@ -53,8 +54,11 @@ include("kron.jl")
 include("statemap.jl")
 include("reverse.jl")
 include("sum.jl")
+
 include("ops.jl")
+
 include("intersect.jl")
+include("autograd.jl")
 
 end
 
