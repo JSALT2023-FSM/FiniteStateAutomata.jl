@@ -160,7 +160,7 @@ function dot_write(io::IO, A::AbstractFST; highlights = [], hcolor = "blue")
 end
 
 function dot_write_nodes(io::IO, T, ω, ρ)
-    println(io, "node [shape=\"circle\"];")
+    println(io, join(0:size(T, 1), ","), " [shape=\"circle\"];")
 
     if iszero(ρ)
         println(io, "0 [style=\"bold\"];")
@@ -188,12 +188,9 @@ function dot_write_initedges(io::IO, α, λ)
 end
 
 function dot_write_edges(io, T, ρ, λ)
-    for i in 1:size(T, 1)
-        for j in 1:size(T, 2)
-            if ! iszero(T[i,j])
-                dot_write_edge(io, i, j, λ[j], T[i, j])
-            end
-        end
+    I, J, V = findnz(T)
+    for (i, j, w) in zip(I, J, V)
+        dot_write_edge(io, i, j, λ[j], w)
     end
 end
 

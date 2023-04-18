@@ -49,6 +49,7 @@ include("iterate.jl")
 include("fst.jl")
 include("dense_fsa.jl")
 
+include("kron.jl")
 include("statemap.jl")
 include("reverse.jl")
 include("sum.jl")

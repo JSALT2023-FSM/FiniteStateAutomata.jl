@@ -27,28 +27,12 @@ T(A::AbstractFST) = parent(A).T
 ρ(A::AbstractFST) = parent(A).ρ
 λ(A::AbstractFST) = parent(A).λ
 
-function Base.convert(f::Function, A::AbstractFST{K,L}) where {K,L}
-    ρ = f(emptystring(A), nstates(A) + 1)
-    U = typeof(ρ)
-    α = sparsevec(
-        initstates(A)[1],
-        [f(v, i) for (i, v) in zip(initstates(A)...)],
-        nstates(A)
-    )
-    T = sparse(
-        edges(A)[1],
-        edges(A)[2],
-        [f(v, j) for (i, j, v) in zip(edges(A)...)],
-        nstates(A),
-        nstates(A)
-    )
-    ω = sparsevec(
-        finalstates(A)[1],
-        [f(v, nstates(A) + 1) for (i, v) in zip(finalstates(A)...)],
-        nstates(A)
-    )
+function Base.:+(A::AbstractFST, B::AbstractFST)
+    FST(α(A) + α(B), T(A) + T(B), ω(A) + ω(B), ρ(A) + ρ(B), λ(A))
+end
 
-    FST{U,L}(α, T, ω, ρ, λ(A))
+function Base.convert(f::Function, A::AbstractFST{K,L}) where {K,L}
+    FST(f.(α(A)), f.(T(A)), f.(ω(A)), f(ρ(A)), λ(A))
 end
 
 struct AcyclicFST{K,L} <: AbstractAcyclicFST{K,L}
