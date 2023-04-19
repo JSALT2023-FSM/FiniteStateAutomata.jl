@@ -7,7 +7,7 @@ end
 ReverseFST(rA::ReverseFST) = rA.A
 
 α(rA::ReverseFST) = ω(rA.A)
-T(rA::ReverseFST) = T(rA.A)'
+T(rA::ReverseFST) = copy(T(rA.A)')
 ω(rA::ReverseFST) = α(rA.A)
 ρ(rA::ReverseFST) = ρ(rA.A)
 λ(rA::ReverseFST) = λ(rA.A)

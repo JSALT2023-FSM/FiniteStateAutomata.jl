@@ -41,8 +41,8 @@ export
     globalrenorm,
     minimize,
     propagate,
-    renorm,
-    gradient
+    renorm
+
 
 include("abstractfst.jl")
 include("iterate.jl")

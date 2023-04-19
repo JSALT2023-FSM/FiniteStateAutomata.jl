@@ -27,9 +27,11 @@ function Base.filter(f, A::AbstractFST{K}) where K
     statemap(A, M, λ(A)[I])
 end
 
-function ChainRulesCore.rrule(::typeof(statemap), A::AbstractFST{K}, M::AbstractMatrix{K}, l) where K
+function ChainRulesCore.rrule(::typeof(statemap), A::AbstractFST{K}, M::AbstractMatrix{K}, l) where K<:LogSemiring
     Y = StateMappedFST(A, M, l)
-    pullback(ΔY) = (NoTangent(), StateMappedFST(ΔY, M', λ(A)), NoTangent(), NoTangent())
+
+    e_M = (exp ∘ val).(M)
+    pullback(ΔY) = (NoTangent(), StateMappedFST(ΔY, e_M', λ(A)), NoTangent(), NoTangent())
     Y, pullback
 end
 

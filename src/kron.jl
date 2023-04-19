@@ -22,10 +22,15 @@ function ChainRulesCore.rrule(::typeof(Base.kron), f, A::AbstractFST{K}, B::Abst
         N = nstates(A)
         M = nstates(B)
 
+        f = exp ∘ val
+        A = f.(A)
+        B = f.(B)
+        nK = A |> α |> eltype
+
         I_A, V_A_old = findnz(α(A))
         I_B, V_B_old = findnz(α(B))
-        V_A = fill!(similar(V_A_old), zero(K))
-        V_B = fill!(similar(V_B_old), zero(K))
+        V_A = fill!(similar(V_A_old), zero(nK))
+        V_B = fill!(similar(V_B_old), zero(nK))
         for n in 1:length(I_A)
             for m in 1:length(I_B)
                 i = (I_A[n]-1) * M + I_B[m]
@@ -38,8 +43,8 @@ function ChainRulesCore.rrule(::typeof(Base.kron), f, A::AbstractFST{K}, B::Abst
 
         I_A, J_A, V_A_old = findnz(T(A))
         I_B, J_B, V_B_old = findnz(T(B))
-        V_A = fill!(similar(V_A_old), zero(K))
-        V_B = fill!(similar(V_B_old), zero(K))
+        V_A = fill!(similar(V_A_old), zero(nK))
+        V_B = fill!(similar(V_B_old), zero(nK))
         for n in 1:length(I_A)
             for m in 1:length(I_B)
                 i = (I_A[n]-1) * M + I_B[m]
@@ -53,8 +58,8 @@ function ChainRulesCore.rrule(::typeof(Base.kron), f, A::AbstractFST{K}, B::Abst
 
         I_A, V_A_old = findnz(ω(A))
         I_B, V_B_old = findnz(ω(B))
-        V_A = fill!(similar(V_A_old), zero(K))
-        V_B = fill!(similar(V_B_old), zero(K))
+        V_A = fill!(similar(V_A_old), zero(nK))
+        V_B = fill!(similar(V_B_old), zero(nK))
         for n in 1:length(I_A)
             for m in 1:length(I_B)
                 i = (I_A[n]-1) * M + I_B[m]

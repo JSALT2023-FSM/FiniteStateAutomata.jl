@@ -15,7 +15,9 @@ function Base.sum(A::AbstractFST; n = nstates(A))
     W
 end
 
-function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{K}) where K
+function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{LogSemiring{Tw}}) where Tw
+    K = LogSemiring{Tw}
+
     W = ρ(A)
     U = []
     for uₙ in A
@@ -44,11 +46,13 @@ function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{K}) where K
             end
         end
 
+        f = exp ∘ val
+        Δx = Δy / f(W)
         ΔA = FST(
-            sparsevec(I_α, Δy * v̄[I_α], nstates(A)),
-            sparse(I_T, J_T, Δy * V_T, nstates(A), nstates(A)),
-            sparsevec(I_ω, Δy * ū[I_ω], nstates(A)),
-            iszero(ρ(A)) ? zero(K) : Δy,
+            sparsevec(I_α, Δx * f.(v̄[I_α]), nstates(A)),
+            sparse(I_T, J_T, Δx * f.(V_T), nstates(A), nstates(A)),
+            sparsevec(I_ω, Δx * f.(ū[I_ω]), nstates(A)),
+            iszero(ρ(A)) ? zero(Tw) : Δx,
             λ(A)
         )
 
