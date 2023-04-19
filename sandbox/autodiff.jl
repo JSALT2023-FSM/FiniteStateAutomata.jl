@@ -109,8 +109,8 @@ begin
 		# (not the log-semiring). `val.(X)` casts `X` in the 
 		# real-semiring while `K.(...)` converts it back 
 		# to the log-semiring.
-		X1 = K.( val.(X1) + (τ ⊗ ∇X1) )
-		X2 = K.( val.(X2) + (τ ⊗ ∇X2) )
+		X1 = K.( val.(X1) + (τ * ∇X1) )
+		X2 = K.( val.(X2) + (τ * ∇X2) )
 	end
 
 	plot(F, ylabel="F", xlabel = "step", legend = false)

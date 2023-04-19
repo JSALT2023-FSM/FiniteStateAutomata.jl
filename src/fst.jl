@@ -31,7 +31,7 @@ function Base.:+(A::AbstractFST, B::AbstractFST)
     FST(α(A) + α(B), T(A) + T(B), ω(A) + ω(B), ρ(A) + ρ(B), λ(A))
 end
 
-function Semirings.:⊗(x::Number, A::AbstractFST)
+function Base.:*(x::Number, A::AbstractFST)
     Q = nstates(A)
     I_α, V_α = findnz(α(A))
     I_T, J_T, V_T = findnz(T(A))
