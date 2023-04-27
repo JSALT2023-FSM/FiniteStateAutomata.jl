@@ -6,8 +6,25 @@ using InteractiveUtils
 
 # ╔═╡ 00f12bce-d9dc-11ed-2b99-edb4fd8c8b94
 begin
+	#=  
+	Packages specficication: don't change this code ! It specifies 
+	the exact version of the packages for which this notebook is
+	garanteed to work successfully.
+	=# 
 	using Pkg
-	Pkg.activate("../")
+	Pkg.activate(mktempdir())
+
+	# Register the FAST registry
+	Pkg.Registry.add(
+		RegistrySpec(url="https://gitlab.lisn.upsaclay.fr/fast/registry")
+	)
+	
+	Pkg.add([
+        Pkg.PackageSpec(name="Semirings", version="0.10"),
+		Pkg.PackageSpec(name="FiniteStateAutomata", url="https://gitlab.lisn.upsaclay.fr/fast/finitestateautomata.jl", rev="autodiff")
+    ])
+	
+	#===================# 
 
 	using Revise
 	using FiniteStateAutomata
@@ -41,7 +58,7 @@ and backpropagate the through it.
 
 # ╔═╡ 1e8e64d2-38be-4474-af8e-077426bbdc92
 md"""
-First step is to define the semiring we are going to work on. Here we use the log-semiring.
+First step is to define the semiring we are going to work with. Here we use the log-semiring.
 """
 
 # ╔═╡ 86528707-e1b5-4cbc-bc06-270ead357ada
