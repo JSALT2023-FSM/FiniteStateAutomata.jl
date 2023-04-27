@@ -198,8 +198,9 @@ function dot_write_edge(io, src, dst, label::Pair, weight)
     if isone(weight)
         println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
     else
+        style = iszero(weight) ? "style=invis" : "style=vis"
         val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\"];")
+        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\" ", style, "];")
     end
 end
 
@@ -207,8 +208,9 @@ function dot_write_edge(io, src, dst, label, weight)
     if isone(weight)
         println(io, "$src -> $dst [label=\"", label, "\"];")
     else
+        style = iszero(weight) ? "style=invis" : "style=vis"
         val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        println(io, "$src -> $dst [label=\"", label, "/", weight, "\"];")
+        println(io, "$src -> $dst [label=\"", label, "/", weight, "\"", style, "];")
     end
 end
 
