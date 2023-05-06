@@ -9,7 +9,7 @@ begin
 	#=  
 	Packages specficication: don't change this code ! It specifies 
 	the exact version of the packages for which this notebook is
-	garanteed to work successfully.
+	garanteed to run successfully.
 	=# 
 	using Pkg
 	Pkg.activate(mktempdir())
@@ -120,11 +120,14 @@ C = FST(
 ) 
 
 # ╔═╡ cd1de36d-4e8d-4fe3-9418-6a544a0c9c0a
-A1, B1
+A1
+
+# ╔═╡ 5b766c70-f67b-47b4-beaa-9308c5d7eadf
+U = A1 ∩ B1
 
 # ╔═╡ 814d022a-7d06-4633-bad7-7449eaac5c8b
-(g1, g2) = gradient(A1, B1) do X, Y
-	Z = X ∩ Y
+(g1,) = gradient(U) do X
+	Z = U
 	val( sum(Z) )
 end
 
@@ -169,5 +172,6 @@ end
 # ╟─a09dd6a4-560c-403d-8278-819f16c8451a
 # ╟─1c3a8f7e-71e4-4db7-8cc1-9a327d006780
 # ╠═cd1de36d-4e8d-4fe3-9418-6a544a0c9c0a
+# ╠═5b766c70-f67b-47b4-beaa-9308c5d7eadf
 # ╠═814d022a-7d06-4633-bad7-7449eaac5c8b
 # ╠═2ef2e1c1-6872-4d63-8d15-8b118cbad37f
