@@ -1,32 +1,6 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    addskipedges(M, states, weights)
-
-Add edges such that each state `i` in `states` is potentially
-skipped with weight `weights[i]`. This operation does not remove
-any existing edge.
-"""
-function addskipedges(M, states, weights)
-	Tₙ = T(M)
-	αₙ = α(M)
-	ωₙ = ω(M)
-	ρₙ = ρ(M)
-	Q = nstates(M)
-
-	for (i, w) in zip(states, weights)
-		σeeᵀ = sparse([i], [i], [w], Q, Q)
-		αₙ = αₙ + Tₙ' * σeeᵀ * αₙ
-		Tₙ = Tₙ + Tₙ * σeeᵀ * Tₙ
-		ωₙ = ωₙ + Tₙ * σeeᵀ * ωₙ
-		ρₙ = ρₙ + αₙ' * σeeᵀ * ωₙ
-	end
-
-	FST(αₙ, Tₙ, ωₙ, ρₙ, λ(M))
-end
-
-
-"""
     cat(A1[, A2, ...])
 
 Return the concatenation of the given FST.

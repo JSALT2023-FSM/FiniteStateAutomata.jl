@@ -62,3 +62,52 @@ function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{LogSemiring{Tw}
     W, pullback
 end
 
+_spmap(f, x::SparseVector) = sparsevec(x.nzind, f.(x.nzval))
+
+function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{TropicalSemiring{Tw}}) where Tw
+    W = ρ(A)
+    U = []
+    for uₙ in A
+        push!(U, uₙ)
+        W += dot(uₙ, ω(A))
+    end
+
+    function pullback(Δy)
+        K = BoolSemiring
+
+        V = []
+        for vₙ in reverse(A)
+            push!(V, vₙ)
+        end
+
+        ū = sum(U)
+        v̄ = sum(V)
+        I_α, _ = findnz(α(A))
+        I_ω, _ = findnz(ω(A))
+
+        I_T, J_T, _ = findnz(T(A))
+        V_T = zeros(K, length(J_T))
+        k_1 = length(U)
+        for i in 1:k_1
+            for j in 1:(k_1 - i)
+                uᵢ, vⱼ = U[i], V[j]
+                V_T .+= uᵢ[I_T] .* vⱼ[J_T]
+            end
+        end
+
+        f = exp ∘ val
+        Δx = Δy / f(W)
+        ΔA = FST(
+            sparsevec(I_α, Δx * f.(v̄[I_α]), nstates(A)),
+            sparse(I_T, J_T, Δx * f.(V_T), nstates(A), nstates(A)),
+            sparsevec(I_ω, Δx * f.(ū[I_ω]), nstates(A)),
+            iszero(ρ(A)) ? zero(Tw) : Δx,
+            λ(A)
+        )
+
+        (NoTangent(), ΔA)
+    end
+
+    W, pullback
+end
+

@@ -53,7 +53,7 @@ width="400"
 # ╔═╡ 7a57ec7e-3c7b-498d-9ce6-94c9b9e3a6bc
 md"""
 This notebook is a minimal example of how to implement a FST-based loss function
-and backpropagate the through it.
+and backpropagate through it.
 """
 
 # ╔═╡ 1e8e64d2-38be-4474-af8e-077426bbdc92
@@ -70,22 +70,25 @@ In our example we have 2 input FST `A1` and `A2`. In practice their weights woul
 """
 
 # ╔═╡ ccb356bb-9592-4f04-a4fe-79d7d2e439f4
-A1 = FST(
-	sparsevec([1, 2], one(K), 4),
-	sparse([1, 2, 2], [3, 3, 4], one(K), 4, 4),
-	sparsevec([3, 4], one(K), 4),
-	zero(K),
-	["a", "b", "c", "d"]
-)
+begin 
+	A1 = FST(
+		sparsevec([1, 2], one(K), 4),
+		sparse([1, 2, 2], [3, 3, 4], one(K), 4, 4),
+		sparsevec([3, 4], one(K), 4),
+		zero(K),
+		["a", "b", "c", "d"]
+	)
 
-# ╔═╡ 29fb4884-84b5-4e54-a339-50703c1bb89f
-A2 = FST(
-	sparsevec([1, 2], one(K), 4),
-	sparse([1, 1, 1, 2, 4], [2, 3, 4, 3, 2], one(K), 4, 4),
-	sparsevec([3, 4], one(K), 4),
-	zero(K),
-	["a", "b", "d", "c"]
-)
+	A2 = FST(
+		sparsevec([1, 2], one(K), 4),
+		sparse([1, 1, 1, 2, 4], [2, 3, 4, 3, 2], one(K), 4, 4),
+		sparsevec([3, 4], one(K), 4),
+		zero(K),
+		["a", "b", "d", "c"]
+	)	
+
+	("A1" => A1, "A2" => A2)
+end
 
 # ╔═╡ 70b8e8f7-e6c1-4dbc-b165-6eb301395852
 md"""
@@ -93,22 +96,25 @@ We also have some "soft supervision", i.e. the supervision is not a unique seque
 """
 
 # ╔═╡ f7619ff9-7142-4964-b981-d6603bb3df07
-B1 = FST(
-	sparsevec([1], one(K), 3),
-	sparse([1, 1, 2, 2], [2, 3, 1, 3], one(K), 3, 3),
-	sparsevec([2, 3], one(K), 3),
-	zero(K),
-	["a", "b", "c"]
-)
+begin
+	B1 = FST(
+		sparsevec([1], one(K), 3),
+		sparse([1, 1, 2, 2], [2, 3, 1, 3], one(K), 3, 3),
+		sparsevec([2, 3], one(K), 3),
+		zero(K),
+		["a", "b", "c"]
+	)
 
-# ╔═╡ a09dd6a4-560c-403d-8278-819f16c8451a
-B2 = FST(
-	sparsevec([1, 2], one(K), 3),
-	sparse([1, 1, 2, 2], [2, 3, 1, 3], one(K), 3, 3),
-	sparsevec([2, 3], one(K), 3),
-	zero(K),
-	["a", "b", "c"]
-)
+	B2 = FST(
+		sparsevec([1, 2], one(K), 3),
+		sparse([1, 1, 2, 2], [2, 3, 1, 3], one(K), 3, 3),
+		sparsevec([2, 3], one(K), 3),
+		zero(K),
+		["a", "b", "c"]
+	)
+
+	("B1" => B1, "B2" => B2)
+end
 
 # ╔═╡ 1c3a8f7e-71e4-4db7-8cc1-9a327d006780
 C = FST(
@@ -119,17 +125,13 @@ C = FST(
 	["a", "b", "c", "d"]
 ) 
 
-# ╔═╡ cd1de36d-4e8d-4fe3-9418-6a544a0c9c0a
-A1
-
-# ╔═╡ 5b766c70-f67b-47b4-beaa-9308c5d7eadf
-U = A1 ∩ B1
+# ╔═╡ ea2514db-8ab2-47b8-a916-82a48e6901bc
+("A1" => A1, "B1" => B1, "A1 ∩ B1" => A1 ∩ B1, "sum(A1 ∩ B1)" => sum(A1 ∩ B1))
 
 # ╔═╡ 814d022a-7d06-4633-bad7-7449eaac5c8b
-(g1,) = gradient(U) do X
-	Z = U
-	val( sum(Z) )
-end
+(g1,) = gradient(A1) do X
+	val( sum(X ∩ B1) )
+end[1]
 
 # ╔═╡ 2ef2e1c1-6872-4d63-8d15-8b118cbad37f
 begin
@@ -165,13 +167,10 @@ end
 # ╟─1e8e64d2-38be-4474-af8e-077426bbdc92
 # ╠═86528707-e1b5-4cbc-bc06-270ead357ada
 # ╟─2bde23e4-010f-4102-97b0-5500e1e85fb0
-# ╟─ccb356bb-9592-4f04-a4fe-79d7d2e439f4
-# ╟─29fb4884-84b5-4e54-a339-50703c1bb89f
+# ╠═ccb356bb-9592-4f04-a4fe-79d7d2e439f4
 # ╟─70b8e8f7-e6c1-4dbc-b165-6eb301395852
-# ╟─f7619ff9-7142-4964-b981-d6603bb3df07
-# ╟─a09dd6a4-560c-403d-8278-819f16c8451a
+# ╠═f7619ff9-7142-4964-b981-d6603bb3df07
 # ╟─1c3a8f7e-71e4-4db7-8cc1-9a327d006780
-# ╠═cd1de36d-4e8d-4fe3-9418-6a544a0c9c0a
-# ╠═5b766c70-f67b-47b4-beaa-9308c5d7eadf
+# ╠═ea2514db-8ab2-47b8-a916-82a48e6901bc
 # ╠═814d022a-7d06-4633-bad7-7449eaac5c8b
 # ╠═2ef2e1c1-6872-4d63-8d15-8b118cbad37f

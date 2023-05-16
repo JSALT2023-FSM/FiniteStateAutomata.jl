@@ -8,10 +8,6 @@ using SparseArrays
 using Semirings
 
 export
-    # Abstract types
-    AbstractFST,
-    AbstractAcyclicFST,
-
     # concrete types
     AcyclicFST,
     FST,

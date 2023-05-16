@@ -62,7 +62,18 @@ function Base.Broadcast.broadcasted(f, A::AbstractFST)
 end
 
 function Base.convert(f::Function, A::AbstractFST{K,L}) where {K,L}
-    FST(f.(α(A)), f.(T(A)), f.(ω(A)), f(ρ(A)), λ(A))
+    Q = nstates(A)
+    I_α, V_α = findnz(α(A))
+    I_T, J_T, V_T = findnz(T(A))
+    I_ω, V_ω = findnz(ω(A))
+
+    FST(
+        sparsevec(I_α, f.(V_α), Q),
+        sparse(I_T, J_T, f.(V_T), Q, Q),
+        sparsevec(I_ω, f.(V_ω), Q),
+        f(ρ(A)),
+        λ(A)
+    )
 end
 
 struct AcyclicFST{K,L} <: AbstractAcyclicFST{K,L}
