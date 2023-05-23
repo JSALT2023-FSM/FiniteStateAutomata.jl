@@ -1,5 +1,8 @@
 # SPDX identifier: CECILL-2.1
 
+const Label = Union{<:Integer,<:AbstractString}
+const LabelMapping = Pair{<:Label,<:Label}
+
 """
     abstract type AbstractFST{K,L} end
 
@@ -8,55 +11,44 @@ semiring and `L` is the label type.
 """
 abstract type AbstractFST{K,L} end
 
-"""
-    abstract type AbstractAcyclicFST{K,L} <: AbstractFST{K,L} end
-
-Abstract base type for all cycle-free finite state automata.
-"""
-abstract type AbstractAcyclicFST{K,L} <: AbstractFST{K,L} end
+const Transducer = AbstractFST{<:Semiring,<:LabelMapping}
+const Acceptor = AbstractFST{<:Semiring,<:Label}
+const TransducerOrAcceptor = Union{<:Transducer,<:Acceptor}
 
 """
     α(A)
 
 Return the vector of initial states of `A`.
 """
-α(::AbstractFST)
+α(::TransducerOrAcceptor)
 
 """
     T(A)
 
 Return the transition matrix of `A`.
 """
-T(::AbstractFST)
+T(::TransducerOrAcceptor)
 
 """
     ω(A)
 
 Return the vector of final states of `A`.
 """
-ω(::AbstractFST)
+ω(::TransducerOrAcceptor)
 
 """
     ρ(A)
 
 Return the weight of the emtpy string.
 """
-ρ(::AbstractFST)
+ρ(::TransducerOrAcceptor)
 
 """
     λ(A)
 
 Return the states' label of `A`.
 """
-λ(::AbstractFST)
-
-"""
-    I, V = initstates(A)
-
-Return the indices of the initial states `I` and their associated value
-`V`.
-"""
-initstates(A) = findnz(α(A))
+λ(::TransducerOrAcceptor)
 
 """
     nstates(A)
@@ -71,33 +63,6 @@ nstates(A) = length(λ(A))
 Return the number of edges in `A`.
 """
 nedges(A) = nnz(T(A))
-
-"""
-    I, J, V = finalstates(A)
-
-Return the edges where `I` is the array of source states, `J` is the
-array of destination states and `V` is the array of weights.
-"""
-edges(A::AbstractFST) = findnz(T(A))
-
-"""
-    I, V = finalstates(A)
-
-Return the indices of the final states `I` and their associated value
-`V`.
-"""
-finalstates(A) = findnz(ω(A))
-
-Base.parent(A::AbstractFST) = A
-
-"""
-    convert(f::Function, A::AbstractFST)
-
-Convert the weight of `A`. The function `f` takes two arguments as
-input: weight and the label of an edge and returnes a new semiring
-value.
-"""
-Base.convert(f::Function, A::AbstractFST)
 
 #= Graph representation of a FST using GraphViz =#
 
@@ -194,6 +159,29 @@ function dot_write_edges(io, T, ρ, λ)
     end
 end
 
+function dot_write_edges(io, T::SPUV, ρ, λ)
+    Q = size(T, 1)
+    K = size(T.U, 2)
+    println(io, join((Q+1):(Q+K), ","), " [shape=\"circle\"];")
+
+    for i in 1:K
+        n = Q + i
+        println(io, "$(n) [label=\"$n\"];")
+    end
+
+    I, J, V = findnz(T.U)
+    for (i, j, w) in zip(I, J, V)
+        dot_write_edge(io, i, Q + j, "ϵ", w)
+    end
+
+    I, J, V = findnz(T.V)
+    for (i, j, w) in zip(I, J, V)
+        dot_write_edge(io, Q + i, j, λ[j], w)
+    end
+
+    dot_write_edges(io, T.S, ρ, λ)
+end
+
 function dot_write_edge(io, src, dst, label::Pair, weight)
     if isone(weight)
         println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
@@ -213,5 +201,4 @@ function dot_write_edge(io, src, dst, label, weight)
         println(io, "$src -> $dst [label=\"", label, "/", weight, "\"", style, "];")
     end
 end
-
 

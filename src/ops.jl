@@ -1,152 +1,6 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    cat(A1[, A2, ...])
-
-Return the concatenation of the given FST.
-"""
-function Base.cat(A1::AbstractFST{K}, A2::AbstractFST{K}) where K
-    D1, D2 = size(T(A1), 1), size(T(A2), 1)
-    FST(
-        vcat(α(A1), iszero(ρ(A1)) ? spzeros(K, D2) :  ρ(A1) * α(A2)),
-        [T(A1) (ω(A1) * α(A2)');
-         spzeros(K, D2, D1) T(A2)],
-        vcat(iszero(ρ(A2)) ? spzeros(K, D1) : ω(A1) * ρ(A2), ω(A2)),
-        ρ(A1) * ρ(A2),
-        vcat(λ(A1), λ(A2))
-    )
-end
-Base.cat(A1::AbstractFST{K}, AN::AbstractFST{K}...) where K =
-    foldl(cat, AN, init = A1)
-
-"""
-    closure(A; plus = false)
-
-Return the closure (or the closure plus if `plus` is `true`) of the FST.
-"""
-function closure(A::AbstractFST{K}; plus = false) where K
-    FST(
-        α(A),
-        T(A) + ω(A) * α(A)',
-        ω(A),
-        iszero(ρ(A)) && ! plus ? one(K) : ρ(A),
-        λ(A)
-    )
-end
-
-function _fsadet(M, edges, states)
-	state2idx = Dict(q => i for (i, q) in enumerate(sort(collect(states))))
-    D, Q = length(states), length(λ(M))
-    K = eltype(α(M))
-
-	I, V = [], K[]
-	for i in edges[()]
-		eᵢ = sparsevec(collect(i), one(K), Q)
-		push!(I, state2idx[i])
-        push!(V, dot(α(M), eᵢ))
-	end
-	a = sparsevec(I, V, D)
-
-	I, J, V = [], [], K[]
-	for i in keys(edges)
-		i == () && continue
-		for j in edges[i]
-			push!(I, state2idx[i])
-			push!(J, state2idx[j])
-			eᵢ = sparsevec(collect(i), one(K), Q)
-			eⱼ = sparsevec(collect(j), one(K), Q)
-            push!(V, eᵢ' * T(M) * eⱼ)
-		end
-	end
-	B = sparse(I, J, V, D, D)
-
-	I, V = [], K[]
-	for i in states
-		eᵢ = sparsevec(collect(i), one(K), Q)
-        v = dot(ω(M), eᵢ)
-        if v ≠ zero(K)
-            push!(I, state2idx[i])
-            push!(V, v)
-        end
-	end
-	o = sparsevec(I, V, D)
-
-    l = [λ(M)[q[1]] for q in sort(collect(states))]
-
-    FST(a, B, o, ρ(M), l)
-end
-
-function _spmap(K, mapping)
-	unique_ids = Set(mapping)
-	id2idx = Dict(id => i for (i, id) in enumerate(collect(unique_ids)))
-	idx_mapping = [id2idx[id] for id in mapping]
-
-	Q, D = length(mapping), length(unique_ids)
-	sparse(1:Q, idx_mapping, one(K), Q, D)
-end
-
-"""
-    determinize(A::AbstractFST)
-
-Return an "equivalent" deterministic version of `A`. Note that the
-weights of the merged paths are simply added and locally renormalized.
-Therefore, the resulting FST may have different weighting than the
-original FST.
-"""
-function determinize(A::AbstractFST{K}) where K
-    C = _spmap(K, λ(A))
-
-	# Edges of the determinized FST.
-	edges = Dict()
-
-	# Visited states of the determinized FST.
-	visited = Set()
-
-	# Initialize the stack, `()` represents the initial state
-	# of the determinized FST.
-    stack = Any[((), α(A))]
-	while ! isempty(stack)
-		# Get the first element from the stack.
-		# `a` is the ancestor state (of the new FST)
-		# and `v` is the children of `a` in `A`.
-		a, v = pop!(stack)
-
-		# Merge states with the same label.
-		V = spdiagm(v) * C
-
-		# Iterate over the column of V that have non-zero elements.
-		for i in 1:size(V, 2)
-			c = V[:, i]
-			nnz(c) == 0 && continue
-
-			# A new state is defined based on the indices
-			# of the non-zero elements.
-			q = Tuple(findnz(c)[1])
-
-			# Record the edge between the ancestor and the new
-			# state.
-			edges[a] = push!(get(edges, a, []), q)
-
-			# If the new state `q` has not been visited yet
-			# add its children (represented as a vector)
-			# on the stack.
-			if q ∉ visited
-                push!(stack, (q, T(A)' * c))
-				push!(visited, q)
-			end
-		end
-	end
-    _fsadet(A, edges, visited)
-end
-
-"""
-    minimize(A::AbstractFST)
-
-Return a minimal equivalent FST.
-"""
-minimize(A::AbstractFST) = (reverse ∘ determinize ∘ reverse ∘ determinize)(A)
-
-"""
     accessible(A::AbstractFST{K}) where K
 
 Return a vector `x` of dimension `nstates(A)` where `x[i]` is `one(K)`
@@ -205,26 +59,6 @@ function connect(A::AbstractFST{K}) where K
     )
 end
 
-"""
-    renorm(A::FST)
-
-Local renormalization. For a state q, multiply each arc's weight by the
-inverse of the sum of all the arcs' weight leaving q. In the resulting
-FST, sum of the all the arcs'weight of a state sum up to the semiring
-one.
-"""
-function renorm(A::AbstractFST)
-    Z = inv.((sum(T(A), dims=2) .+ ω(A)))
-    Zₐ = inv(sum(α(A)) + ρ(A))
-    typeof(A)(
-        Zₐ * α(A),
-        Z .* T(A),
-        Z[:, 1] .* ω(A),
-        Zₐ * ρ(A),
-        λ(A)
-    )
-end
-
 @inline mergelabels(x) = x
 @inline mergelabels(x, y) = (x..., y...)
 @inline mergelabels(x, y, z...) = mergelabels(mergelabels(x, y), z...)
@@ -253,32 +87,7 @@ end
 Base.replace(new::Function, M::AbstractFST) =
     replace(new, M, mergelabels)
 
-"""
-    union(A1[, A2, ...])
-    A1 ∪ A2
-
-Return the union of the given FST.
-"""
-function Base.union(A1::AbstractFST{K}, A2::AbstractFST{K}) where K
-    FST(
-        vcat(α(A1), α(A2)),
-        blockdiag(T(A1), T(A2)),
-        vcat(ω(A1), ω(A2)),
-        ρ(A1) + ρ(A2),
-        vcat(λ(A1), λ(A2))
-    )
-end
-Base.union(A1::AbstractFST{K}, AN::AbstractFST{K}...) where K =
-    foldl(union, AN, init = A1)
-
 #= Functions for acyclic FST =#
-
-Base.cat(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
-    AcyclicFST(cat(parent(A1), parent(A2)))
-minimize(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> minimize)
-renorm(A::AbstractAcyclicFST) = AcyclicFST(parent(A) |> renorm)
-Base.union(A1::AbstractAcyclicFST, A2::AbstractAcyclicFST) =
-    AcyclicFST(union(parent(A1), parent(A2)))
 
 """
     propagate(A::AbstractAcyclicFST[; forward = true])

@@ -5,15 +5,15 @@ module FiniteStateAutomata
 using LinearAlgebra
 using ChainRulesCore
 using SparseArrays
+#using SparseSemimodules
 using Semirings
+
+Base.oneunit(K::Type{<:Semiring}) = one(K)
 
 export
     # concrete types
-    AcyclicFST,
     FST,
     DenseFST,
-    IntersectedFST,
-    IntersectedDenseFST,
 
     # Accessors / properties
     α,
@@ -21,40 +21,46 @@ export
     ω,
     ρ,
     λ,
-    accessible,
-    coaccessible,
     nstates,
     nedges,
-    initstates,
-    edges,
-    finalstates,
+    accessible,
+    coaccessible,
 
     # FST operations
-    statemap,
+    W,
+    Π₁,
+    Π₂,
     closure,
-    connect,
     determinize,
-    globalrenorm,
-    minimize,
-    propagate,
     renorm
+#    statemap,
 
+#    connect,
+#    determinize,
+#    globalrenorm,
+#    minimize,
+#    propagate,
+#    renorm
 
+include("spuvmatrix.jl")
 include("abstractfst.jl")
-include("iterate.jl")
-
 include("fst.jl")
-include("dense_fsa.jl")
+#include("dense_fsa.jl")
 
-include("kron.jl")
-include("statemap.jl")
+include("totalweight.jl")
+include("project.jl")
 include("reverse.jl")
-include("sum.jl")
+include("union.jl")
+include("cat.jl")
+include("closure.jl")
+include("determinize.jl")
+include("renorm.jl")
 
-include("ops.jl")
-
-include("intersect.jl")
-include("autograd.jl")
+#include("kron.jl")
+#include("statemap.jl")
+#include("ops.jl")
+#include("intersect.jl")
+#include("autograd.jl")
 
 end
 

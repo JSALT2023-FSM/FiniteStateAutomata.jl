@@ -1,15 +1,27 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-"""
-    Base.sum(A; n = nstates(A))
+# TODO performance can be improved by preallocating buffers for
+# `iterate`.
 
-Accumulate the weights of all the paths. For cyclic FSTs sum after `n`
-steps.
+Base.iterate(A::TransducerOrAcceptor) = nstates(A) == 0 ? nothing : (α(A), (1, α(A)))
+
+function Base.iterate(A::TransducerOrAcceptor, state)
+    n, uₙ = state
+    n > nstates(A) && throw(ArgumentError("Iterating over a cyclic FST"))
+    uₙ₊₁ = transpose(transpose(uₙ) * T(A))
+    nnz(uₙ₊₁) > 0 ? (uₙ₊₁, (n+1, uₙ₊₁)) : nothing
+end
+
 """
-function Base.sum(A::AbstractFST; n = nstates(A))
+    W(A)
+
+Return the total weight of `A`, i.e. the ``\\oplus``-sum of all the
+path's weight in `A`.
+"""
+function W(A::TransducerOrAcceptor)
+    # ρ(A) ⊕ dot(α(A), MatrixPowerSeries(T(A)), ω(A))
     W = ρ(A)
-    for (i, uₙ) in enumerate(A)
-        i <= n || break
+    for uₙ in A
         W += dot(uₙ, ω(A))
     end
     W
@@ -61,8 +73,6 @@ function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{LogSemiring{Tw}
 
     W, pullback
 end
-
-_spmap(f, x::SparseVector) = sparsevec(x.nzind, f.(x.nzval))
 
 function ChainRulesCore.rrule(::typeof(Base.sum), A::AbstractFST{TropicalSemiring{Tw}}) where Tw
     W = ρ(A)
