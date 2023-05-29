@@ -116,7 +116,8 @@ function dot_write(io::IO, A::AbstractFST; highlights = [], hcolor = "blue")
     println(io, "rankdir=LR;")
     dot_write_nodes(io, T(A), ω(A), ρ(A))
     dot_write_initedges(io, α(A), λ(A))
-    dot_write_edges(io, T(A), ρ(A), λ(A))
+    dot_write_transmat(io, T(A), λ(A))
+    #dot_write_edges(io, T(A), ρ(A), λ(A))
 
     if ! isempty(highlights)
         println(io, join(highlights, ","), " [style=\"bold\", color=\"$hcolor\"];")
@@ -124,8 +125,53 @@ function dot_write(io::IO, A::AbstractFST; highlights = [], hcolor = "blue")
     println(io, "}")
 end
 
+function dot_write_transmat(io::IO, A::TransitionMatrix, λ::AbstractVector)
+    Q = size(A.S, 1)
+
+    I, J, V = findnz(A.S)
+    for (i, j, v) in zip(I, J, V)
+        _dot_write_edge(io, i, j, λ[j], v)
+    end
+
+    I, J, V = findnz(A.U)
+    for (i, j, v) in zip(I, J, V)
+        _dot_write_edge(io, i, Q+j, "ϵ", v)
+    end
+
+    I, J, V = findnz(A.E)
+    for (i, j, v) in zip(I, J, V)
+        _dot_write_edge(io, Q+i, Q+j, "ϵ", v)
+    end
+
+    I, J, V = findnz(A.V)
+    for (i, j, v) in zip(I, J, V)
+        _dot_write_edge(io, Q+i, j, λ[j], v)
+    end
+end
+
+function dot_write_edge(io, src, dst, label, weight)
+    if isone(weight)
+        println(io, "$src -> $dst [label=\"", label, "\"];")
+    else
+        style = iszero(weight) ? "style=invis" : ""
+        val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
+        println(io, "$src -> $dst [label=\"", label, "/", weight, "\"", style, "];")
+    end
+end
+
+function dot_write_edge(io, src, dst, label::Pair, weight)
+    if isone(weight)
+        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
+    else
+        style = iszero(weight) ? "style=invis" : ""
+        val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
+        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\" ", style, "];")
+    end
+end
+
 function dot_write_nodes(io::IO, T, ω, ρ)
-    println(io, join(0:size(T, 1), ","), " [shape=\"circle\"];")
+    Q, P = size(T.S, 1), size(T.E, 1)
+    println(io, join(0:Q+P, ","), " [shape=\"circle\"];")
 
     if iszero(ρ)
         println(io, "0 [style=\"bold\"];")
@@ -152,53 +198,10 @@ function dot_write_initedges(io::IO, α, λ)
     end
 end
 
-function dot_write_edges(io, T, ρ, λ)
+function dot_write_edges(io, T::MatrixPowerSum, ρ, λ)
     I, J, V = findnz(T)
     for (i, j, w) in zip(I, J, V)
         dot_write_edge(io, i, j, λ[j], w)
-    end
-end
-
-function dot_write_edges(io, T::SPUV, ρ, λ)
-    Q = size(T, 1)
-    K = size(T.U, 2)
-    println(io, join((Q+1):(Q+K), ","), " [shape=\"circle\"];")
-
-    for i in 1:K
-        n = Q + i
-        println(io, "$(n) [label=\"$n\"];")
-    end
-
-    I, J, V = findnz(T.U)
-    for (i, j, w) in zip(I, J, V)
-        dot_write_edge(io, i, Q + j, "ϵ", w)
-    end
-
-    I, J, V = findnz(T.V)
-    for (i, j, w) in zip(I, J, V)
-        dot_write_edge(io, Q + i, j, λ[j], w)
-    end
-
-    dot_write_edges(io, T.S, ρ, λ)
-end
-
-function dot_write_edge(io, src, dst, label::Pair, weight)
-    if isone(weight)
-        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "\"];")
-    else
-        style = iszero(weight) ? "style=invis" : ""
-        val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        println(io, "$src -> $dst [label=\"", label[1], ":", label[2], "/", weight, "\" ", style, "];")
-    end
-end
-
-function dot_write_edge(io, src, dst, label, weight)
-    if isone(weight)
-        println(io, "$src -> $dst [label=\"", label, "\"];")
-    else
-        style = iszero(weight) ? "style=invis" : ""
-        val = typeof(weight) <: AbstractFloat ? round(weight, digits=3) : weight
-        println(io, "$src -> $dst [label=\"", label, "/", weight, "\"", style, "];")
     end
 end
 

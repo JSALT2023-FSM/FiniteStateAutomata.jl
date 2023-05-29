@@ -13,7 +13,7 @@ Generic Finite State Automaton.
 """
 struct FST{K,L} <: AbstractFST{K,L}
     α::AbstractVector{K}
-    T::AbstractMatrix{K}
+    T::TransitionMatrix{K}
     ω::AbstractVector{K}
     ρ::K
     λ::AbstractVector{L}
@@ -21,31 +21,23 @@ end
 
 FST(A::AbstractFST) = FST(α(A), T(A), ω(A), ρ(A), λ(A))
 
-function FST(K, arcs, finalweights, statelabels, ϵweight = zero(K))
-    I_α, V_α = Int[], K[]
-    I_T, J_T, V_T = Int[], Int[], K[]
-    for (src, dest, weight) in arcs
-        if src == 0
-            push!(I_α, dest)
-            push!(V_α, weight)
-        else
-            push!(I_T, src)
-            push!(J_T, dest)
-            push!(V_T, weight)
-        end
+# Returns a `Q` vector from a list of tuple `(i, v)`.`K` is element
+# type of the matrix.
+function _spv_from_list(K, Q, tuples)
+    I, V = Int[], K[]
+    for (i, v) in tuples
+        push!(I, i)
+        push!(V, v)
     end
+    sparsevec(I, V, Q)
+end
 
-    I_ω, V_ω = Int[], K[]
-    for (state, weight) in finalweights
-        push!(I_ω, state)
-        push!(V_ω, weight)
-    end
-
+function FST(K, initweights, transmat, finalweights, statelabels, ϵweight = zero(K))
     Q = length(statelabels)
     FST(
-        sparsevec(I_α, V_α, Q),
-        sparse(I_T, J_T, V_T, Q, Q),
-        sparsevec(I_ω, V_ω, Q),
+        _spv_from_list(K, Q, initweights),
+        transmat,
+        _spv_from_list(K, Q, finalweights),
         ϵweight,
         statelabels
     )

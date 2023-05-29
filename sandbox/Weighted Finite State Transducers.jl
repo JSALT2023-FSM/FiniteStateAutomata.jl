@@ -16,34 +16,41 @@ begin
 
 	using Revise
 	Pkg.develop(path="..")
-	Pkg.develop(path="../../sparsesemimodules.jl")
 
 	using FiniteStateAutomata
 
 	Pkg.add("Semirings")
 	using Semirings 
+
+	using LinearAlgebra
 end
 
 # ╔═╡ 2b8f46d1-08a5-479a-8261-7dc6f662563a
-K = ProbSemiring{Float64}
-
-# ╔═╡ 76451939-8cd8-4996-b6da-7ed3e3a758c3
-
+K = LogSemiring{Float64}
 
 # ╔═╡ b0f12741-f4b1-48f5-bf75-756b55d99975
 md"""## Closure"""
 
-# ╔═╡ 5ea5e692-1e92-4799-b355-f19c35645341
-A = FST(
-	K,
+# ╔═╡ fc2aedf5-3050-4120-a138-efd10be3994d
+T = TransitionMatrix(
+	K, 
+	3,
 	[
-		(0, 1, K(2)), 
 		(1, 1, K(2)), 
-		(0, 2, K(3)), 
 		(1, 2, K(3)), 
 		(2, 3, K(4)), 
 		(3, 3, K(4))
-	], 
+	],
+	[(1, 1, K(2))],
+	[(1, 2, K(2))],
+	[(1, 2, K(3)), (2, 3, K(3))]
+);
+
+# ╔═╡ 5ea5e692-1e92-4799-b355-f19c35645341
+A = FST(
+	K,
+	[(1, K(5))],
+	T,
 	[(2, K(5)), (3, K(5))],
 	["a" => "p", "b" => "q", "c" => "r"],
 	# infactors = [(1, 1, K(2))],
@@ -51,9 +58,6 @@ A = FST(
 	# factors = [(1, 2, K(2)]
 	# [2, []]
 )
-
-# ╔═╡ 74dbf4f7-076e-452f-9b05-4f306606eaea
-FiniteStateAutomata.MatrixPowerSum(T(A))
 
 # ╔═╡ 2e4cee38-1cf9-499b-8ec8-5f92e0286b4e
 closure(A) 
@@ -122,9 +126,8 @@ Iterators.map(x -> 2x, [1, 2, 3]) |> typeof
 # ╔═╡ Cell order:
 # ╠═e2560be8-f3f9-11ed-0754-e3e1572c751d
 # ╠═2b8f46d1-08a5-479a-8261-7dc6f662563a
-# ╠═74dbf4f7-076e-452f-9b05-4f306606eaea
-# ╠═76451939-8cd8-4996-b6da-7ed3e3a758c3
 # ╟─b0f12741-f4b1-48f5-bf75-756b55d99975
+# ╠═fc2aedf5-3050-4120-a138-efd10be3994d
 # ╠═5ea5e692-1e92-4799-b355-f19c35645341
 # ╠═2e4cee38-1cf9-499b-8ec8-5f92e0286b4e
 # ╠═de8cc675-45d6-4d7b-84b1-b93dcfdccebf
