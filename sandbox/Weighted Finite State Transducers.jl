@@ -31,42 +31,41 @@ K = LogSemiring{Float64}
 # ╔═╡ b0f12741-f4b1-48f5-bf75-756b55d99975
 md"""## Closure"""
 
-# ╔═╡ fc2aedf5-3050-4120-a138-efd10be3994d
-T = TransitionMatrix(
-	K, 
-	3,
-	[
-		(1, 1, K(2)), 
-		(1, 2, K(3)), 
-		(2, 3, K(4)), 
-		(3, 3, K(4))
-	],
-	[(1, 1, K(2))],
-	[(1, 2, K(2))],
-	[(1, 2, K(3)), (2, 3, K(3))]
-);
-
 # ╔═╡ 5ea5e692-1e92-4799-b355-f19c35645341
 A = FST(
-	K,
-	[(1, K(5))],
-	T,
-	[(2, K(5)), (3, K(5))],
-	["a" => "p", "b" => "q", "c" => "r"],
-	# infactors = [(1, 1, K(2))],
-	# outfactors = [(1, 2, K(3)), (1, 3, K(3))]
-	# factors = [(1, 2, K(2)]
-	# [2, []]
+	semiring = K,
+	initweights = [(1, K(5))],
+	arcs = [(1, 3, K(2)), (1, 2, K(3)), (2, 3, K(4))],
+	finalweights = [(2, K(5)), (3, K(5))],
+	statelabels = ["a" => "x", "b" => "y", "c" => "z"],
+	infactors = [(1, 1, K(2))],
+	outfactors = [(1, 2, K(3)), (2, 3, K(3))],
+	factors = [(1, 2, K(2))]
 )
+
+# ╔═╡ 2bb54fe3-e5f4-4dca-943f-235865a45555
+B = FST(
+	semiring = K,
+	initweights = [(1, K(5))],
+	arcs = [(1, 3, K(2)), (1, 2, K(3)), (2, 3, K(4))],
+	finalweights = [(2, K(5)), (3, K(5))],
+	statelabels = ["a" => "x", "b" => "y", "c" => "z"],
+)
+
+# ╔═╡ b2e09b15-8bc7-4503-a37f-fceeae5e14bc
+FiniteStateAutomata.MatrixPowerSum(T(A)) * ω(A)
 
 # ╔═╡ 2e4cee38-1cf9-499b-8ec8-5f92e0286b4e
 closure(A) 
 
 # ╔═╡ de8cc675-45d6-4d7b-84b1-b93dcfdccebf
-A
+closure(B)
 
-# ╔═╡ 04765157-f208-4e04-850d-3e83d7fa28f3
-closure(A) |> T
+# ╔═╡ 797af1e7-40d4-4fc6-aebc-fc8daffd232e
+A ∪ A
+
+# ╔═╡ 256a5845-e828-4490-b495-f5a7753d2375
+B ∪ B
 
 # ╔═╡ 61f9e6fc-96a7-4ba1-99e6-89b1303552f6
 A₁ = FST(
@@ -75,12 +74,6 @@ A₁ = FST(
 	[(3, one(K))],
 	["a" => "x", "b" => "y", "c" => "z"]
 )
-
-# ╔═╡ 797af1e7-40d4-4fc6-aebc-fc8daffd232e
-hcat(α(A₁)) * vcat(transpose(ω(A₁)))
-
-# ╔═╡ b774dd87-a29b-4fbe-966f-0b797199a735
-A₁  |> determinize
 
 # ╔═╡ e20b21d2-5700-4540-9d96-f1634c198587
 union(A₁, A₁)  
@@ -114,9 +107,6 @@ A₂ = FST(
 	["a" => "u", "b" => "v", "c" => "w"]
 )
 
-# ╔═╡ 80db008d-1be1-4411-b1ad-5e0757b5750b
-A₁ ∪ A₂
-
 # ╔═╡ f676d57d-31dc-4861-8dcd-e12eeeba48d4
 cat(A₁, A₂) |> reverse 
 
@@ -127,15 +117,14 @@ Iterators.map(x -> 2x, [1, 2, 3]) |> typeof
 # ╠═e2560be8-f3f9-11ed-0754-e3e1572c751d
 # ╠═2b8f46d1-08a5-479a-8261-7dc6f662563a
 # ╟─b0f12741-f4b1-48f5-bf75-756b55d99975
-# ╠═fc2aedf5-3050-4120-a138-efd10be3994d
 # ╠═5ea5e692-1e92-4799-b355-f19c35645341
+# ╠═2bb54fe3-e5f4-4dca-943f-235865a45555
+# ╠═b2e09b15-8bc7-4503-a37f-fceeae5e14bc
 # ╠═2e4cee38-1cf9-499b-8ec8-5f92e0286b4e
 # ╠═de8cc675-45d6-4d7b-84b1-b93dcfdccebf
-# ╠═04765157-f208-4e04-850d-3e83d7fa28f3
 # ╠═797af1e7-40d4-4fc6-aebc-fc8daffd232e
+# ╠═256a5845-e828-4490-b495-f5a7753d2375
 # ╠═61f9e6fc-96a7-4ba1-99e6-89b1303552f6
-# ╠═80db008d-1be1-4411-b1ad-5e0757b5750b
-# ╠═b774dd87-a29b-4fbe-966f-0b797199a735
 # ╠═e20b21d2-5700-4540-9d96-f1634c198587
 # ╠═f8bdd2a9-7034-4deb-a52b-f7402d05c7dc
 # ╠═f676d57d-31dc-4861-8dcd-e12eeeba48d4

@@ -130,22 +130,22 @@ function dot_write_transmat(io::IO, A::TransitionMatrix, λ::AbstractVector)
 
     I, J, V = findnz(A.S)
     for (i, j, v) in zip(I, J, V)
-        _dot_write_edge(io, i, j, λ[j], v)
+        dot_write_edge(io, i, j, λ[j], v)
     end
 
     I, J, V = findnz(A.U)
     for (i, j, v) in zip(I, J, V)
-        _dot_write_edge(io, i, Q+j, "ϵ", v)
+        dot_write_edge(io, i, Q+j, "ϵ", v)
     end
 
     I, J, V = findnz(A.E)
     for (i, j, v) in zip(I, J, V)
-        _dot_write_edge(io, Q+i, Q+j, "ϵ", v)
+        dot_write_edge(io, Q+i, Q+j, "ϵ", v)
     end
 
     I, J, V = findnz(A.V)
     for (i, j, v) in zip(I, J, V)
-        _dot_write_edge(io, Q+i, j, λ[j], v)
+        dot_write_edge(io, Q+i, j, λ[j], v)
     end
 end
 
@@ -171,7 +171,10 @@ end
 
 function dot_write_nodes(io::IO, T, ω, ρ)
     Q, P = size(T.S, 1), size(T.E, 1)
-    println(io, join(0:Q+P, ","), " [shape=\"circle\"];")
+    println(io, join(0:Q, ","), " [shape=\"circle\"];")
+    if P > 0
+        println(io, join((Q+1):(Q+P), ","), " [shape=\"circle\", style=\"filled\", fillcolor=\"azure3\"];")
+    end
 
     if iszero(ρ)
         println(io, "0 [style=\"bold\"];")
@@ -179,7 +182,7 @@ function dot_write_nodes(io::IO, T, ω, ρ)
         println(io, "0 [label=\"0/", ρ, "\", shape=\"doublecircle\", style=\"bold\"];")
     end
 
-    for i in 1:size(T, 1)
+    for i in 1:Q
         if ! iszero(ω[i])
             if ! isone(ω[i])
                 println(io, "$(i) [label=\"$i/", ω[i], "\", shape=\"doublecircle\"];")
@@ -187,6 +190,10 @@ function dot_write_nodes(io::IO, T, ω, ρ)
                 println(io, "$(i) [label=\"$i\", shape=\"doublecircle\"];")
             end
         end
+    end
+
+    for i in 1:P
+        println(io, "$(Q+i) [label=\"$i\"];")
     end
 end
 
