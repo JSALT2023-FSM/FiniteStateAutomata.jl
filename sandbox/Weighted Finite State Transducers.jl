@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ e2560be8-f3f9-11ed-0754-e3e1572c751d
 begin
 	using Pkg
-	#Pkg.activate(mktempdir())
+	Pkg.activate(mktempdir())
 	
 	# Register the FAST registry
 	Pkg.Registry.add(

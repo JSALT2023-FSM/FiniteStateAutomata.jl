@@ -19,7 +19,7 @@ function closure(A::AbstractWFST; plus = false)
         vcat(TA.V, transpose(α(A)))
     )
     ρB = iszero(ρ(A)) && ! plus ? one(K) : ρ(A)
-    FST(α(A), TB, ω(A), ρB, λ(A))
+    WFST(α(A), TB, ω(A), ρB, λ(A))
 end
 
 """
@@ -37,7 +37,7 @@ function Base.cat(A::AbstractWFST, B::AbstractWFST)
         vcat(blockdiag(TA.V, TB.V), transpose(vcat(spzeros(K, nstates(B)), α(B)))),
     )
 
-    FST(
+    WFST(
         vcat(α(A), ρ(A) * α(B)),
         TC,
         vcat(ω(A) * ρ(B), ω(B)),
@@ -68,7 +68,7 @@ function Base.union(A::AbstractWFST, B::AbstractWFST)
         blockdiag(TA.V, TB.V)
     )
 
-    FST(vcat(α(A), α(B)), TC, vcat(ω(A), ω(B)), ρ(A) ⊕ ρ(B), vcat(λ(A), λ(B)))
+    WFST(vcat(α(A), α(B)), TC, vcat(ω(A), ω(B)), ρ(A) ⊕ ρ(B), vcat(λ(A), λ(B)))
 end
 
 Base.union(A1::AbstractWFST{K}, AN::AbstractWFST{K}...) where K = foldl(union, AN, init = A1)
