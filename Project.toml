@@ -1,7 +1,7 @@
 name = "FiniteStateAutomata"
 uuid = "fc9063f0-9721-496a-abcf-7f8e825377b5"
 authors = ["Lucas ONDEL YANG <lucas.ondel@cnrs.fr"]
-version = "0.2.2"
+version = "0.3.0"
 
 [deps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
