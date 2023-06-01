@@ -4,51 +4,51 @@ const Label = Union{<:Integer,<:AbstractString}
 const LabelMapping = Pair{<:Label,<:Label}
 
 """
-    abstract type AbstractFST{K,L} end
+    abstract type AbstractWFST{K<:Semiring,L<:Union{Label,LabelMapping}} end
 
 Abstract base type for all WFST. `K` is the weight
-semiring and `L` is the label type.
+semiring and `L` is the label type or a label mapping. Acceptors is the
+subset of WFSTs for which `L` is a `Label` (or equivalently the label
+mapping is just the identity function).
 """
-abstract type AbstractFST{K,L} end
+abstract type AbstractWFST{K<:Semiring,L<:Union{Label,LabelMapping}} end
 
-const Transducer = AbstractFST{<:Semiring,<:LabelMapping}
-const Acceptor = AbstractFST{<:Semiring,<:Label}
-const TransducerOrAcceptor = Union{<:Transducer,<:Acceptor}
+const Acceptor = AbstractWFST{<:Semiring,<:Label}
 
 """
     α(A)
 
 Return the vector of initial states of `A`.
 """
-α(::TransducerOrAcceptor)
+α(::AbstractWFST)
 
 """
     T(A)
 
 Return the transition matrix of `A`.
 """
-T(::TransducerOrAcceptor)
+T(::AbstractWFST)
 
 """
     ω(A)
 
 Return the vector of final states of `A`.
 """
-ω(::TransducerOrAcceptor)
+ω(::AbstractWFST)
 
 """
     ρ(A)
 
 Return the weight of the emtpy string.
 """
-ρ(::TransducerOrAcceptor)
+ρ(::AbstractWFST)
 
 """
     λ(A)
 
 Return the states' label of `A`.
 """
-λ(::TransducerOrAcceptor)
+λ(::AbstractWFST)
 
 """
     nstates(A)
@@ -66,7 +66,7 @@ nedges(A) = nnz(T(A))
 
 #= Graph representation of a FST using GraphViz =#
 
-function Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractFST)
+function Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractWFST)
     dotpath, dotfile = mktemp()
     try
         dot_write(IOContext(dotfile, :compact => true, :limit => true), A)
@@ -85,7 +85,7 @@ function Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractFST)
     end
 end
 
-function Base.show(io::IO, ::MIME"image/svg+xml", tup::Tuple{<:AbstractFST, <:AbstractArray})
+function Base.show(io::IO, ::MIME"image/svg+xml", tup::Tuple{<:AbstractWFST, <:AbstractArray})
     A, highlights = tup
     dotpath, dotfile = mktemp()
     try
@@ -106,12 +106,12 @@ function Base.show(io::IO, ::MIME"image/svg+xml", tup::Tuple{<:AbstractFST, <:Ab
 end
 
 """
-    dot_write(io::IO, A::AbstractFST)
+    dot_write(io::IO, A::AbstractWFST)
 
 Write a description of `A` on `io` in the [DOT](https://graphviz.org/doc/info/lang.html)
 language.
 """
-function dot_write(io::IO, A::AbstractFST; highlights = [], hcolor = "blue")
+function dot_write(io::IO, A::AbstractWFST; highlights = [], hcolor = "blue")
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
     dot_write_nodes(io, T(A), ω(A), ρ(A))

@@ -4,15 +4,19 @@ module FiniteStateAutomata
 
 using LinearAlgebra
 using ChainRulesCore
+
+# Currently we are using the standard Julia library of SparseArrays
+# which supports only CPU. We will move to "SparseSemimodules` soon.
 using SparseArrays
+
 using Semirings
 
-#Base.oneunit(K::Type{<:Semiring}) = one(K)
-
 export
-    # concrete types
-    FST,
-    #DenseFST,
+    # Abstract types
+    Acceptor,
+
+    # Concrete types
+    WFST,
 
     # Accessors / properties
     α,
@@ -20,48 +24,33 @@ export
     ω,
     ρ,
     λ,
-    #nstates,
+    nstates,
     #nedges,
     #accessible,
     #coaccessible,
 
     # FST operations
     W,
-    #Π₁,
-    #Π₂,
+    Π₁,
+    Π₂,
     closure
     #determinize,
     #renorm
-#    statemap,
+    #statemap,
 
 #    connect,
 #    determinize,
 #    globalrenorm,
 #    minimize,
 #    propagate,
-#    renorm
 
+# TODO: the TransitionMatrix structure and related types should
+# move to `SparseSemimodules`.
 include("transitionmatrix.jl")
+
 include("abstractfst.jl")
 include("fst.jl")
-#include("dense_fsa.jl")
-
 include("ops.jl")
-
-#include("totalweight.jl")
-#include("project.jl")
-#include("reverse.jl")
-#include("union.jl")
-#include("cat.jl")
-#include("closure.jl")
-#include("determinize.jl")
-#include("renorm.jl")
-
-#include("kron.jl")
-#include("statemap.jl")
-
-#include("intersect.jl")
-#include("autograd.jl")
 
 end
 

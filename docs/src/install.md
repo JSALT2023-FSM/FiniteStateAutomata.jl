@@ -1,6 +1,6 @@
 # Installation
 
-FiniteStateAutomata.jl is available via the [FAST registry](registry).
+FiniteStateAutomata.jl is available via the [FAST registry](https://gitlab.lisn.upsaclay.fr/fast/registry).
 
 In a Julia REPL session type `[` to enter the package mode and then
 type

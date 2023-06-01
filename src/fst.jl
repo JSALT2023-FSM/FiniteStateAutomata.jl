@@ -31,7 +31,7 @@ function TransitionMatrix(K, Q, direct_arcs, in_factors, factors, out_factors)
 end
 
 """
-    struct FST{K,L} <: AbstractFST{K,L}
+    struct FST{K,L} <: AbstractWFST{K,L}
         α::AbstractSparseVector{K}
         T::AbstractSparseMatrix{K}
         ω::AbstractSparseVector{K}
@@ -41,7 +41,7 @@ end
 
 Generic Finite State Automaton.
 """
-struct FST{K,L} <: AbstractFST{K,L}
+struct WFST{K,L} <: AbstractWFST{K,L}
     α::AbstractVector{K}
     T::TransitionMatrix{K}
     ω::AbstractVector{K}
@@ -49,7 +49,7 @@ struct FST{K,L} <: AbstractFST{K,L}
     λ::AbstractVector{L}
 end
 
-FST(A::AbstractFST) = FST(α(A), T(A), ω(A), ρ(A), λ(A))
+FST(A::AbstractWFST) = FST(α(A), T(A), ω(A), ρ(A), λ(A))
 
 # Returns a `Q` vector from a list of tuple `(i, v)`.`K` is element
 # type of the matrix.
@@ -62,7 +62,7 @@ function _spv_from_list(K, Q, tuples)
     sparsevec(I, V, Q)
 end
 
-function FST(; semiring, initweights, arcs, finalweights, statelabels,
+function WFST(; semiring, initweights, arcs, finalweights, statelabels,
              ϵweight = zero(semiring), infactors = [], factors = [], outfactors = [])
     Q = length(statelabels)
 
@@ -78,7 +78,7 @@ function FST(; semiring, initweights, arcs, finalweights, statelabels,
     E = _spm_from_list(semiring, P, P, factors)
     V = _spm_from_list(semiring, P, Q, outfactors)
 
-    FST(
+    WFST(
         _spv_from_list(semiring, Q, initweights),
         TransitionMatrix(S, U, E,V),
         _spv_from_list(semiring, Q, finalweights),
@@ -87,9 +87,9 @@ function FST(; semiring, initweights, arcs, finalweights, statelabels,
     )
 end
 
-α(A::AbstractFST) = A.α
-T(A::AbstractFST) = A.T
-ω(A::AbstractFST) = A.ω
-ρ(A::AbstractFST) = A.ρ
-λ(A::AbstractFST) = A.λ
+α(A::AbstractWFST) = A.α
+T(A::AbstractWFST) = A.T
+ω(A::AbstractWFST) = A.ω
+ρ(A::AbstractWFST) = A.ρ
+λ(A::AbstractWFST) = A.λ
 
