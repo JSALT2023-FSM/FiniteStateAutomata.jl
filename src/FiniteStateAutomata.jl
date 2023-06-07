@@ -16,7 +16,7 @@ export
     Acceptor,
 
     # Concrete types
-    WFST,
+    FST,
 
     # Accessors / properties
     α,
@@ -25,9 +25,16 @@ export
     ρ,
     λ,
     nstates,
-    #nedges,
+    narcs,
+    isymbols,
+    osymbols,
     #accessible,
     #coaccessible,
+
+    # Utilities
+    compile,
+    symboltable,
+    print,
 
     # FST operations
     W,
@@ -49,8 +56,12 @@ export
 include("transitionmatrix.jl")
 
 include("abstractfst.jl")
+include("graphviz.jl")
 include("fst.jl")
 include("ops.jl")
+
+include("utils.jl")
+
 
 end
 
