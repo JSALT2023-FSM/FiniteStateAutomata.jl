@@ -40,10 +40,12 @@ export
     W,
     Π₁,
     Π₂,
-    closure
+    closure,
     #determinize,
     #renorm
     #statemap,
+
+    draw
 
 #    connect,
 #    determinize,

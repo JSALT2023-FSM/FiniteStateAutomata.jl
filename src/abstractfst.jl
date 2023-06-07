@@ -64,18 +64,3 @@ Return the number of arcs in `A`.
 """
 narcs(A::AbstractFST) = size(S(A), 2)
 
-
-"""
-    isymbols(A)
-
-Return the input symbol table of `A`.
-"""
-isymbols(A::AbstractFST)
-
-"""
-    osymbols(A)
-
-Return the output symbol table of `A`.
-"""
-osymbols(A::AbstractFST)
-

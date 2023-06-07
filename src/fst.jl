@@ -19,8 +19,6 @@ struct FST{K,L} <: AbstractFST{K,L}
     D::AbstractMatrix{K}
     ω::AbstractVector{K}
     λ::AbstractVector{L}
-    isymbols::Dict
-    osymbols::Dict
 end
 
 FST(A::AbstractFST; isymbols = isymbols(A), osymbols = osymbols(A)) =
@@ -32,6 +30,4 @@ D(A::FST) = A.D
 ω(A::FST) = A.ω
 ρ(A::FST) = A.ρ
 λ(A::FST) = A.λ
-isymbols(A::FST) = A.isymbols
-osymbols(A::FST) = A.osymbols
 

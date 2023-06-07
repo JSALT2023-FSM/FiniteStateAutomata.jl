@@ -64,9 +64,7 @@ function compile(wfst::AbstractString;
         sparse(arcssrc, collect(1:A), arcsweight, Q, A),
         sparse(collect(1:A), arcsdest, one(K), A, Q),
         sparsevec(fstates, fweights, Q),
-        arcslabel,
-        isymbols,
-        osymbols
+        arcslabel
     )
 end
 

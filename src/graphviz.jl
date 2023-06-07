@@ -1,10 +1,19 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-function _show_svg(io::IO, A::AbstractFST)
+struct DrawableFST{K,L} <: AbstractFST{K,L}
+    fst::AbstractFST{K,L}
+    isymbols::Dict
+    osymbols::Dict
+end
+
+draw(fst::AbstractFST; isymbols = Dict(), osymbols = Dict()) =
+    DrawableFST(fst, isymbols, osymbols)
+
+function _show_svg(io::IO, fst::DrawableFST)
     dotpath, dotfile = mktemp()
     try
         fileio = IOContext(dotfile, :compact => true, :limit => true)
-        show(fileio, MIME("text/vnd.graphviz"), A)
+        show(fileio, MIME("text/vnd.graphviz"), fst)
         close(dotfile)
         svgpath, svgfile = mktemp()
         try
@@ -20,11 +29,12 @@ function _show_svg(io::IO, A::AbstractFST)
     end
 end
 
-Base.show(io::IO, ::MIME"image/svg+xml", A::AbstractFST) = _show_svg(io, A)
+Base.show(io::IO, ::MIME"image/svg+xml", fst::DrawableFST) = _show_svg(io, fst)
 
-function Base.show(io::IO, ::MIME"text/vnd.graphviz", A::AbstractFST)
-    isyms = isymbols(A)
-    osyms = osymbols(A)
+function Base.show(io::IO, ::MIME"text/vnd.graphviz", fst::DrawableFST)
+    A = fst.fst
+    isyms = fst.isymbols
+    osyms = fst.osymbols
 
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
@@ -77,6 +87,4 @@ function Base.show(io::IO, ::MIME"text/vnd.graphviz", A::AbstractFST)
 
     println(io, "}")
 end
-
-
 
