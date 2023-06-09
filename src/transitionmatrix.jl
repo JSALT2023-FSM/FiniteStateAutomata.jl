@@ -1,20 +1,24 @@
 # SPDX identifier: CECILL-2.1
 
-struct MatrixPowerSum{K} <: AbstractMatrix{K}
+struct MatrixPowerSeries{K} <: AbstractMatrix{K}
     A::AbstractMatrix{K}
+    fn::Function
 end
 
-Base.parent(A::MatrixPowerSum) = M.A
-Base.size(M::MatrixPowerSum) = size(M.A)
+powerseries(A::AbstractMatrix) = powerseries(identity, A)
+powerseries(fn::Function, A::AbstractMatrix) = MatrixPowerSeries(A, fn)
+
+Base.parent(A::MatrixPowerSeries) = M.A
+Base.size(M::MatrixPowerSeries) = size(M.A)
 
 # TODO performance can be improved by preallocating buffer.
-function Base.:*(xᵀ::Transpose{K,<:AbstractVector{K}}, M::MatrixPowerSum{K}) where K
-    uₙᵀ = xᵀ
+function Base.:*(xᵀ::Transpose{K,<:AbstractVector{K}}, M::MatrixPowerSeries{K}) where K
+    uₙᵀ = M.fn(xᵀ)
     acc = xᵀ
     n = 1
     while nnz(parent(uₙᵀ)) > 0
         n > size(M, 1) && throw(ArgumentError("matrix is not nilpotent"))
-		uₙᵀ = uₙᵀ * M.A
+        uₙᵀ = M.fn(uₙᵀ * M.A)
         acc += uₙᵀ
         n += 1
 	end
@@ -22,32 +26,16 @@ function Base.:*(xᵀ::Transpose{K,<:AbstractVector{K}}, M::MatrixPowerSum{K}) w
 end
 
 # TODO performance can be improved by preallocating buffer.
-function Base.:*(M::MatrixPowerSum{K}, x::AbstractVector{K}) where K
-    vₙ = x
+function Base.:*(M::MatrixPowerSeries{K}, x::AbstractVector{K}) where K
+    vₙ = M.fn(x)
     acc = x
     n = 1
     while nnz(vₙ) > 0
         n > size(M, 1) && throw(ArgumentError("matrix is not nilpotent"))
-		vₙ = M.A * vₙ
+        vₙ = M.fn(M.A * vₙ)
         acc += vₙ
         n += 1
 	end
     acc
 end
-
-#= Factorized matrix =#
-
-struct TransitionMatrix{K} <: AbstractMatrix{K}
-    S::AbstractMatrix{K}
-    U::AbstractMatrix{K}
-    E::AbstractMatrix{K}
-    V::AbstractMatrix{K}
-end
-
-Base.size(M::TransitionMatrix) = size(M.S)
-Base.:*(xᵀ::Transpose{K,<:AbstractVector}, M::TransitionMatrix{K}) where K =
-    xᵀ * M.S + ((xᵀ * M.U) * M.E) * M.V
-
-Base.:*(M::TransitionMatrix{K}, x::AbstractVector{K}) where K =
-    M.S * x + M.U * (M.E * (M.V * x))
 

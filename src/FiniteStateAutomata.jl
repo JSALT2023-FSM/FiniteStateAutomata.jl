@@ -13,39 +13,51 @@ using Semirings
 
 export
     # Abstract types
+    AbstractFST,
     Acceptor,
 
     # Concrete types
+    Label,
     FST,
 
     # Accessors / properties
     α,
-    T,
+    S,
+    D,
     ω,
     ρ,
     λ,
     nstates,
     narcs,
-    isymbols,
-    osymbols,
-    #accessible,
-    #coaccessible,
+    arcs,
+    states,
+    semiring,
+    accessible,
+    coaccessible,
+
+    powerseries,
 
     # Utilities
     compile,
     symboltable,
     print,
+    draw,
+
+    # Unary FST operations
+    filterarcs,
+    filterstates,
+    project,
+    relabel,
+    connect,
+    closure,
 
     # FST operations
-    W,
-    Π₁,
-    Π₂,
-    closure,
+    W
     #determinize,
     #renorm
     #statemap,
 
-    draw
+
 
 #    connect,
 #    determinize,
@@ -61,8 +73,7 @@ include("abstractfst.jl")
 include("graphviz.jl")
 include("fst.jl")
 include("ops.jl")
-
-include("utils.jl")
+include("io.jl")
 
 
 end

@@ -2,12 +2,60 @@
 
 ## Creating a Transducer
 
-The first step is to create a semiring type for the arcs' weight with
-the [Semirings.jl](https://gitlab.lisn.upsaclay.fr/fast/semirings.jl)
-package. For instance
+FSTs can be specified in the [AT&T FSM](http://www.cs.nyu.edu/~mohri/postscript/tcs2.ps)
+format. For transducer it is defined as:
 ```
-K = LogSemiring{Float64}
+src1 dest1 ilabel1 olabel1 [weight] # 1st arc
+src2 dest2 ilabel2 olabel2 [weight] # 2nd arc
+...
+state1 [weight1] # final weight for `state1`
+state2 [weight2] # final weight for `state2`
+...
 ```
+The source state of the first arc (`src1` in our example) is
+interpreted as the starting state of the FST. When a weight is not
+specified it is assumed to be the semiring-one. The format is analog
+for acceptors.
+```
+src dest label [weight] # 1st arc
+src dest label [weight] # 2nd arc
+...
+state [weight] # final weight for `state`
+state [weight] # final weight for `state`
+...
+```
+States and labels are integers. States are indexed from 1 whereas
+labels are indexed from 0 and the 0 label index is reserved for the
+empty label ϵ. Finally weights are floating point values.
+
+This textual representation can be converted to a julia FST structure
+with the [`compile`](@ref) function and the other way around with the
+[`print`](@ref) function.
+```@repl
+using FiniteStateAutomata
+using Semirings
+fst = compile(
+    """
+    1 2 1 1 1
+    1 3 1 2 2.5
+    2 2 3 3 1
+    2
+    3 2.5
+    """;
+    semiring = TropicalSemiring{Float32}
+)
+print(fst)
+```
+
+!!! warning
+    Contrary to other toolkits ([OpenFST](https://www.openfst.org),
+    [Kaldi](https://kaldi-asr.org/),
+    [k2](https://k2-fsa.github.io/k2/), ...) and because of the Julia
+    ecosystem, we assumed 1-based index for the states in the text
+    format. For interoperability, you can compile or print 0-based
+    index text format by passing the keyword argument
+    `openfst_compat = true` in [`compile`](@ref) and [`print`](@ref).
+
 
 Then we can create a WFST with the `WFST` function
 ```julia
