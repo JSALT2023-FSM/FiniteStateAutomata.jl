@@ -218,7 +218,7 @@ end
 # ╔═╡ 29d90b34-75fe-4138-8ea9-80f2dcde6ae1
 fA1 = filterarcs(A) do (s, d, l, w)
 	first(l) < 3
-end 
+end
 
 # ╔═╡ 152b52b3-11bd-436d-9d3d-4eecb6bc7072
 draw(fA1; isymbols = syms1, osymbols = syms2)
@@ -285,6 +285,16 @@ begin
 	draw(Y; isymbols = syms1, osymbols = syms1)
 end	
 
+# ╔═╡ 41866c51-e609-4a8e-aaf5-86058e724e1c
+C = kron(X, Y)
+
+# ╔═╡ 5ccf3a8d-5cf6-4889-8f9c-2731b3dbd546
+filterarcs(C) do (s, d, l, w)
+        lA, lB = l
+        last(lA) == first(lB)
+end |> connect |> draw
+
+
 # ╔═╡ 4356e0c8-3838-40c5-add9-7095e379718f
 draw(X ∘ Y; isymbols = syms1, osymbols = syms1)
 
@@ -336,4 +346,6 @@ draw(X ∘ Y; isymbols = syms1, osymbols = syms1)
 # ╟─7d75c798-75d8-41e3-b055-b2e55abca9cc
 # ╠═5943412c-b4aa-4b3c-b664-04e218927ae0
 # ╠═d9232933-311e-4607-98ca-683d5c145da0
+# ╠═41866c51-e609-4a8e-aaf5-86058e724e1c
+# ╠═5ccf3a8d-5cf6-4889-8f9c-2731b3dbd546
 # ╠═4356e0c8-3838-40c5-add9-7095e379718f
