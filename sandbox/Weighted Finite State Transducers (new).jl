@@ -19,6 +19,9 @@ end
 # ╔═╡ 69efb345-afe4-435d-afd4-30c94109a7aa
 TableOfContents()
 
+# ╔═╡ 7d604912-13ca-4882-8420-6b7b681a95e7
+TableOfContents(title="📚 Table of Contents", indent=true, depth=4)
+
 # ╔═╡ 850192a5-9578-4e2c-abb3-b8fa46cfda72
 md"""
 ## Creating WFST
@@ -285,6 +288,9 @@ begin
 	draw(Y; isymbols = syms1, osymbols = syms1)
 end	
 
+# ╔═╡ 4356e0c8-3838-40c5-add9-7095e379718f
+draw(X ∘ Y; isymbols = syms1, osymbols = syms1)
+
 # ╔═╡ 41866c51-e609-4a8e-aaf5-86058e724e1c
 C = kron(X, Y)
 
@@ -294,13 +300,62 @@ filterarcs(C) do (s, d, l, w)
         last(lA) == first(lB)
 end |> connect |> draw
 
+# ╔═╡ 11bdc86e-d644-4995-88b9-cb08bbbf4688
+party_fst = compile(
+	"""
+	1 2 1 1 
+	1 2 0 1
+	2 3 3 2 
+	2 4 2 2 
+	3 5 3 3 
+	3 4 3 0 
+	4 4 2 0
+	4 4 3 0
+	4 6 0 4
+	5 
+	6
+	""";
+) 
 
-# ╔═╡ 4356e0c8-3838-40c5-add9-7095e379718f
-draw(X ∘ Y; isymbols = syms1, osymbols = syms1)
+# ╔═╡ c8298bad-83ca-46a1-af87-ae76cf424b08
+draw(
+	party_fst; 
+	isymbols = Dict(0 => "ϵ", 1 => "🍟",  2 => "🍺", 3 => "🍷"),
+	osymbols = Dict(0 => "ϵ", 1 => "😐",  2 => "🙂", 3 => "😴", 4 => "🤮"),
+)
+
+# ╔═╡ 7b9e8e66-5191-426c-af7e-6cfd8fc84266
+beer_fst = compile(
+	"""
+	1 2 1 1 0.5
+	1 2 0 0 0.5
+	2 3 2 2 0.3
+	3 3 2 2 0.8
+	2 4 3 3 0.7
+	4 4 3 3 0.6
+	3 0.2 
+	4 0.4
+	""";
+) 
+
+# ╔═╡ d6863b2e-647f-4345-b4e9-1dcd6f85290d
+draw(
+	beer_fst; 
+	isymbols = Dict(0 => "ϵ", 1 => "🍟",  2 => "🍺", 3 => "🍷"),
+	osymbols = Dict(0 => "ϵ", 1 => "🍟",  2 => "🍺", 3 => "🍷"),
+)
+
+# ╔═╡ 39167e85-fe2c-40e5-b86a-d3e22278bfc8
+draw(
+	beer_fst ∘ party_fst; 
+	isymbols = Dict(0 => "ϵ", 1 => "🍟", 2 => "🍺", 3 => "🍷"),
+	osymbols = Dict(0 => "ϵ", 1 => "😐",  2 => "🙂", 3 => "😴", 4 => "🤮"),
+)
 
 # ╔═╡ Cell order:
 # ╠═a2acb152-0475-11ee-11af-8b864963e161
 # ╠═69efb345-afe4-435d-afd4-30c94109a7aa
+# ╠═7d604912-13ca-4882-8420-6b7b681a95e7
 # ╟─850192a5-9578-4e2c-abb3-b8fa46cfda72
 # ╠═bc5265f3-31d1-4387-8147-9281a3cd1da9
 # ╠═ce17161c-3315-4be8-aaca-af7b36b18175
@@ -340,12 +395,17 @@ draw(X ∘ Y; isymbols = syms1, osymbols = syms1)
 # ╟─e622fe60-32d0-4433-ad5d-e5c5edabda96
 # ╠═f20c8851-7384-4a7c-a570-b8796e23f07c
 # ╟─7ed60842-5f64-4415-a36c-33739203c2d4
-# ╠═409e679e-33e6-4b2c-9866-97dbb435d097
-# ╠═74862e5b-f860-4458-8e69-d0917e31cfe8
+# ╟─409e679e-33e6-4b2c-9866-97dbb435d097
+# ╟─74862e5b-f860-4458-8e69-d0917e31cfe8
 # ╠═af3c6894-4a3c-4c97-8850-125d8c98e998
 # ╟─7d75c798-75d8-41e3-b055-b2e55abca9cc
-# ╠═5943412c-b4aa-4b3c-b664-04e218927ae0
-# ╠═d9232933-311e-4607-98ca-683d5c145da0
+# ╟─5943412c-b4aa-4b3c-b664-04e218927ae0
+# ╟─d9232933-311e-4607-98ca-683d5c145da0
+# ╠═4356e0c8-3838-40c5-add9-7095e379718f
 # ╠═41866c51-e609-4a8e-aaf5-86058e724e1c
 # ╠═5ccf3a8d-5cf6-4889-8f9c-2731b3dbd546
-# ╠═4356e0c8-3838-40c5-add9-7095e379718f
+# ╠═11bdc86e-d644-4995-88b9-cb08bbbf4688
+# ╠═c8298bad-83ca-46a1-af87-ae76cf424b08
+# ╟─7b9e8e66-5191-426c-af7e-6cfd8fc84266
+# ╠═d6863b2e-647f-4345-b4e9-1dcd6f85290d
+# ╠═39167e85-fe2c-40e5-b86a-d3e22278bfc8

@@ -154,7 +154,10 @@ function _compose_ϵfree(match, A::AbstractFST, B::AbstractFST)
 	# into new labels lA[1]:lB[2]
 	relabel(result) do l
 		lA, lB = l
-		first(lA) => last(lB)
+        i1, o1 = lA
+        i2, o2 = lB
+        o2 = o2 == -3  ? i2 : o2
+		i1 => o2
 	end
 end
 
@@ -200,13 +203,13 @@ function _compose(X::Transducer, Y::Transducer)
 	)
 
 	XF = _compose_ϵfree(X̃, F) do (s, d, l, w)
-		l1, l2 = l
-		last(l1) == first(l2) || (last(l1) == ϕ && first(l2) ≠ ϵ1 && first(l2) ≠ ϵ2)
+        o1, i2 = first(last(l)), last(first(l))
+        o1 == i2 || (i2 == ϕ && o1 > 0 )
 	end
 
 	_compose_ϵfree(XF, Ỹ) do (s, d, l, w)
-		l1, l2 = l
-		first(l2) == last(l1) || (first(l2) == ϕ && last(l1) ≠ ϵ1)
+        o1, i2 = first(last(l)), last(first(l))
+        o1 == i2 || (o1 == ϕ && i2 > 0)
 	end
 end
 
