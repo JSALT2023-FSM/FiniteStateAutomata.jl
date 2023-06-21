@@ -1,121 +1,115 @@
 # SPDX identifier: CECILL-2.1
 
-const LabelSymbol = Union{<:Integer, NTuple{N,<:Integer} where N}
+"""
+    const ϵ::Int = 0
+
+Epsilon label symbol represented as `0` by convention.
+"""
+const ϵ::Int = 0
+
+"""
+    const LabelSymbol = Integer
+
+Label symbol.
+"""
+const LabelSymbol = Integer
+
+"""
+    const LabelSymbolMapping = Pair{<:LabelSymbol,<:LabelSymbol}
+
+Label symbol fo an arc. It is stored as an integer.
+"""
 const LabelSymbolMapping = Pair{<:LabelSymbol,<:LabelSymbol}
+
+"""
+    const Label = Union{LabelSymbol,LabelSymbolMapping}
+
+Arc's label. It can be either a unique symbol (for acceptor) or a
+mapping rule `in_symbol => out_symbol` (for transducer).
+"""
 const Label = Union{LabelSymbol, LabelSymbolMapping}
 
-isepsilon(l::Integer) = l == 0
-isepsilon(l::NTuple{1}) = isepsilon(l[1])
-isepsilon(l::NTuple{N}) where N = isepsilon(l[1]) && isepsilon(l[2:end])
+isepsilon(l::LabelSymbol) = l == ϵ
 isepsilon(l::LabelSymbolMapping) = isepsilon(first(l)) && isepsilon(last(l))
 
-isinputepsilon(l::LabelSymbol) = isepsilon(l)
-isoutputepsilon(l::LabelSymbol) = isepsilon(l)
-isinputepsilon(l::LabelSymbolMapping) = isepsilon(first(l))
-isoutputepsilon(l::LabelSymbolMapping) = isepsilon(last(l))
+hasinputepsilon(l::LabelSymbol) = isepsilon(l)
+hasoutputepsilon(l::LabelSymbol) = isepsilon(l)
+hasinputepsilon(l::LabelSymbolMapping) = isepsilon(first(l))
+hasoutputepsilon(l::LabelSymbolMapping) = isepsilon(last(l))
 
 """
-    abstract type AbstractFST{K<:Semiring,L<:Union{Label,LabelMapping}} end
+    abstract type AbstractFST{S<:Semiring,L<:Label} end
 
-Abstract base type for all FST. `K` is the weight
-semiring and `L` is the label type or a label mapping. Acceptors is the
-subset of FSTs for which `L` is a `Label` (or equivalently the label
-mapping is just the identity function).
+Abstract base type for all FST. `S` is the weight semiring and `L` is
+the label type. For acceptors, `L<:LabelSymbol` whereas for transducers
+`L<:LabelMapping`.
 """
-abstract type AbstractFST{K<:Semiring,L<:Label} end
+abstract type AbstractFST{S<:Semiring,L<:Label} end
 
 """
-    α(A)
+    M(fst)
+
+Return a 3D tensor representing the arcs of the FST.
+"""
+M(::AbstractFST)
+
+
+"""
+    α(fst)
 
 Return the vector of initial states of `A`.
 """
 α(::AbstractFST)
 
 """
-    S(A)
-
-Return the source incidence matrix of `A`.
-"""
-S(::AbstractFST)
-
-"""
-    D(A)
-
-Return the destination incidence matrix of `A`.
-"""
-D(::AbstractFST)
-
-"""
-    ω(A)
+    ω(fst)
 
 Return the vector of final states of `A`.
 """
 ω(::AbstractFST)
 
 """
-    λ(A)
-
-Return the states' label of `A`.
-"""
-λ(::AbstractFST)
-
-"""
     semiring(fst)
 
 Return the semiring type of `fst`.
 """
-semiring(fst::AbstractFST{K}) where K = K
+semiring(fst::AbstractFST{S}) where S = S
 
 """
-    nstates(A)
+    nstates(fst)
 
-Return the number of states in `A`.
+Return the number of states in `fst`.
+
+See also: [`states`](@refs), [`arcs`](@ref), and [`narcs`](@ref).
 """
-nstates(A::AbstractFST) = size(S(A), 1)
-
-"""
-    narcs(A)
-
-Return the number of arcs in `A`.
-"""
-narcs(A::AbstractFST) = size(S(A), 2)
-
-struct ArcIterator
-    fst::AbstractFST
-end
-
-Base.length(it::ArcIterator) = narcs(it.fst)
-
-function Base.iterate(it::ArcIterator, a = 1)
-    a > narcs(it.fst)  && return nothing
-    I, V1 = findnz(S(it.fst)[:, a])
-    J, V2 = findnz(D(it.fst)[:, a])
-    arc = (I[1], J[1], λ(it.fst)[a], V1[1] ⊗ V2[1])
-    return (arc, a+1)
-end
+nstates(::AbstractFST)
 
 """
-    states(fst)
+    narcs(fst)
 
-Iterator over the states of `fst`.
+Return the number of arcs in `fst`.
+
+See also: [`arcs`](@ref), [`states`](@ref) and [`nstates`](@ref).
 """
-arcs(fst::AbstractFST) = ArcIterator(fst)
+narcs(::AbstractFST)
 
-struct StateIterator
-    fst::AbstractFST
-end
+"""
+    arcs(fst)
 
-Base.length(it::StateIterator) = nstates(it.fst)
+Iterator over the arcs of `fst`. Each element given by the iterator
+is of the form `(src, dest, label, weight)`.
 
-function Base.iterate(it::StateIterator, q = 1)
-    q > nstates(it.fst)  && return nothing
-    return ((q, α(it.fst)[q], ω(it.fst)[q]), q+1)
-end
+See also: [`narcs`](@ref), [`states`](@ref) and [`nstates`](@ref).
+"""
+arcs(fst::AbstractFST)
 
 """
     states(fst)
 
-Iterator over the states of `fst`.
+Iterator over the states of `fst`. Each element given by the iterator
+is of the form `(stateid, initialweight, finalweight)`.
+
+See also: [`nstates`](@ref), [`arcs`](@ref) and [`narcs`](@ref).
 """
-states(fst::AbstractFST) = StateIterator(fst)
+states(fst::AbstractFST)
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-struct DrawableFST{K,L} <: AbstractFST{K,L}
-    fst::AbstractFST{K,L}
+struct DrawableFST{S,L}
+    fst::AbstractFST{S,L}
     isymbols::Dict
     osymbols::Dict
     openfst_compat::Bool
