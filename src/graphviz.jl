@@ -7,7 +7,7 @@ struct DrawableFST{S,L}
     openfst_compat::Bool
 end
 
-draw(fst::AbstractFST; isymbols = Dict(), osymbols = Dict(), openfst_compat = false) =
+draw(fst::AbstractFST; symbols = Dict(), isymbols = symbols, osymbols = symbols, openfst_compat = false) =
     DrawableFST(fst, isymbols, osymbols, openfst_compat)
 
 _getlabel(l, isymbols, osymbols) = get(isymbols, l, l)

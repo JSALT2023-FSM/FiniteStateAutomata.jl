@@ -16,17 +16,20 @@ function symboltable(txt::AbstractString)
 	symtable
 end
 
-function compile(wfst::AbstractString; semiring = LogSemiring{Float32},
+"""
+    compile(wfst[; semiring = LogSemiring{Float32,1}, acceptor = false, openfst_compat = false])
+
+Create a `SparseFST` object from a text-formatted FST definition file.
+"""
+function compile(wfst::AbstractString; semiring = LogSemiring{Float32,1},
                 acceptor = false, openfst_compat = false)
     offset = openfst_compat ? 1 : 0
 
     K = semiring
-    arcslabel = acceptor ? Int[] : Pair{Int,Int}[]
-    arcsweight = K[]
-    arcssrc = Int[]
-    arcsdest = Int[]
+    arcs = acceptor ? Dict{Int,Any}() : Dict{Pair{Int, Int},Any}()
     fstates = Int[]
     fweights = K[]
+    Qset = Set{Int}()
 
     lines = split(wfst, "\n")
     for line in lines
@@ -38,37 +41,52 @@ function compile(wfst::AbstractString; semiring = LogSemiring{Float32},
             weight = length(tokens) == 1 ? one(K) : K(parse(Float64, tokens[2]))
             push!(fstates, state)
             push!(fweights, weight)
+            push!(Qset, state)
         else
             src = parse(Int, tokens[1]) + offset
             dest = parse(Int, tokens[2]) + offset
-            push!(arcssrc, src)
-            push!(arcsdest, dest)
+            push!(Qset, src)
+            push!(Qset, dest)
 
             isym = parse(Int, tokens[3])
             if ! acceptor
                 osym = parse(Int, tokens[4])
                 weight = length(tokens) == 4 ? one(K) : K(parse(Float64, tokens[5]))
-                push!(arcslabel, isym => osym)
+                arcs[isym => osym] = push!(
+                    get(arcs, isym => osym, []),
+                    (src, dest, weight)
+                )
             else
                 weight = length(tokens) == 3 ? one(K) : K(parse(Float64, tokens[4]))
-                push!(arcslabel, isym)
+                arcs[isym] = push!(
+                    get(arcs, isym => osym, []),
+                    (src, dest, weight)
+                )
             end
-            push!(arcsweight, weight)
         end
     end
 
-    Qset = Set{Int}(arcssrc) ∪ Set{Int}(arcsdest) ∪ Set{Int}(fstates)
-
     initstate = parse(Int, split(first(lines))[1]) + offset
     Q = length(Qset)
-    A = length(arcslabel)
 
-    FST(
+    function spm(arclist, Q)
+        I, J, V = [], [], K[]
+        for (s, d, v) in arclist
+            push!(I, s)
+            push!(J, d)
+            push!(V, v)
+        end
+        sparse(I, J, V, Q, Q)
+    end
+
+    λ = collect(keys(arcs))
+    M = SparseMatrices([spm(arcs[l], Q) for l in λ]...)
+
+    SparseFST(
+        M,
         sparsevec([initstate], one(K), Q),
-        sparse(arcssrc, collect(1:A), arcsweight, Q, A),
-        sparse(arcsdest, collect(1:A), one(K), Q, A),
         sparsevec(fstates, fweights, Q),
-        arcslabel
+        λ
     )
 end
 

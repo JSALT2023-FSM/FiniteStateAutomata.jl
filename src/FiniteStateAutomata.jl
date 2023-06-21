@@ -3,6 +3,7 @@
 module FiniteStateAutomata
 
 using Semirings
+using SparseSemimodules
 
 #=====================================================================#
 # Abstract FST types and generic properties.
@@ -12,6 +13,7 @@ export
     M,
     α,
     ω,
+    λ,
     arcs,
     narcs,
     nstates,
@@ -25,8 +27,9 @@ include("abstractfst.jl")
 # Vizualisation.
 #=====================================================================#
 
-#include("graphviz.jl")
-#include("io.jl")
+export draw
+
+include("graphviz.jl")
 
 #=====================================================================#
 # FST operations
@@ -38,9 +41,17 @@ include("abstractfst.jl")
 # Concrete types.
 #=====================================================================#
 
-export FST
+export SparseFST
 
 include("fst.jl")
+
+#=====================================================================#
+# Loading/Saving FSTs.
+#=====================================================================#
+
+export compile
+
+include("io.jl")
 
 end
 

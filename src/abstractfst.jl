@@ -5,7 +5,7 @@
 
 Epsilon label symbol represented as `0` by convention.
 """
-const ϵ::Int = 0
+const ϵ = 0
 
 """
     const LabelSymbol = Integer
@@ -33,8 +33,9 @@ isepsilon(l::LabelSymbol) = l == ϵ
 isepsilon(l::LabelSymbolMapping) = isepsilon(first(l)) && isepsilon(last(l))
 
 hasinputepsilon(l::LabelSymbol) = isepsilon(l)
-hasoutputepsilon(l::LabelSymbol) = isepsilon(l)
 hasinputepsilon(l::LabelSymbolMapping) = isepsilon(first(l))
+
+hasoutputepsilon(l::LabelSymbol) = isepsilon(l)
 hasoutputepsilon(l::LabelSymbolMapping) = isepsilon(last(l))
 
 """
@@ -49,7 +50,7 @@ abstract type AbstractFST{S<:Semiring,L<:Label} end
 """
     M(fst)
 
-Return a 3D tensor representing the arcs of the FST.
+Return a list of matrices representing the arcs of the FST.
 """
 M(::AbstractFST)
 
@@ -69,6 +70,13 @@ Return the vector of final states of `A`.
 ω(::AbstractFST)
 
 """
+    λ(fst)
+
+Return the mapping index -> label.
+"""
+λ(::AbstractFST)
+
+"""
     semiring(fst)
 
 Return the semiring type of `fst`.
@@ -82,7 +90,7 @@ Return the number of states in `fst`.
 
 See also: [`states`](@refs), [`arcs`](@ref), and [`narcs`](@ref).
 """
-nstates(::AbstractFST)
+nstates(fst::AbstractFST) = size(α(fst), 1)
 
 """
     narcs(fst)
