@@ -8,12 +8,12 @@
 2. Using Jupyter notebook (optional but recommended)
 ```bash
 $ julia
-_       _ _(_)_     |  Documentation: https://docs.julialang.org
-(_)     | (_) (_)    |
-_ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
-| | | | | | |/ _` |  |
-| | |_| | | | (_| |  |  Version 1.9.1 (2023-06-07)
-_/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+   _       _ _(_)_     |  Documentation: https://docs.julialang.org
+  (_)     | (_) (_)    |
+   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 1.9.1 (2023-06-07)
+ _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
 |__/                   |
 
 julia>
@@ -24,6 +24,23 @@ julia>
 julia> using Pluto
 julia> Pluto.run() # will open a new tab in your browser.
 ```
+3. To develop a package and debug in the notebook:
+  1. Clone the repository
+  2. in the first cell of the notebook:
+  ```julia
+  begin
+      using Pkg
+
+      # Path to the clone repository.
+      # you need to save the notebook to know the relative path
+      Pkg.develop(path="...")
+
+      # Take into account the changes you've made
+      using Revise
+
+      using FiniteStateAutomata # or Semirings or SparseSemimodules
+  end
+  ```
 
 ## Semirings [Semirings.jl](https://gitlab.lisn.upsaclay.fr/fast/semirings.jl)
 - [ ] Semirings
