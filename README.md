@@ -2,19 +2,28 @@
 
 ## Getting started with Julia
 
-!!! info
-    Make sure you have the `dot` program installed on your computer to
-    be able to visualize graphs.
+> :info: Make sure you have the `dot` program installed on your computer to be able to visualize graphs.
 
 1. Download and install the latest version (1.9.1): [https://julialang.org/downloads/]()
 2. Using Jupyter notebook (optional but recommended)
-  1. Open a julia session by typing `]` in the REPL:
+```bash
+$ julia
+_       _ _(_)_     |  Documentation: https://docs.julialang.org
+(_)     | (_) (_)    |
+_ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+| | | | | | |/ _` |  |
+| | |_| | | | (_| |  |  Version 1.9.1 (2023-06-07)
+_/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+|__/                   |
 
-  ```$ julia
-  julia>
-  pkg>  # <- enter the package mode by hitting the "]"
-  ```
+julia>
+(@v1.9) pkg>  # <- enter the package mode by hitting the "]"
+(@v1.9) pkg> add Pluto
 
+# After the installation
+julia> using Pluto
+julia> Pluto.run() # will open a new tab in your browser.
+```
 
 ## Semirings [Semirings.jl](https://gitlab.lisn.upsaclay.fr/fast/semirings.jl)
 - [ ] Semirings
