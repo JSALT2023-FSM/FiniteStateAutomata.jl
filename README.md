@@ -1,7 +1,23 @@
 # TODOs
 
+## Getting started with Julia
+
+!!! info
+    Make sure you have the `dot` program installed on your computer to
+    be able to visualize graphs.
+
+1. Download and install the latest version (1.9.1): [https://julialang.org/downloads/]()
+2. Using Jupyter notebook (optional but recommended)
+  1. Open a julia session by typing `]` in the REPL:
+
+  ```$ julia
+  julia>
+  pkg>  # <- enter the package mode by hitting the "]"
+  ```
+
+
 ## Semirings [Semirings.jl](https://gitlab.lisn.upsaclay.fr/fast/semirings.jl)
-- Semiring to implement
+- [ ] Semirings
   - [x] Boolean 🌶
   - [x] Real 🌶
   - [x] LogSemiring 🌶
@@ -15,7 +31,7 @@
   - [ ] SignedLog 🌶
   - [ ] SparsePower 🌶
   - [ ] String 🌶
-- Automatic differentiation (two possible choices)
+- [ ] Automatic differentiation (two possible choices)
   - [ ] [Enzyme.jl](https://github.com/EnzymeAD/Enzyme.jl) compute the
     gradient from the LLVM IR 🌶🌶🌶
   - [ ] [ChainRulesCore.jl](https://github.com/JuliaDiff/ChainRulesCore.jl)
@@ -42,9 +58,13 @@
   - [ ] Option to prune the paths 🌶🌶
 
 ## FST [FiniteStateAutomata.jl](https://gitlab.lisn.upsaclay.fr/fast/finitestateautomata.jl)
-- [ ] **FST storage format**
+- [ ] ⚠ **FST storage format** ⚠ (high priority)
   - [x] List of sparse matrices CSR stored as a block diagonal matrix
   - [ ] Other alternatives ?
+  - [ ] efficient arcs / state iterators
+- [ ] Visualization
+  - [x] graphviz
+  - [ ] show summary
 - [ ] Automata's weight (shortest distance) 🌶
   - [x] basic algorithm
   - [ ] batch version
@@ -74,7 +94,6 @@
 
 ## Practical uses
 - [ ] Decoder (edge-cloud / long-form pipelines ?)
-- [ ]
 - [ ] CTC / MMI Loss
   - [ ] Create a language model from a IARPA n-gram file
   - [ ] requires local and global normalization (i.e. weight pushing)
