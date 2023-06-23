@@ -23,18 +23,23 @@
     differentiation 🌶🌶🌶
 
 ## Linear Algebra [SparseSemimodules.jl](https://gitlab.lisn.upsaclay.fr/fast/sparsesemimodules.jl)
+- [x] Basic structures and algorithms
+  - [x] sparse vector
+  - [x] sparse matrix CSR
+  - [x] dot product of sparse vectors
+  - [x] sparse vector transpose - sparse matrix CSR multiplication
+  - [ ] kronecker Product (for the composition algorithm)
+    - [ ] Kronecker product of sparse matrix CSR 🌶🌶
+    - [ ] Lazy version of the Kronecker product 🌶🌶
 - [ ] Parallel computations
-  - [x] Sum of sparse matrices 🌶🌶
-  - [ ] Multi-threaded sparse vector - sparse matrix multiplication
+  - [ ] Sum of sparse matrices 🌶🌶
+  - [ ] Multi-threaded sparse vector tr. - sparse matrix multiplication
     🌶🌶
-  - [ ] GPU sparse vector - sparse matrix multiplication 🌶🌶🌶
-- [ ] Kronecker Product (for the composition algorithm)
-  - [ ] Kronecker product of sparse matrix CSR 🌶🌶
-  - [ ] Lazy version of the Kronecker product 🌶🌶
+  - [ ] GPU sparse vector tr. - sparse matrix multiplication 🌶🌶🌶
 - [ ] Matrix star operations 🌶
-  - [ ] Example [here](https://gitlab.lisn.upsaclay.fr/fast/finitestateautomata.jl/-/blob/jsalt2023-workshop/src/transitionmatrix.jl)
+  - [x] example [here](https://gitlab.lisn.upsaclay.fr/fast/finitestateautomata.jl/-/blob/jsalt2023-workshop/src/transitionmatrix.jl)
     to be relocated in SparseSemimodules.jl 🌶
-  - [ ] Option to prune the paths 🌶
+  - [ ] Option to prune the paths 🌶🌶
 
 ## FST [FiniteStateAutomata.jl](https://gitlab.lisn.upsaclay.fr/fast/finitestateautomata.jl)
 - [ ] **FST storage format**
@@ -51,6 +56,7 @@
   - [ ] ϵ-free 🌶🌶
   - [ ] with ϵ arcs 🌶🌶🌶
   - [ ] lazy implementation 🌶 (relies on SparseSemimodules)
+- [ ] Weight pushing 🌶🌶
 - [ ] Other FST Operations
   - [ ] determinize 🌶🌶🌶
   - [ ] minimize 🌶🌶🌶
@@ -62,5 +68,17 @@
     - [ ] requires to implement: find accessible / coaccessible states 🌶
   - ...
 - [ ] Python wrapper 🌶🌶
-- [ ] OpenFST binding 🌶🌶 (Michael Riley ?)
+- [ ] OpenFST bindings
+  - [x] OpenFST text format 🌶
+  - [ ] "binary binding" (Michael ?)
+
+## Practical uses
+- [ ] Decoder (edge-cloud / long-form pipelines ?)
+- [ ]
+- [ ] CTC / MMI Loss
+  - [ ] Create a language model from a IARPA n-gram file
+  - [ ] requires local and global normalization (i.e. weight pushing)
+  - [ ] Intersection algorithm for GNAT ??
+- [ ] SoundsLikeName
+  - [ ] pronunciation graph for OOV
 
