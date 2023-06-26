@@ -2,8 +2,8 @@
 
 module FiniteStateAutomata
 
-using Semirings
-using SparseSemimodules
+include("semirings/Semirings.jl")
+include("sparsesemimodules/SparseSemimodules.jl")
 
 #=====================================================================#
 # Abstract FST types and generic properties.
@@ -35,7 +35,7 @@ include("graphviz.jl")
 # FST operations
 #=====================================================================#
 
-#include("ops.jl")
+include("ops.jl")
 
 #=====================================================================#
 # Concrete types.

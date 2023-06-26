@@ -4,8 +4,9 @@ authors = ["Lucas ONDEL YANG <lucas.ondel@cnrs.fr"]
 version = "0.3.0"
 
 [deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-Semirings = "900aad66-9ca5-44d4-b043-321c62cb7767"
+LogExpFunctions = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-SparseSemimodules = "16bd8f8d-39a5-4a9c-a0b1-0185599022a8"
