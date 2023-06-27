@@ -32,12 +32,17 @@ include("sparsematrices.jl")
 include("kron.jl")
 include("linalg.jl")
 
+#=====================================================================#
+# Power series of a matrix.
+#=====================================================================#
+export powerseries
 
+include("power.jl")
 
 
 #TODO: Move elsewhere
-
 findparam(ex::Type{<:AbstractArray{T}}) where {T} = T
 
 findbasetype(ex::Type{<:AbstractArray}) = Base.typename(ex).wrapper
+
 
