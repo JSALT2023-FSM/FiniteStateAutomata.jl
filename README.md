@@ -53,7 +53,7 @@ julia> Pluto.run() # will open a new tab in your browser.
   - [ ] Lexicographic 🌶
   - [ ] MinMax 🌶
   - [ ] Power 🌶
-  - [ ] Product 🌶
+  - [x] Product 🌶
   - [ ] SignedLog 🌶
   - [ ] SparsePower 🌶
   - [ ] String 🌶

@@ -70,3 +70,21 @@ const TropicalSemiring{T} = LogSemiring{T,Inf} where T
 
 ⊕(x::TropicalSemiring{T}, y::TropicalSemiring{T}) where T = TropicalSemiring{T}(max(x.val, y.val))
 
+"""
+    struct ProductSemiring{T}
+
+Product semiring: ``\\langle (S_1, S_2), (x_1\oplus x_2, y_1\oplus y_2), (x_1\otimes x_2, y_1\otimes y_2), (1,1), (0,0) \\rangle``.
+"""
+struct ProductSemiring{A<:Semiring, B<:Semiring} <: Semiring
+    val1::A
+    val2::B
+end
+
+⊕(x::ProductSemiring, y::ProductSemiring) = ProductSemiring(x.val1 ⊕ y.val1, x.val2 ⊕ y.val2)
+⊗(x::ProductSemiring, y::ProductSemiring) = ProductSemiring(x.val1 ⊗ y.val1, x.val2 ⊗ y.val2)
+⊘(x::ProductSemiring, y::ProductSemiring) = ProductSemiring(x.val1 ⊘ y.val1, x.val2 ⊘ y.val2)
+Base.inv(x::ProductSemiring) = ProductSemiring(inv(x.val1), inv(x.val2))
+Base.zero(K::Type{<:ProductSemiring{T}}) where T = K(SemiringTuple(zero(T), zero(T)))
+Base.one(K::Type{<:ProductSemiring{T}}) where T = K(SemiringTuple(one(T), one(T)))
+
+val(x::ProductSemiring) = (x.val1, x.val2)

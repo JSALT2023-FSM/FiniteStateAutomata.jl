@@ -10,6 +10,8 @@ export
     LogSemiring,
     ProbSemiring,
     TropicalSemiring,
+    ProductSemiring,
+    TupleSemiring,
 
     # Semiring operations
     ⊕,
