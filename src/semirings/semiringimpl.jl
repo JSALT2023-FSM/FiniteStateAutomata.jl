@@ -73,7 +73,7 @@ const TropicalSemiring{T} = LogSemiring{T,Inf} where T
 """
     struct ProductSemiring{T}
 
-Product semiring: ``\\langle (S_1, S_2), (x_1\oplus x_2, y_1\oplus y_2), (x_1\otimes x_2, y_1\otimes y_2), (1,1), (0,0) \\rangle``.
+Product semiring: ``\\langle (S_1, S_2), (x_1\\oplus x_2, y_1\\oplus y_2), (x_1\\otimes x_2, y_1\\otimes y_2), (1,1), (0,0) \\rangle``.
 """
 struct ProductSemiring{A<:Semiring, B<:Semiring} <: Semiring
     val1::A

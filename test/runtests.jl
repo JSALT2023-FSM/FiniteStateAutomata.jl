@@ -57,3 +57,17 @@ end
     end
 end
 
+@testset "Product semiring" begin
+    for T in [Float32, Float64]
+        P = ProbSemiring{T}
+        K = ProductSemiring{P}        
+        x, y = K(P(2),P(3)), K(P(4),P(5))
+        @test val(x ⊕ y) ≈ (val(x)[0]+val(y)[0],val(x)[1]+val(y)[1])
+        # @test val(x ⊗ y) ≈ val(x) + val(y)
+        # @test val(x ⊘ y) ≈ val(x) - val(y)
+        # @test val(inv(x)) ≈ -val(x)
+        # @test val(zero(x)) == T(-Inf)
+        # @test val(one(x)) == T(0)
+    end
+end
+
