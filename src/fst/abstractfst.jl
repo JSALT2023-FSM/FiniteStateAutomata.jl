@@ -41,7 +41,7 @@ states(::AbstractFST)
 
 Iterator over the arcs leaving state `q` in `fst`.
 """
-arcs(fst::AbstractFST)
+arcs(fst::AbstractFST, q)
 
 """
     initstate(fst)
