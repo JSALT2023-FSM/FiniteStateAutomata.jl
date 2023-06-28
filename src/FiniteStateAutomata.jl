@@ -19,15 +19,20 @@ include("sparsesemimodules/SparseSemimodules.jl")
 #=====================================================================#
 
 export arcs, numarcs, numstates, states, semiring
+export initstate, isinit, finalweight, isfinal
+export addstate!, addarc!, setinitstate!, setfinalstate!
+export deletestates!, deletestate!, deletearcs!, deletearc!
 
 include("fst/label.jl")
 include("fst/abstractfst.jl")
 
 #=====================================================================#
-# Tensor based FST interface.
+# Concrete FST implementations
 #=====================================================================#
 
-include("fst/abstractfst.jl")
+export VectorFST
+
+include("fst/vectorfst.jl")
 
 #=====================================================================#
 # Vizualisation.
@@ -35,7 +40,7 @@ include("fst/abstractfst.jl")
 
 export draw
 
-include("graphviz.jl")
+include("fst/graphviz.jl")
 
 #=====================================================================#
 # FST operations
