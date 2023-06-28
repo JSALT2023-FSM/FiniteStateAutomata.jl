@@ -20,14 +20,14 @@ semiring(fst::AbstractFST{S}) where S = S
 
 Return the number of states in `fst`.
 """
-numstates(fst::AbstractFST)
+numstates(fst::AbstractFST) = length(states(fst))
 
 """
-    numarcs(fst)
+    numarcs(fst, q)
 
-Return the number of arcs in `fst`.
+Return the number of arcs leaving state `q` in `fst`.
 """
-numarcs(::AbstractFST)
+numarcs(fst::AbstractFST, q) = length(arcs(fst, q))
 
 """
     states(fst)
@@ -42,6 +42,13 @@ states(::AbstractFST)
 Iterator over the arcs leaving state `q` in `fst`.
 """
 arcs(fst::AbstractFST)
+
+"""
+    initstate(fst)
+
+Return the initial state.
+"""
+initstate(::AbstractFST)
 
 # M:
 # Start -> s
