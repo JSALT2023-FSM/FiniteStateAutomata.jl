@@ -76,6 +76,13 @@ Returns true if `q` is final in `fst`.
 isfinal(fst::AbstractFST, q) = !iszero(finalweight(fst, q))
 
 """
+    finalstates(fst)
+
+Returns iterator over final states.
+"""
+finalstates(fst::AbstractFST) = filter(q -> isfinal(fst, q), states(fst))
+
+"""
     addstate!(fst, ...)
 
 Add empty state to `fst`
@@ -91,11 +98,11 @@ Set state `q` as initial state in `fst`.
 setinitstate!(fst::MutableFST, q)
 
 """
-    setfinalstate!(fst, q)
+    setfinalstate!(fst, q, w)
 
-Set state `q` as final state in `fst`.
+Set state `q` as final state with weight `w`.
 """
-setfinalstate!(fst::MutableFST, q)
+setfinalstate!(fst::MutableFST{S}, q, weight::S) where S
 
 """
     addarc!(fst, q, arc)
@@ -138,4 +145,11 @@ deletearcs!(fst::MutableFST, q, arc_ids)
 
 Delete arc leading from state `q`. 
 """
-deletearc!(fst::MutableFST, q, arc_id) = deletearcs!(fst, q, [arc])
+deletearc!(fst::MutableFST, q, arc_id) = deletearcs!(fst, q, [arc_id])
+
+"""
+    deletearcs!(fst, q)
+
+Delete all arcs leading from the state `q`.
+"""
+deletearcs!(fst::MutableFST, q)
