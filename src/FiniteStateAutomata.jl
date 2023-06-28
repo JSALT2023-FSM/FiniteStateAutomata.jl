@@ -2,26 +2,32 @@
 
 module FiniteStateAutomata
 
+#=====================================================================#
+# Semirings definition.
+#=====================================================================#
+
 include("semirings/Semirings.jl")
+
+#=====================================================================#
+# Sparse linear algebra operations.
+#=====================================================================#
+
 include("sparsesemimodules/SparseSemimodules.jl")
 
 #=====================================================================#
-# Abstract FST types and generic properties.
+# Generic FST interface.
 #=====================================================================#
 
-export
-    M,
-    α,
-    ω,
-    λ,
-    arcs,
-    narcs,
-    nstates,
-    states,
-    semiring
+export arcs, numarcs, numstates, states, semiring
 
+include("fst/label.jl")
+include("fst/abstractfst.jl")
 
-include("abstractfst.jl")
+#=====================================================================#
+# Tensor based FST interface.
+#=====================================================================#
+
+include("fst/abstractfst.jl")
 
 #=====================================================================#
 # Vizualisation.
@@ -35,23 +41,23 @@ include("graphviz.jl")
 # FST operations
 #=====================================================================#
 
-include("ops.jl")
+#include("ops.jl")
 
 #=====================================================================#
 # Concrete types.
 #=====================================================================#
 
-export SparseFST
+#export SparseFST
 
-include("fst.jl")
+#include("fst.jl")
 
 #=====================================================================#
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export compile
+#export compile
 
-include("io.jl")
+#include("io.jl")
 
 end
 

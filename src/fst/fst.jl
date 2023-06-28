@@ -1,6 +1,35 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
+    M(fst)
+
+Return a list of matrices representing the arcs of the FST.
+"""
+M(::AbstractFST)
+
+
+"""
+    α(fst)
+
+Return the vector of initial states of `A`.
+"""
+α(::AbstractFST)
+
+"""
+    ω(fst)
+
+Return the vector of final states of `A`.
+"""
+ω(::AbstractFST)
+
+"""
+    λ(fst)
+
+Return the mapping index -> label.
+"""
+λ(::AbstractFST)
+
+"""
     struct SparseFST{S,L} <: AbstractFST{S,L}
         M::AbstractVector{<:AbstractMatrix{S}}
         α::AbstractVector{S}
