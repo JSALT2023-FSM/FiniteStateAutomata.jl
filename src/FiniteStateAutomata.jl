@@ -15,6 +15,13 @@ include("semirings/Semirings.jl")
 include("sparsesemimodules/SparseSemimodules.jl")
 
 #=====================================================================#
+# Constants.
+#=====================================================================#
+
+# Does not export anything but sets the behavior.
+include("fst/constants.jl")
+
+#=====================================================================#
 # Generic FST interface.
 #=====================================================================#
 
@@ -27,7 +34,7 @@ include("fst/abstractfst.jl")
 # Tensor based FST interface.
 #=====================================================================#
 
-include("fst/abstractfst.jl")
+#include("fst/abstractfst.jl")
 
 #=====================================================================#
 # Vizualisation.
@@ -35,7 +42,7 @@ include("fst/abstractfst.jl")
 
 export draw
 
-include("graphviz.jl")
+#include("fst/graphviz.jl")
 
 #=====================================================================#
 # FST operations
@@ -55,9 +62,9 @@ include("graphviz.jl")
 # Loading/Saving FSTs.
 #=====================================================================#
 
-#export compile
+export loadsymbols, compile
 
-#include("io.jl")
+include("fst/io.jl")
 
 end
 

@@ -8,13 +8,6 @@ Label's symbol identifier.
 const SymbolId = Integer
 
 """
-    const ϵ = 0
-
-Epsilon label symbol represented as `0` by convention.
-"""
-const ϵ = 0
-
-"""
     const SymbolId = Pair{<:SymbolId,<:SymbolId}
 
 Symbol id for an arc.
