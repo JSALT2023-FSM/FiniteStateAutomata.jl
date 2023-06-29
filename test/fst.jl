@@ -38,9 +38,13 @@
     @test Set(finalstates(vfst)) == Set([3, q])
 
     deletearc!(vfst, 1, a_1qb)
-    deletearcs!(vfst, q)
     @test numarcs(vfst, 1) == 1
+    @test numarcs(vfst, q) == 1
+    deletearcs!(vfst, q)
     @test numarcs(vfst, q) == 0
+
+    setinitstate!(vfst, 2)
+    @test isinit(vfst, 2)
 
     vfst = VectorFST(
         [
