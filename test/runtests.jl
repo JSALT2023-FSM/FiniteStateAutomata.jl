@@ -3,6 +3,8 @@ import LogExpFunctions: logaddexp
 import LinearAlgebra: dot
 using Test
 
+include("matrixtest.jl")
+
 @testset "Boolean semiring" begin
     x, y = one(BoolSemiring), zero(BoolSemiring)
     @test ! val(zero(x))
