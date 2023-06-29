@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ 0a906f46-1ee0-4814-860a-56e127b71593
 begin
 	using Pkg
-	Pkg.develop(path="../repos/finitestateautomata.jl/")
+	Pkg.develop(path="../../finitestateautomata.jl/")
 	using Revise
 	using FiniteStateAutomata
     using PlutoUI, BenchmarkTools
@@ -27,10 +27,9 @@ function external_dot(S, x,y)
 	z = zeros(S,(length(x), length(y)))
 	for (i,vx) in enumerate(x)
 		for (j,vy) in enumerate(y)
-			if vx!=zero(S) && vy!=zero(S)
-				@show i,j, vx, vy
-				z[i,j] = vx*vy
-			end
+			# if vx!=zero(S) && vy!=zero(S)
+			z[i,j] = vx*vy
+			# end
 		end
 	end
 	z
@@ -114,6 +113,7 @@ begin
 	DC = composition(DA,DB, length(symbols))
 	C = dense2coo(DC)
 	LC = coo2lil(C);
+	finalC = vec(external_dot(S, finalA, finalB));
 end
 
 # ╔═╡ ce623bef-6f01-483c-b262-54d60e7751dc
@@ -140,8 +140,8 @@ end
 begin
 	fstC = VectorFST(
 		LC,
-		0,
-		vec(external_dot(S, finalA, finalB))
+		1,
+		finalC
 	)
 	draw(fstC, symbols=symbols)
 end
