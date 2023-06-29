@@ -15,15 +15,18 @@ mutable struct VectorFST{S,L} <: MutableFST{S,L}
     initstate::Int
     finalweights::Vector{S}
 
-    function VectorFST(states::AbstractVector{<:AbstractVector{Tuple{Int,L,S}}},
-                            initstate,
-                            finalweights) where {S,L}
+    function VectorFST(
+        states::AbstractVector{<:AbstractVector{Tuple{Int,L,S}}},
+        initstate,
+        finalweights
+    ) where {S,L}
         length(finalweights) == length(states) || throw(ArgumentError())
         new{S,L}(states, initstate, finalweights)
     end
 end
 
 # AbstractFST operations
+numstates(fst::VectorFST) = length(fst.states)
 states(fst::VectorFST) = 1:length(fst.states)
 arcs(fst::VectorFST, q) = fst.states[q]
 initstate(fst::VectorFST) = fst.initstate
@@ -61,3 +64,31 @@ end
 deletearcs!(fst::VectorFST, q, arc_ids::AbstractVector) = deleteat!(fst.states[q], arc_ids)
 deletearcs!(fst::VectorFST, q) = fst.states[q] = []
 
+#=======================#
+# TensorFST conversion  #
+#=======================#
+function labels(vfst::VectorFST{S, L}) where {S, L}
+    labels = L[]
+    for q in 1:length(vfst.states)
+        for (_, l,) in arcs(vfst, q)
+            push!(labels, l)
+        end
+    end
+    labels
+end
+
+function densefst(vfst::VectorFST{S}) where S
+    isym = inputsymbol
+    osym = outputsymbol
+    Q = numstates(vfst)
+    iL = maximum(isym, labels(vfst)) |> isym
+    oL = maximum(osym, labels(vfst)) |> osym
+    T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
+
+    for (s, arcs) in enumerate(vfst.states)
+        for (d, l, w) in arcs
+            T[s, d, isym(l), osym(l)] = w
+        end
+    end
+    T
+end
