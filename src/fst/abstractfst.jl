@@ -86,7 +86,7 @@ finalstates(fst::AbstractFST) = filter(q -> isfinal(fst, q), states(fst))
     addstate!(fst, ...)
 
 Add empty state to `fst`
-Returns state ID. 
+Returns state ID.
 """
 addstate!(fst::MutableFST)
 
@@ -113,11 +113,24 @@ Returns arc ID.
 addarc!(fst::MutableFST{S, L}, q, a::Arc{S, L}) where {S, L}
 
 """
+    deletestates!(fst, q)
+
+Delete state `q` from `fst`.
+"""
+deletestate!(fst::MutableFST, q)
+
+"""
     deletestates!(fst, states)
 
 Delete states `qs` from `fst`.
 """
-deletestates!(fst::MutableFST, qs)
+function deletestates!(fst::MutableFST, qs)
+    for state in qs
+        deletestate!(fst, q)
+    end
+    fst
+end
+
 
 """
     deletestates!(fst)
@@ -125,13 +138,6 @@ deletestates!(fst::MutableFST, qs)
 Delete all states from `fst`.
 """
 deletestates!(fst::MutableFST) = deletestates!(fst, states(fst))
-
-"""
-    deletestates!(fst, q)
-
-Delete state `q` from `fst`.
-"""
-deletestate!(fst::MutableFST, q) = deletestates!(fst, [q])
 
 """
     deletearcs!(fst, q, arc_ids)
@@ -143,7 +149,7 @@ deletearcs!(fst::MutableFST, q, arc_ids)
 """
     deletearc!(fst, q, arc_id)
 
-Delete arc leading from state `q`. 
+Delete arc leading from state `q`.
 """
 deletearc!(fst::MutableFST, q, arc_id) = deletearcs!(fst, q, [arc_id])
 

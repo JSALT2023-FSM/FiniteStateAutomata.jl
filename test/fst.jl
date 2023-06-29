@@ -5,14 +5,14 @@
         "b" => 2,
         "c" => 3,
     )
-    states = [
+    _states = [
         [(2, symtab["a"], one(K))],
         [(2, symtab["b"], one(K)), (3, symtab["c"], one(K))],
         [(3, symtab["c"], one(K))],
     ]
     finalweights = [zero(K), zero(K), one(K)]
     vfst = VectorFST(
-        states,
+        _states,
         1,
         finalweights
     )
@@ -23,7 +23,7 @@
     @test numstates(vfst) == 3
     @test numarcs(vfst, 2) == 2
     @test numarcs(vfst, 1) == 1
-    
+
     q = addstate!(vfst)
     a_1qb = addarc!(vfst, 1, (q, symtab["b"], one(K)))
     a_q3c = addarc!(vfst, q, (3, symtab["c"], one(K)))
@@ -42,10 +42,21 @@
     @test numarcs(vfst, 1) == 1
     @test numarcs(vfst, q) == 0
 
-    deletestate!(vfst, q)
-    @test numstates(vfst) == 3
-    @test finalstates(vfst) == [3]
+    vfst = VectorFST(
+        [
+            [(2, 1 => 1, K(.5)), (3, 2 => 2, K(1.5))],
+            [(3, 3 => 3, K(2.5))],
+            Tuple{Int,Pair{Int,Int},K}[]
+        ],
+        1,
+        K[zero(K), zero(K), K(3.5)]
+    )
+    deletestate!(vfst, 2)
+    @test numstates(vfst) == 2
+    @test finalstates(vfst) == [2]
+    @test sum([arcs(vfst, q) |> collect |> length for q in states(vfst)]) == 1
 
-    @test_throws Exception VectorFST(states, 1, K[])
+
     @test_throws Exception deletestate!(vfst, 1) # 1 is init
+    @test_throws Exception VectorFST(_states, 1, K[])
 end
