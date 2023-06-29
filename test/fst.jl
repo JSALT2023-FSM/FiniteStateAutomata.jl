@@ -46,6 +46,6 @@
     @test numstates(vfst) == 3
     @test finalstates(vfst) == [3]
 
-    @test_throws Exception deletestate!(vfst, 1) # 1 is init
     @test_throws Exception VectorFST(states, 1, K[])
+    @test_throws Exception deletestate!(vfst, 1) # 1 is init
 end
