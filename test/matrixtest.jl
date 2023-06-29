@@ -31,3 +31,20 @@
     end
 end
 
+@testset "Mostly empty matrix" begin
+  A = Float32[ 1 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0]
+  As = sparse(A)
+
+  y2 = SparseMatrixCSR(As.m, As.n, As.rowptr, As.colval, As.nzval)
+  @test y2 == A
+end
+
+@testset "Sparse to float32 and back" begin
+  A = Float32[ 1 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0; 0 0 0 0 0]
+  As = sparse(A)
+  
+  A2 = Float32.(As)
+
+  @test A2 ≈ A
+end
+

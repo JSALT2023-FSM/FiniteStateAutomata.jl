@@ -12,7 +12,7 @@ end
 
 # Create an uninitialized sparse matrix with internal buffers to
 # store `nzc` non-zero values.
-SparseMatrixCSR(S::Type{<:Semiring}, m, n, nzc) = SparseMatrixCSR(
+SparseMatrixCSR(S, m, n, nzc) = SparseMatrixCSR(
     m,
     n,
     Vector{Int}(undef, m+1),
