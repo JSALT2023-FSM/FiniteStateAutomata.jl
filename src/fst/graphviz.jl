@@ -11,15 +11,6 @@ draw(fst::AbstractFST; symbols = Dict(), isymbols = symbols, osymbols = symbols,
     DrawableFST(fst, isymbols, osymbols, openfst_compat)
 
 _getlabel(l, isymbols, osymbols) = get(isymbols, l, l)
-_getlabel(l::NTuple{1}, isymbols, osymbols) =  _getlabel(l[1], isymbols, osymbols)
-_getlabel(l::NTuple{2}, isymbols, osymbols) = (
-    _getlabel(l[1], isymbols, osymbols),
-    _getlabel(l[2], isymbols, osymbols),
-)
-_getlabel(l::NTuple, isymbols, osymbols) = (
-    _getlabel(l[1], isymbols, osymbols),
-    _getlabel(l[2], isymbols, osymbols)...,
-)
 _getlabel(l::Pair, isymbols, osymbols) = join([
     get(isymbols, first(l), first(l)),
     get(osymbols, last(l), last(l)),
@@ -34,48 +25,26 @@ function Base.show(io::IO, dfst::DrawableFST)
     println(io, "rankdir=LR;")
 
     offset = dfst.openfst_compat ? -1 : 0
-    Q = nstates(fst)
-    P = narcs(fst)
 
-    for (q, iw, fw) in states(fst)
+    for q in states(fst)
+        fw = finalweight(fst, q)
         q += offset
-        style = "solid"
-        shape = "circle"
-
-        if ! iszero(iw)
-            style = "bold"
-        end
-
-        if ! iszero(fw)
-            shape = "doublecircle"
-        end
-
-        if ! iszero(iw) && ! isone(iw) && ! iszero(fw) && ! isone(fw)
-            println(io, q, " [label=\"$q/", iw, "/", fw, "\", style=\"$style\", shape=\"$shape\"];")
-        elseif ! iszero(iw) && ! isone(iw)
-            println(io, q, " [label=\"$q/", iw, "\", style=\"$style\", shape=\"$shape\"];")
-        elseif ! iszero(fw) && ! isone(fw)
-            println(io, q, " [label=\"$q/", fw, "\", style=\"$style\", shape=\"$shape\"];")
-        else
-            println(io, q, " [label=\"$q\", style=\"$style\", shape=\"$shape\"];")
-        end
+        print(io, q + offset, " [label=\"")
+        (iszero(fw) || isone(fw)) ? print(io, q) : print(io, q, "/", fw)
+        print(io, "\", style=\"", isinit(fst, q) ? "bold" : "solid", "\", ")
+        println(io, "shape=\"", iszero(fw) ? "circle" : "doublecircle", "\"];")
     end
 
-    for (s, d, l, w) in arcs(fst)
-        s += offset
-        d += offset
-
-        label = escape_string(replace("$(_getlabel(l, isyms, osyms))", "\"" => ""))
-        if ! isone(w)
-            println(io, s, "->", d, " [label=\"", label, "/", w, "\"];")
-        else
-            println(io, s, "->", d, " [label=\"", label, "\"];")
+    for s in states(fst)
+        for (d, l, w) in arcs(fst, s)
+            print(io, s + offset, " -> ", d + offset, " [label=\"")
+            l isa SymbolId ? print(io, isymbols[l]) : print(io, isyms[first(l)], ":", osyms[last(l)])
+            ! isone(w) ? print(io, "/", w, "\"];") : print(io, "\"];")
         end
     end
 
     println(io, "}")
 end
-
 
 function _show_svg(io::IO, fst::DrawableFST)
     dotpath, dotfile = mktemp()
