@@ -9,7 +9,10 @@ using Adapt
 export
     # Types
     SparseMatrixCSR,
-    SparseMatrices,
+    SparseMatrixCOO,
+    SparseTensorCOO,
+    # SparseMatrices,
+    sparsematrices,
 
     # Sparse API
     getrowptr,
@@ -17,10 +20,12 @@ export
     rowvals,
     nonzeros,
     sparsevec,
-    sparse,
+    sparse_csr,
+    sparse_coo,
+    sparsetensor_coo,
     nzrange,
     nnz,
-    findnz,
+    findnz,    
     blockdiag
 
 
@@ -28,9 +33,12 @@ include("abstracttypes.jl")
 include("sparseaccumulator.jl")
 include("sparsevector.jl")
 include("sparsematrix_csr.jl")
+include("sparsematrix_coo.jl")
+include("sparsetensor_coo.jl")
 include("sparsematrices.jl")
 include("kron.jl")
 include("linalg.jl")
+include("linalg_coo.jl")
 
 #=====================================================================#
 # Power series of a matrix.

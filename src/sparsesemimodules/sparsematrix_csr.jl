@@ -73,7 +73,8 @@ end
 sparse(I::AbstractVector, J::AbstractVector, val, m = maximum(I), n = maximum(J)) =
     sparse(I, J, repeat([val], length(J)), m, n)
 
-sparse(X::SparseMatrixCSR) = sparsecsr(findnz(X)..., X.m, X.n)
+# TODO: commenting this out for now, as it is not used anywhere
+# sparse(X::SparseMatrixCSR) = sparsecsr(findnz(X)..., X.m, X.n)
 
 nzrange(X::SparseMatrixCSR, r) = X.rowptr[r]:(X.rowptr[r+1]-1)
 nnz(X::SparseMatrixCSR) = length(X.nzval)

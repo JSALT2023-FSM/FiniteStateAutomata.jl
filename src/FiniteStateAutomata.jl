@@ -10,6 +10,7 @@ include("sparsesemimodules/SparseSemimodules.jl")
 #=====================================================================#
 
 export
+    AbstractFST,
     M,
     α,
     ω,

@@ -14,6 +14,7 @@ Abstract base type for sparse matrices in [CSR](https://en.wikipedia.org/wiki/Sp
 """
 abstract type AbstractSparseMatrixCSR{S} <: AbstractMatrix{S} end
 
+
 """
     getrowptr(M)
 
@@ -50,11 +51,13 @@ Create a sparse vector.
 sparsevec
 
 """
-    sparse(I, J, V, nrows, ncols)
+    sparse_csr(I, J, V, nrows, ncols)
 
-Create a sparse matrix.
+Create a sparse CSR matrix.
 """
-sparse
+sparse_csr
+
+
 
 """
     nzrange(x)
@@ -89,6 +92,25 @@ Return the number of non-zero values in `x`.
 """
 nnz
 
+"""
+    abstract type AbstractSparseMatrixCOO{S} <: AbstractMatrix{S}
+
+Abstract base type for sparse matrices in [COO](https://en.wikipedia.org/wiki/Sparse_matrix#Coordinate_list_(COO)) format.
+"""
+abstract type AbstractSparseMatrixCOO{S} <: AbstractMatrix{S} end
+
+"""
+    sparse_coo(I, J, V, nrows, ncols)
+
+Create a sparse COO matrix.
+"""
+sparse_coo
 
 
 
+"""
+    abstract type AbstractSparseMatrixCOO{S} <: AbstractMatrix{S}
+
+Abstract base type for sparse matrices in [COO](https://en.wikipedia.org/wiki/Sparse_matrix#Coordinate_list_(COO)) format.
+"""
+abstract type AbstractSparseTensorCOO{S,N} <: AbstractArray{S,N} end

@@ -1,21 +1,23 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-struct SparseMatrices{T<:SparseMatrixCSR} <: AbstractVector{T}
+struct SparseMatrices{T<:AbstractMatrix} <: AbstractVector{T}
     rowptr::Vector{Int}
     colptr::Vector{Int}
     matrix::T
+    matrixes::Vector{T}
 end
 
-SparseMatrices(X::SparseMatrixCSR...) = SparseMatrices(
+sparsematrices(X::AbstractMatrix...) = SparseMatrices(
     cumsum(vcat([1], [size(x, 1) for x in X])),
     cumsum(vcat([1], [size(x, 2) for x in X])),
-    blockdiag(X...)
+    blockdiag(X...),
+    [x for x in X]
 )
 
 Base.parent(X::SparseMatrices) = X.matrix
 Base.size(X::SparseMatrices) = (length(X.rowptr) - 1,)
 
-function Base.getindex(X::SparseMatrices, i::Integer)
+function Base.getindex(X::SparseMatrices{SparseMatrixCSR}, i::Integer)
     rows = X.matrix.rowptr[X.rowptr[i]]:(X.matrix.rowptr[X.rowptr[i+1]]-1)
     m = X.rowptr[i+1] - X.rowptr[i]
     n = X.colptr[i+1] - X.colptr[i]
@@ -27,6 +29,10 @@ function Base.getindex(X::SparseMatrices, i::Integer)
         X.matrix.colval[rows] .- (X.colptr[i] - 1),
         X.matrix.nzval[rows]
     )
+end
+
+function Base.getindex(X::SparseMatrices{S}, i::Integer) where S<:SparseMatrixCOO
+    X.matrixes[i]
 end
 
 #=====================================================================#
