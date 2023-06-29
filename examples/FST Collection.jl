@@ -36,9 +36,9 @@ S = LogSemiring{Float32,1}
 # ╔═╡ f6598817-db39-43d4-8614-86bf47e30f9f
 vectorfst = VectorFST(
 	[
-		[(2, 1 => 1, S(.5)), (3, 2 => 2, S(1.5))],
-		[(3, 3 => 3, S(2.5))],
-		Tuple{Int,Pair{Int,Int},S}[]
+		[(2, 1, 1, S(.5)), (3, 2, 2, S(1.5))],
+		[(3, 3, 3, S(2.5))],
+		Arc{S}[]
 	],
 	1,
 	S[zero(S), zero(S), S(3.5)]
@@ -54,15 +54,8 @@ draw(
 	osymbols=symtables[:cyrillic]
 ) 
 
-# ╔═╡ 595a866c-635e-45bb-839e-fcb6ad6f396e
-sum([length(collect(arcs(vectorfst, q))) for q in states(vectorfst)])
+# ╔═╡ c4070fff-47b4-4eb6-959e-006d7f8893cd
 
-# ╔═╡ 45085224-629a-4596-8741-56d4c941e762
-draw(
-	deletestate!(vectorfst, 2); 
-	isymbols=symtables[:latin], 
-	osymbols=symtables[:cyrillic]
-) 
 
 # ╔═╡ Cell order:
 # ╠═a183e6f2-157e-11ee-0d03-ad978a190e29
@@ -74,5 +67,4 @@ draw(
 # ╠═f6598817-db39-43d4-8614-86bf47e30f9f
 # ╠═8548092c-7902-4c38-b007-6799b6a346f8
 # ╠═3739bac6-b90e-444a-aa6f-03dd7f1e765b
-# ╠═595a866c-635e-45bb-839e-fcb6ad6f396e
-# ╠═45085224-629a-4596-8741-56d4c941e762
+# ╠═c4070fff-47b4-4eb6-959e-006d7f8893cd

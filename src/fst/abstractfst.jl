@@ -6,11 +6,12 @@
 Abstract base type for all FST. `S` is the weight semiring and `L` is
 the label type.
 """
-abstract type AbstractFST{S<:Semiring,L<:Label} end
-abstract type AbstractExpandedFST{S, L} <: AbstractFST{S, L} end
-abstract type MutableFST{S, L} <: AbstractExpandedFST{S, L} end
+abstract type AbstractFST{S<:Semiring} end
+abstract type AbstractExpandedFST{S} <: AbstractFST{S} end
+abstract type MutableFST{S} <: AbstractExpandedFST{S} end
+abstract type TensorFST{S} <: AbstractExpandedFST{S} end
 
-const Arc{S, L} = Tuple{Int, L, S} where {S, L}
+const Arc{S} = Tuple{Int, Label, Label, S} where {S}
 
 """
     semiring(fst)
@@ -110,7 +111,7 @@ setfinalstate!(fst::MutableFST{S}, q, weight::S) where S
 Add tranisiton `arc` leading from state `q`.
 Returns arc ID.
 """
-addarc!(fst::MutableFST{S, L}, q, a::Arc{S, L}) where {S, L}
+addarc!(fst::MutableFST{S}, q, a::Arc{S}) where {S}
 
 """
     deletestates!(fst, q)
@@ -130,7 +131,6 @@ function deletestates!(fst::MutableFST, qs)
     end
     fst
 end
-
 
 """
     deletestates!(fst)
@@ -159,3 +159,5 @@ deletearc!(fst::MutableFST, q, arc_id) = deletearcs!(fst, q, [arc_id])
 Delete all arcs leading from the state `q`.
 """
 deletearcs!(fst::MutableFST, q)
+
+

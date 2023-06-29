@@ -25,10 +25,12 @@ include("fst/constants.jl")
 # Generic FST interface.
 #=====================================================================#
 
+export Arc
 export arcs, numarcs, numstates, states, semiring
 export initstate, isinit, finalweight, isfinal, finalstates
 export addstate!, addarc!, setinitstate!, setfinalstate!
 export deletestates!, deletestate!, deletearcs!, deletearc!
+export M, α, ω
 
 include("fst/label.jl")
 include("fst/abstractfst.jl")
