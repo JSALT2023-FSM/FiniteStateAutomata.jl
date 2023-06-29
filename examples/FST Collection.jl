@@ -31,7 +31,7 @@ symtables = Dict(
 #open(compile, joinpath(fstdir, "fst_ex1.txt"))
 
 # ╔═╡ 5517d174-48cf-4c33-9646-e52c57c1ac4e
-S = LogSemiring{Float32,1}
+S = ProbSemiring{Float32}
 
 # ╔═╡ f6598817-db39-43d4-8614-86bf47e30f9f
 vectorfst = VectorFST(
@@ -44,18 +44,33 @@ vectorfst = VectorFST(
 	S[zero(S), zero(S), S(3.5)]
 )
 
+# ╔═╡ 2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
+t = reshape([S(0.1) for i in 1:36], (2, 2, 3, 3))
+
+# ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
+
+
+# ╔═╡ 6a70a757-f606-41f4-941d-49c7e2b814d8
+size(t)
+
+# ╔═╡ 37d55fc1-dcdc-44d0-9a70-b3b4d7d796c5
+#Transducer for 2 states 3 labels
+tensorFST = TensorFST(
+	t,
+	[S(3.5), zero(S)],
+	[zero(S), S(2.0)]
+
+)
+
 # ╔═╡ 8548092c-7902-4c38-b007-6799b6a346f8
 setinitstate!(vectorfst, 3)
 
 # ╔═╡ 3739bac6-b90e-444a-aa6f-03dd7f1e765b
 draw(
-	vectorfst; 
+	tensorFST; 
 	isymbols=symtables[:latin], 
 	osymbols=symtables[:cyrillic]
 ) 
-
-# ╔═╡ c4070fff-47b4-4eb6-959e-006d7f8893cd
-
 
 # ╔═╡ Cell order:
 # ╠═a183e6f2-157e-11ee-0d03-ad978a190e29
@@ -65,6 +80,9 @@ draw(
 # ╠═d0b1040d-dbd0-4073-b9e6-6548762fd955
 # ╠═5517d174-48cf-4c33-9646-e52c57c1ac4e
 # ╠═f6598817-db39-43d4-8614-86bf47e30f9f
+# ╠═2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
+# ╠═19e08213-151a-4945-a989-53e0b369d3e5
+# ╠═6a70a757-f606-41f4-941d-49c7e2b814d8
+# ╠═37d55fc1-dcdc-44d0-9a70-b3b4d7d796c5
 # ╠═8548092c-7902-4c38-b007-6799b6a346f8
 # ╠═3739bac6-b90e-444a-aa6f-03dd7f1e765b
-# ╠═c4070fff-47b4-4eb6-959e-006d7f8893cd

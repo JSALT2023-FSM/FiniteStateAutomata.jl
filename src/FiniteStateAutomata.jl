@@ -30,7 +30,7 @@ export arcs, numarcs, numstates, states, semiring
 export initstate, isinit, finalweight, isfinal, finalstates
 export addstate!, addarc!, setinitstate!, setfinalstate!
 export deletestates!, deletestate!, deletearcs!, deletearc!
-export M, α, ω
+
 
 include("fst/label.jl")
 include("fst/abstractfst.jl")
@@ -40,8 +40,12 @@ include("fst/abstractfst.jl")
 #=====================================================================#
 
 export VectorFST
+export TensorFST
+
+export M, α, ω
 
 include("fst/vectorfst.jl")
+include("fst/tensorfst.jl")
 
 #=====================================================================#
 # Vizualisation.

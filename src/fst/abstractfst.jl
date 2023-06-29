@@ -9,7 +9,6 @@ the label type.
 abstract type AbstractFST{S<:Semiring} end
 abstract type AbstractExpandedFST{S} <: AbstractFST{S} end
 abstract type MutableFST{S} <: AbstractExpandedFST{S} end
-abstract type TensorFST{S} <: AbstractExpandedFST{S} end
 
 const Arc{S} = Tuple{Int, Label, Label, S} where {S}
 
