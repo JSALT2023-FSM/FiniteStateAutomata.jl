@@ -7,8 +7,8 @@ Abstract base type for all FST. `S` is the weight semiring and `L` is
 the label type.
 """
 abstract type AbstractFST{S<:Semiring} end
-abstract type AbstractExpandedFST{S} <: AbstractFST{S} end
-abstract type MutableFST{S} <: AbstractExpandedFST{S} end
+abstract type ExpandedFST{S} <: AbstractFST{S} end
+abstract type MutableFST{S} <: ExpandedFST{S} end
 
 const Arc{S} = Tuple{Int, Label, Label, S} where {S}
 
@@ -24,7 +24,7 @@ semiring(fst::AbstractFST{S}) where S = S
 
 Return the number of states in `fst`.
 """
-numstates(fst::AbstractExpandedFST) = length(states(fst))
+numstates(fst::ExpandedFST) = length(states(fst))
 
 """
     numarcs(fst, q)
