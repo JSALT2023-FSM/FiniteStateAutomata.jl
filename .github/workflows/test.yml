@@ -7,7 +7,6 @@ on:
       - main
       - openfast
       - jsalt2023-workshop
-      - densefst
   pull_request:
 
 jobs:
