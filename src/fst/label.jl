@@ -30,8 +30,3 @@ hasinputepsilon(l::Mapping) = isepsilon(first(l))
 
 hasoutputepsilon(l::SymbolId) = isepsilon(l)
 hasoutputepsilon(l::Mapping) = isepsilon(last(l))
-
-inputsymbol(l::SymbolId) = l
-inputsymbol(l::Mapping) = first(l)
-outputsymbol(l::SymbolId) = l
-outputsymbol(l::Mapping) = last(l)
