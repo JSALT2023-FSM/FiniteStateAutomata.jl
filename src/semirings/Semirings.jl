@@ -11,7 +11,6 @@ export
     ProbSemiring,
     TropicalSemiring,
     ProductSemiring,
-    TupleSemiring,
 
     # Semiring operations
     ⊕,
@@ -29,3 +28,6 @@ Base.:+(x::Semiring, y::Semiring) = x ⊕ y
 Base.:*(x::Semiring, y::Semiring) = x ⊗ y
 Base.:/(x::Semiring, y::Semiring) = x ⊘ y
 
+# Real number operation intepreted as semiring operations
+⊕(x::Real, y::Real) = x + y
+⊗(x::Real, y::Real) = x * y

@@ -20,6 +20,8 @@ Base.zero(::Type{BoolSemiring}) = BoolSemiring(false)
 Base.one(::Type{BoolSemiring}) = BoolSemiring(true)
 
 
+
+
 """
     struct LogSemiring{T,a} <: Semiring
         val::T
@@ -84,7 +86,7 @@ end
 ⊗(x::ProductSemiring, y::ProductSemiring) = ProductSemiring(x.val1 ⊗ y.val1, x.val2 ⊗ y.val2)
 ⊘(x::ProductSemiring, y::ProductSemiring) = ProductSemiring(x.val1 ⊘ y.val1, x.val2 ⊘ y.val2)
 Base.inv(x::ProductSemiring) = ProductSemiring(inv(x.val1), inv(x.val2))
-Base.zero(K::Type{<:ProductSemiring{T}}) where T = K(SemiringTuple(zero(T), zero(T)))
-Base.one(K::Type{<:ProductSemiring{T}}) where T = K(SemiringTuple(one(T), one(T)))
+Base.zero(K::Type{<:ProductSemiring{A,B}}) where A where B = K(zero(A), zero(B))
+Base.one(K::Type{<:ProductSemiring{A,B}}) where A where B = K(one(A), one(B))
 
 val(x::ProductSemiring) = (x.val1, x.val2)
