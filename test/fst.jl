@@ -72,6 +72,6 @@
         1,
         K[zero(K), zero(K), K(3.5)]
     )
-    T = FiniteStateAutomata.densefst(vfst)
-    @test size(T) == (3, 3, 3, 3)
+    dfst = FiniteStateAutomata.densefst(vfst)
+    @test size(M(dfst)) == (3, 3, 3, 3)
 end

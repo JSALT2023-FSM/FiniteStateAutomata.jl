@@ -85,12 +85,15 @@ function densefst(vfst::VectorFST{S}) where S
     osymbols = last
     iL = maximum(isymbols(labels(vfst)))
     oL = maximum(osymbols(labels(vfst))) 
-    T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
 
+    T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
     for (src, arcs) in enumerate(vfst.arcs)
         for (dest, isym, osym, w) in arcs
             T[src, dest, isym, osym] = w
         end
     end
-    T
+    α = zeros(S, numstates(vfst))
+    α[vfst.initstate] = one(S)
+    ω = vfst.finalweights
+    TensorFST(T, α, ω)
 end
