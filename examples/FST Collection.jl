@@ -31,17 +31,35 @@ symtables = Dict(
 #open(compile, joinpath(fstdir, "fst_ex1.txt"))
 
 # ╔═╡ 5517d174-48cf-4c33-9646-e52c57c1ac4e
-S = LogSemiring{Float32,1}
+S = ProbSemiring{Float32}
 
 # ╔═╡ f6598817-db39-43d4-8614-86bf47e30f9f
 vectorfst = VectorFST(
 	[
-		[(2, 1 => 1, S(.5)), (3, 2 => 2, S(1.5))],
-		[(3, 3 => 3, S(2.5))],
-		Tuple{Int,Pair{Int,Int},S}[]
+		[(2, 1, 1, S(.5)), (3, 2, 2, S(1.5))],
+		[(3, 3, 3, S(2.5))],
+		Arc{S}[]
 	],
 	1,
 	S[zero(S), zero(S), S(3.5)]
+)
+
+# ╔═╡ 2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
+t = reshape([S(0.1) for i in 1:36], (2, 2, 3, 3))
+
+# ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
+
+
+# ╔═╡ 6a70a757-f606-41f4-941d-49c7e2b814d8
+size(t)
+
+# ╔═╡ 37d55fc1-dcdc-44d0-9a70-b3b4d7d796c5
+#Transducer for 2 states 3 labels
+tensorFST = TensorFST(
+	t,
+	[S(3.5), zero(S)],
+	[zero(S), S(2.0)]
+
 )
 
 # ╔═╡ 8548092c-7902-4c38-b007-6799b6a346f8
@@ -49,17 +67,7 @@ setinitstate!(vectorfst, 3)
 
 # ╔═╡ 3739bac6-b90e-444a-aa6f-03dd7f1e765b
 draw(
-	vectorfst; 
-	isymbols=symtables[:latin], 
-	osymbols=symtables[:cyrillic]
-) 
-
-# ╔═╡ 595a866c-635e-45bb-839e-fcb6ad6f396e
-sum([length(collect(arcs(vectorfst, q))) for q in states(vectorfst)])
-
-# ╔═╡ 45085224-629a-4596-8741-56d4c941e762
-draw(
-	deletestate!(vectorfst, 2); 
+	tensorFST; 
 	isymbols=symtables[:latin], 
 	osymbols=symtables[:cyrillic]
 ) 
@@ -72,7 +80,9 @@ draw(
 # ╠═d0b1040d-dbd0-4073-b9e6-6548762fd955
 # ╠═5517d174-48cf-4c33-9646-e52c57c1ac4e
 # ╠═f6598817-db39-43d4-8614-86bf47e30f9f
+# ╠═2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
+# ╠═19e08213-151a-4945-a989-53e0b369d3e5
+# ╠═6a70a757-f606-41f4-941d-49c7e2b814d8
+# ╠═37d55fc1-dcdc-44d0-9a70-b3b4d7d796c5
 # ╠═8548092c-7902-4c38-b007-6799b6a346f8
 # ╠═3739bac6-b90e-444a-aa6f-03dd7f1e765b
-# ╠═595a866c-635e-45bb-839e-fcb6ad6f396e
-# ╠═45085224-629a-4596-8741-56d4c941e762

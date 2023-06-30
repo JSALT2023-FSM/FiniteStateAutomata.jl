@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-struct DrawableFST{S,L}
-    fst::AbstractFST{S,L}
+struct DrawableFST{S}
+    fst::AbstractFST{S}
     isymbols::Dict
     osymbols::Dict
     openfst_compat::Bool
@@ -10,10 +10,9 @@ end
 draw(fst::AbstractFST; symbols = Dict(), isymbols = symbols, osymbols = symbols, openfst_compat = false) =
     DrawableFST(fst, isymbols, osymbols, openfst_compat)
 
-_getlabel(l, isymbols, osymbols) = get(isymbols, l, l)
-_getlabel(l::Pair, isymbols, osymbols) = join([
-    get(isymbols, first(l), first(l)),
-    get(osymbols, last(l), last(l)),
+_getlabel(il, ol, isymbols, osymbols) = join([
+    get(isymbols, il, il),
+    get(osymbols, ol, ol),
 ], ":")
 
 function Base.show(io::IO, dfst::DrawableFST)
@@ -36,9 +35,9 @@ function Base.show(io::IO, dfst::DrawableFST)
     end
 
     for s in states(fst)
-        for (d, l, w) in arcs(fst, s)
+        for (d, il, ol, w) in arcs(fst, s)
             print(io, s + offset, " -> ", d + offset, " [label=\"")
-            l isa SymbolId ? print(io, isymbols[l]) : print(io, isyms[first(l)], ":", osyms[last(l)])
+            print(io, isyms[il], ":", osyms[ol])
             ! isone(w) ? print(io, "/", w, "\"];") : print(io, "\"];")
         end
     end
