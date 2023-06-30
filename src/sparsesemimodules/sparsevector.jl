@@ -49,7 +49,7 @@ function sparsevec(dense::AbstractMatrix{S}) where S
     nzval = Vector{eltype(dense)}([])
 
     @assert length(size(dense)) ==  2
-    @assert size(dense, 1) == 1 or size(dense, 2) == 1
+    @assert size(dense, 1) == 1 || size(dense, 2) == 1
 
     if size(dense, 1) == 1
         for i in 1:size(dense, 2)
