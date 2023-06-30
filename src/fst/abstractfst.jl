@@ -113,7 +113,7 @@ Returns arc ID.
 addarc!(fst::MutableFST{S}, q, a::Arc{S}) where {S}
 
 """
-    deletestates!(fst, q)
+    deletestate!(fst, q)
 
 Delete state `q` from `fst`.
 """
