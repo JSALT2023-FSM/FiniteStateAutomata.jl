@@ -5,6 +5,8 @@ on:
     branches:
       - master
       - main
+      - openfast
+      - jsalt2023-workshop
   pull_request:
 
 jobs:
