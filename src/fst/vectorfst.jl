@@ -70,7 +70,7 @@ deletearcs!(fst::VectorFST, q) = fst.arcs[q] = []
 function labels(vfst::VectorFST{S}) where S
     isyms = Label[]
     osyms = Label[]
-    for q in 1:length(vfst.states)
+    for q in 1:length(vfst.arcs)
         for (_, isym, osym,) in arcs(vfst, q)
             push!(isyms, isym)
             push!(osyms, osym)
@@ -87,9 +87,9 @@ function densefst(vfst::VectorFST{S}) where S
     oL = maximum(osymbols(labels(vfst))) 
     T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
 
-    for (s, arcs) in enumerate(vfst.states)
-        for (d, il, ol, w) in arcs
-            T[s, d, il, ol] = w
+    for (src, arcs) in enumerate(vfst.arcs)
+        for (dest, isym, osym, w) in arcs
+            T[src, dest, isym, osym] = w
         end
     end
     T

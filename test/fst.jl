@@ -65,9 +65,9 @@
 
     vfst = VectorFST(
         [
-            [(2, 1 => 1, K(.5)), (3, 2 => 2, K(1.5))],
-            [(3, 3 => 3, K(2.5))],
-            Tuple{Int,Pair{Int,Int},K}[]
+            [(2, 1, 1, K(.5)), (3, 2, 2, K(1.5))],
+            [(3, 3, 3, K(2.5))],
+            Tuple{Int,Int,Int,K}[]
         ],
         1,
         K[zero(K), zero(K), K(3.5)]
