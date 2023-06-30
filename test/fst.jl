@@ -72,6 +72,26 @@
         1,
         K[zero(K), zero(K), K(3.5)]
     )
-    T = FiniteStateAutomata.densefst(vfst)
-    @test size(T) == (3, 3, 3, 3)
+    dfst = FiniteStateAutomata.densefst(vfst)
+    @test size(M(dfst)) == (3, 3, 3, 3)
+    dfst = convert(TensorFST{K, Array{K, 4}}, dfst)
+    @test size(M(dfst)) == (3, 3, 3, 3)
+end
+
+@testset "Tensor FST" begin
+    K = ProbSemiring{Float32}
+    M = zeros(K, 3, 3, 2, 2)
+    M[1,2,1,1] = one(K)
+    M[2,3,2,2] = one(K)
+    M[2,2,1,1] = one(K)
+    α = [one(K), zeros(K, 2)...]
+    ω = [zeros(K, 2)..., one(K)]
+    dfst = TensorFST(M, α, ω)
+
+    @test initstate(dfst) == 1
+    @test Set(states(dfst)) == Set(1:3)
+    @test numstates(dfst) == 3
+    @test numarcs(dfst, 1) == 1 
+    @test numarcs(dfst, 2) == 2
+    @test arcs(dfst, 1) == [(2, 1, 1, one(K))]
 end

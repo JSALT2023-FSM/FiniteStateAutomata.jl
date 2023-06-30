@@ -46,6 +46,7 @@ export M, α, ω
 
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
+include("fst/fstconversion.jl")
 
 #=====================================================================#
 # Vizualisation.
