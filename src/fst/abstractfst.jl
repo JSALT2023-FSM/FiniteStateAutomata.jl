@@ -159,4 +159,3 @@ Delete all arcs leading from the state `q`.
 """
 deletearcs!(fst::MutableFST, q)
 
-
