@@ -77,14 +77,15 @@ function Base.:*(xᵀ::Transpose{S,<:SparseVector}, A::SparseMatrixCSR{S}) where
     xnzcol = rowvals(x)
     xnzval = nonzeros(x)
 
-    x = parent(xᵀ)
     acc = SparseAccumulator(S, size(A, 2), size(A, 2))
+
     for r in nzrange(x)
-        #= @inbounds @simdloop =# for i in nzrange(A, r)
+        for i in nzrange(A, xnzcol[r])
             scatter!(acc, xnzval[r] ⊗ Anzval[i], Anzcol[i])
         end
     end
     y = SparseVector(S, size(A, 2), nnz(acc))
     transpose(gather!(y, acc))
+
 end
 

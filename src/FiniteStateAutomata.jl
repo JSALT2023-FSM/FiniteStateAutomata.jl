@@ -5,6 +5,9 @@ module FiniteStateAutomata
 include("semirings/Semirings.jl")
 include("sparsesemimodules/SparseSemimodules.jl")
 
+export SparseVector
+export SparseMatrix
+
 #=====================================================================#
 # Abstract FST types and generic properties.
 #=====================================================================#
@@ -52,6 +55,7 @@ include("fst.jl")
 export compile
 
 include("io.jl")
+
 
 end
 

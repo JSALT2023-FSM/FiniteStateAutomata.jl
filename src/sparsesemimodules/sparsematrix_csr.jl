@@ -7,10 +7,12 @@ struct SparseMatrixCSR{S} <: AbstractSparseMatrixCSR{S}
     colval::Vector{Int}
     nzval::Vector{S}
 end
+⊕(x, y) = x + y
+⊗(x, y) = x * y
 
 # Create an uninitialized sparse matrix with internal buffers to
 # store `nzc` non-zero values.
-SparseMatrixCSR(S::Type{<:Semiring}, m, n, nzc) = SparseMatrixCSR(
+SparseMatrixCSR(S, m, n, nzc) = SparseMatrixCSR(
     m,
     n,
     Vector{Int}(undef, m+1),
@@ -74,6 +76,33 @@ sparse(I::AbstractVector, J::AbstractVector, val, m = maximum(I), n = maximum(J)
     sparse(I, J, repeat([val], length(J)), m, n)
 
 sparse(X::SparseMatrixCSR) = sparsecsr(findnz(X)..., X.m, X.n)
+
+function sparse(dense::AbstractMatrix{S}) where S
+    m = size(dense, 1)
+    n = size(dense, 2)
+
+    rowptr = Vector{Int}([])
+    colptr = Vector{Int}([])
+
+    nzval = Vector{eltype(dense)}([])
+
+    row_idx = 1
+    for i = 1:size(dense,1)
+        append!(rowptr, row_idx)
+        for j = 1:size(dense,2)
+            if dense[i, j] == 0
+                continue
+            end
+            append!(nzval, dense[i, j])
+            append!(colptr, j)
+            row_idx +=1
+        end
+    end
+    append!(rowptr, row_idx)
+    spm = SparseMatrixCSR(m, n, rowptr, colptr, nzval)
+    spm
+end
+
 
 nzrange(X::SparseMatrixCSR, r) = X.rowptr[r]:(X.rowptr[r+1]-1)
 nnz(X::SparseMatrixCSR) = length(X.nzval)
