@@ -14,6 +14,9 @@ include("semirings/Semirings.jl")
 
 include("sparsesemimodules/SparseSemimodules.jl")
 
+export SparseVector
+export SparseMatrix
+
 #=====================================================================#
 # Constants.
 #=====================================================================#
@@ -71,6 +74,7 @@ include("fst/graphviz.jl")
 export loadsymbols, compile
 
 include("fst/io.jl")
+
 
 end
 

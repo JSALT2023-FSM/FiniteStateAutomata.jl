@@ -1,5 +1,3 @@
-import LogExpFunctions: logaddexp
-import LinearAlgebra: dot
 
 @testset "Boolean semiring" begin
     x, y = one(BoolSemiring), zero(BoolSemiring)
@@ -59,7 +57,7 @@ end
     for F in [Float32, Float64]
         P = ProbSemiring{F}
         T = TropicalSemiring{F}
-        K = ProductSemiring{P,T}        
+        K = ProductSemiring{P,T}
         x, y = K(P(2),T(3)), K(P(4),T(5))
         @test val(x ⊕ y) ==	(val(x)[1]⊕val(y)[1],val(x)[2]⊕val(y)[2])
         @test val(x ⊗ y) == (val(x)[1]⊗val(y)[1],val(x)[2]⊗val(y)[2])
