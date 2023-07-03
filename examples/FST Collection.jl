@@ -49,9 +49,6 @@ vectorfst = VectorFST(
 # ╔═╡ 2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
 t = reshape([S(0.1) for i in 1:36], (2, 2, 3, 3))
 
-# ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
-
-
 # ╔═╡ 6a70a757-f606-41f4-941d-49c7e2b814d8
 size(t)
 
@@ -113,6 +110,9 @@ begin
 	draw(nn_fst; isymbols=label_mapping, osymbols=label_mapping)
 end
 
+# ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
+
+
 # ╔═╡ Cell order:
 # ╠═a183e6f2-157e-11ee-0d03-ad978a190e29
 # ╠═da6fdaa9-675d-49b8-80e7-a5aaae988b10
@@ -130,3 +130,4 @@ end
 # ╠═f67183da-92b1-421b-834e-bd4f3dd815d4
 # ╠═a8a3c4ec-ca78-4b0e-ad8f-338b48f5c956
 # ╠═8dbc2622-22b6-49df-8e7e-3c7e2e10e01b
+# ╠═19e08213-151a-4945-a989-53e0b369d3e5
