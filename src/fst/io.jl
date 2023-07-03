@@ -18,11 +18,11 @@ sym3 3
 """
 function loadsymbols(lines)
 	symtable = Dict()
-	for line in lines #split(txt, "\n")
+	for line in lines
 		tokens = split(line)
 		length(tokens) == 0 && continue # skip emtpy lines
 		label, id = tokens
-		symtable[parse(Int, id)] = label
+		symtable[parse(Label, id)] = label
 	end
 	symtable
 end
@@ -104,9 +104,11 @@ function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor =
             s += offset
             d += offset
             if acceptor
-                println(io, s, " ", d, " ", il, " ", w)
+                print(io, s, " ", d, " ", il)
+                isone(w) ? println(io) : println(io, " ", w)
             else
-                println(io, s, " ", d, " ", il, " ", ol, " ", w)
+                print(io, s, " ", d, " ", il, " ", ol)
+                isone(w) ? println(io) : println(io, " ", w)
             end
         end
     end
