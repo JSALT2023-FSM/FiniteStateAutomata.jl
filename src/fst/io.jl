@@ -48,12 +48,14 @@ function compile(lines;
     Qset = Set{State}()
     initstate = 0
 
-    #lines = split(wfst, "\n")
+    init = false
     for (i, line) in enumerate(lines)
-
         tokens = split(line)
-        if i == 1
+        isempty(tokens) && continue
+
+        if ! init
             initstate = parse(State, tokens[1]) + offset
+            init = true
         end
 
         if 1 ≤ length(tokens) ≤ 2
@@ -91,6 +93,7 @@ function compile(lines;
     VectorFST(arclist, initstate, finalweights)
 end
 compile(io::IOStream; kwargs...) = compile(eachline(io); kwargs...)
+compile(txt::AbstractString; kwargs...) = compile(split(txt, "\n"); kwargs...)
 
 function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor = false)
 
