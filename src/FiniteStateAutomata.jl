@@ -31,8 +31,6 @@ export initstate, isinit, finalweight, isfinal, finalstates
 export addstate!, addarc!, setinitstate!, setfinalstate!
 export deletestates!, deletestate!, deletearcs!, deletearc!
 
-
-include("fst/label.jl")
 include("fst/abstractfst.jl")
 
 #=====================================================================#
@@ -65,10 +63,6 @@ include("fst/graphviz.jl")
 #=====================================================================#
 # Concrete types.
 #=====================================================================#
-
-#export SparseFST
-
-#include("fst.jl")
 
 #=====================================================================#
 # Loading/Saving FSTs.

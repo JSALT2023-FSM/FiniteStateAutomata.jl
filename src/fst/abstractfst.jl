@@ -1,16 +1,24 @@
 # SPDX identifier: CECILL-2.1
 
 """
+    const Arc{S} = Tuple{State, Label, Label, S} where {S}
+
+Arc type, store the destination state, the input and output label and
+a weight.
+"""
+const Arc{S} = Tuple{State, Label, Label, S} where {S}
+
+#=====================================================================#
+# Abstact FST interface.
+#=====================================================================#
+
+"""
     abstract type AbstractFST{S<:Semiring,L<:Label} end
 
 Abstract base type for all FST. `S` is the weight semiring and `L` is
 the label type.
 """
 abstract type AbstractFST{S<:Semiring} end
-abstract type ExpandedFST{S} <: AbstractFST{S} end
-abstract type MutableFST{S} <: ExpandedFST{S} end
-
-const Arc{S} = Tuple{Int, Label, Label, S} where {S}
 
 """
     semiring(fst)
@@ -18,13 +26,6 @@ const Arc{S} = Tuple{Int, Label, Label, S} where {S}
 Return the semiring type of `fst`.
 """
 semiring(fst::AbstractFST{S}) where S = S
-
-"""
-    numstates(fst)
-
-Return the number of states in `fst`.
-"""
-numstates(fst::ExpandedFST) = length(states(fst))
 
 """
     numarcs(fst, q)
@@ -81,6 +82,35 @@ isfinal(fst::AbstractFST, q) = !iszero(finalweight(fst, q))
 Returns iterator over final states.
 """
 finalstates(fst::AbstractFST) = filter(q -> isfinal(fst, q), states(fst))
+
+#=====================================================================#
+# Expanded FST interface.
+#=====================================================================#
+
+"""
+    abstract type ExpandedFST{S} <: AbstractFST{S} end
+
+Base class for FST expanded in memory.
+"""
+abstract type ExpandedFST{S} <: AbstractFST{S} end
+
+"""
+    numstates(fst)
+
+Return the number of states in `fst`.
+"""
+numstates(fst::ExpandedFST) = length(states(fst))
+
+#=====================================================================#
+# Mutable FST interface.
+#=====================================================================#
+
+"""
+    abstract type MutableFST{S} <: ExpandedFST{S} end
+
+Base class for modifiable FST.
+"""
+abstract type MutableFST{S} <: ExpandedFST{S} end
 
 """
     addstate!(fst, ...)
