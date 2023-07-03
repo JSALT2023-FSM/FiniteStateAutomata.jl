@@ -12,10 +12,10 @@ include("semirings/Semirings.jl")
 # Sparse linear algebra operations.
 #=====================================================================#
 
-include("sparsesemimodules/SparseSemimodules.jl")
+# include("sparsesemimodules/SparseSemimodules.jl")
 
-export SparseVector
-export SparseMatrix
+# export SparseVector
+# export SparseMatrix
 
 #=====================================================================#
 # Constants.

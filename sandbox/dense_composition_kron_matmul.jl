@@ -121,15 +121,6 @@ end
 # ╔═╡ 679bb9f8-801a-4380-ab20-02af120f246e
 md"Now with TensorFST"
 
-# ╔═╡ 01b4e07a-ab18-45c3-b3ba-3ad4be2a101d
-fstC = fst_composition(fstA, fstB, length(symbols))
-
-# ╔═╡ 9972ca24-787a-48dc-9032-de3516b3a368
-draw(fstC; symbols)
-
-# ╔═╡ fc385050-8951-40be-a42f-5e870ebd0d4b
-
-
 # ╔═╡ 835b438d-5496-42e3-9613-43ddad812802
 C = dense_composition_kron(fstA, fstB)
 
@@ -161,9 +152,6 @@ draw(C2; symbols)
 # ╠═ce623bef-6f01-483c-b262-54d60e7751dc
 # ╠═f0af788f-adb9-440c-b6b2-d0c5d8ad0943
 # ╟─679bb9f8-801a-4380-ab20-02af120f246e
-# ╠═01b4e07a-ab18-45c3-b3ba-3ad4be2a101d
-# ╠═9972ca24-787a-48dc-9032-de3516b3a368
-# ╠═fc385050-8951-40be-a42f-5e870ebd0d4b
 # ╠═835b438d-5496-42e3-9613-43ddad812802
 # ╠═795ffba4-537c-4a31-90af-1f53794e075b
 # ╠═4562b52c-9c6d-475e-a569-bbf0c68420e0
