@@ -61,7 +61,9 @@ include("fst/graphviz.jl")
 # FST operations
 #=====================================================================#
 
-#include("ops.jl")
+export dense_composition
+
+include("fst/ops2.jl")
 
 #=====================================================================#
 # Concrete types.
