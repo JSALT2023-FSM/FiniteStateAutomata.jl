@@ -5,52 +5,39 @@
         M::T
         α::AbstractVector{S}
         ω::AbstractVector{S}
+        perumation::Tuple{Int,Int,Int,Int}
     end
 
 Finite State Transducer using sparse arrays for storage.
 `T` is type of 4D tensor, e.g. `Array{S, 4}` for dense FST.
+`M` is a 4D tensor encoding the arcs. The first dimension encodes
+the source state, the second dimension encodes the destination state,
+the third dimension encodes input label and the fourth dimension is the
+output label. The tuple `permutation` indicates the actual "orientation"
+of the tensor. `α` encodes the arcs leaving the super initial state `0`
+and `ω` encodes the final weights.
 """
 struct TensorFST{S, T<:AbstractArray{S, 4}} <: ExpandedFST{S}
     M::T
     α::AbstractVector{S}
     ω::AbstractVector{S}
+    permutation::Tuple{Int,Int,Int,Int}
 
-    function TensorFST(M::AbstractArray{S, N}, α, ω) where {S, N}
-        N == 4 || throw(ArgumentError("Matrix has to be 4-dimensional."))
-        length(α) == size(M, 1) || throw(ArgumentError("α has differet #states than M"))
-        length(α) == length(ω) || throw(ArgumentError("ω has differet #states than α"))
+    function TensorFST(M::AbstractArray{S, N}, α, ω, p) where {S, N}
+        N == 4 || throw(ArgumentError("Tensor has to be 4-dimensional."))
+        length(α) == size(M, 1) || throw(ArgumentError("α has different #states than M"))
+        length(α) == length(ω) || throw(ArgumentError("ω has different #states than α"))
         sum(findall(!iszero, α)) == 1 || throw(ArgumentError("TensorFST has to have only 1 initstate"))
-        new{S, typeof(M)}(M, α, ω)
+        new{S, typeof(M)}(M, α, ω, p)
     end
 end
 
-"""
-    M(fst)
+# If no permutation is given assumes default permutation.
+TensorFST(M, α, ω) = TensorFST(M, α, ω, (1, 2, 3, 4))
 
- A four-dimensional tensor representing the arcs (source node, destination node, and weight)     
-"""
-M(fst::TensorFST)
-
-
-"""
-    α(fst)
-
-Vector of the initial weights.
-"""
-α(fst::TensorFST)
-
-
-"""
-    ω(fst)
-
-Vector of the final weights.
-"""
-ω(fst::TensorFST)
-
-
-M(fst::TensorFST) = fst.M
-α(fst::TensorFST) = fst.α
-ω(fst::TensorFST) = fst.ω
+#=====================================================================#
+# Implementation of the ExpandedFST interface.
+#=====================================================================#
 
 numstates(fst::TensorFST) = size(fst.M, 1)
 
@@ -65,5 +52,32 @@ arcs(fst::TensorFST, q) = [
 
 initstate(fst::TensorFST) = findall(!iszero, fst.α)[1]
 
-finalweight(fst::AbstractFST, q) =  fst.ω[q]
+finalweight(fst::TensorFST, q) =  fst.ω[q]
+
+#=====================================================================#
+# TensorFST interface.
+#=====================================================================#
+
+"""
+    M(fst)
+
+ A four-dimensional tensor representing the arcs (source node, destination node, and weight)
+"""
+M(fst::TensorFST) = fst.M
+
+
+"""
+    α(fst)
+
+Vector of the initial weights.
+"""
+α(fst::TensorFST) = fst.α
+
+
+"""
+    ω(fst)
+
+Vector of the final weights.
+"""
+ω(fst::TensorFST) = fst.ω
 
