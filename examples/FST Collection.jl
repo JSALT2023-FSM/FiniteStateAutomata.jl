@@ -30,7 +30,22 @@ symtables = Dict(
 )
 
 # ╔═╡ d0b1040d-dbd0-4073-b9e6-6548762fd955
-#open(compile, joinpath(fstdir, "fst_ex1.txt"))
+open(compile, joinpath(fstdir, "fst_ex1.txt")) |> draw
+
+# ╔═╡ a67b7724-caf1-4b2e-9a5e-0fef633b36d2
+ex1 = compile(
+	"""
+	0 1 1 1 
+	1 2 2 2
+	2 3 3 3
+	3 4 4 4
+	4
+	""";
+	openfst_compat=true
+) 
+
+# ╔═╡ 14d943a8-54e8-48c3-8716-1d47cb0c0966
+println(ex1; openfst_compat=true)
 
 # ╔═╡ 5517d174-48cf-4c33-9646-e52c57c1ac4e
 S = ProbSemiring{Float32}
@@ -119,6 +134,8 @@ end
 # ╠═7931181b-f0dd-4d9c-b5cf-a7f1a073810f
 # ╠═57178d12-b53c-4207-a66f-21d3d0c1288b
 # ╠═d0b1040d-dbd0-4073-b9e6-6548762fd955
+# ╠═a67b7724-caf1-4b2e-9a5e-0fef633b36d2
+# ╠═14d943a8-54e8-48c3-8716-1d47cb0c0966
 # ╠═5517d174-48cf-4c33-9646-e52c57c1ac4e
 # ╠═f6598817-db39-43d4-8614-86bf47e30f9f
 # ╠═2fc5a5c3-7d40-4b6b-a7da-a338608ffd25

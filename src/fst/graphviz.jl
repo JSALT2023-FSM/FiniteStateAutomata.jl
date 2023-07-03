@@ -37,7 +37,7 @@ function Base.show(io::IO, dfst::DrawableFST)
     for s in states(fst)
         for (d, il, ol, w) in arcs(fst, s)
             print(io, s + offset, " -> ", d + offset, " [label=\"")
-            print(io, isyms[il], ":", osyms[ol])
+            print(io, get(isyms, il, il), ":", get(osyms, ol, ol))
             ! isone(w) ? print(io, "/", w, "\"];") : print(io, "\"];")
         end
     end
