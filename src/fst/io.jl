@@ -1,13 +1,24 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
-    symboltable(textdata)
+    loadsymbols(str)
 
-Load a symbol table.
+Load a symbol from a string `str` formatted as
+```
+ϵ  0
+sym1 1
+sym2 2
+sym3 3
+...
+```
+
+!!! note
+    The 0 identifier is reserved for the special symbol ``\\epsilon``.
+
 """
-function symboltable(txt::AbstractString)
+function loadsymbols(lines)
 	symtable = Dict()
-	for line in split(txt, "\n")
+	for line in lines #split(txt, "\n")
 		tokens = split(line)
 		length(tokens) == 0 && continue # skip emtpy lines
 		label, id = tokens
@@ -16,13 +27,18 @@ function symboltable(txt::AbstractString)
 	symtable
 end
 
+loadsymbols(str::AbstractString) = loadsymbols(split(str, "\n"))
+loadsymbols(io::IOStream)= loadsymbols(eachline(io))
+
 """
     compile(wfst[; semiring = LogSemiring{Float32,1}, acceptor = false, openfst_compat = false])
 
 Create a `SparseFST` object from a text-formatted FST definition file.
 """
-function compile(wfst::AbstractString; semiring = LogSemiring{Float32,1},
-                acceptor = false, openfst_compat = false)
+function compile(wfst::AbstractString;
+                 semiring=LogSemiring{Float32,1},
+                acceptor=false,
+                openfst_compat=false)
     offset = openfst_compat ? 1 : 0
 
     K = semiring

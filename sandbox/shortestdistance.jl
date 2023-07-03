@@ -49,6 +49,9 @@ B = Array(T)
 # ╔═╡ aea8480c-e1e0-417b-9c32-0fb55e1db0f1
 transpose(x) * B * B * B * B 
 
+# ╔═╡ 4abf1e0a-71dd-4db9-8cf7-28f71ec38183
+Tuple
+
 # ╔═╡ Cell order:
 # ╠═f939691a-14e0-11ee-0cd4-83adb8b7a52c
 # ╠═b12ab39b-7d64-43ab-b8c1-ba8c14e081c8
@@ -60,3 +63,4 @@ transpose(x) * B * B * B * B
 # ╠═5a407799-f256-4db4-9cf0-09efc86b927d
 # ╠═47551543-6803-4aaf-997f-cb55e15d301d
 # ╠═aea8480c-e1e0-417b-9c32-0fb55e1db0f1
+# ╠═4abf1e0a-71dd-4db9-8cf7-28f71ec38183

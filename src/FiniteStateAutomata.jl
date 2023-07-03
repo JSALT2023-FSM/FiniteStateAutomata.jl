@@ -2,29 +2,52 @@
 
 module FiniteStateAutomata
 
+#=====================================================================#
+# Semirings definition.
+#=====================================================================#
+
 include("semirings/Semirings.jl")
+
+#=====================================================================#
+# Sparse linear algebra operations.
+#=====================================================================#
+
 include("sparsesemimodules/SparseSemimodules.jl")
 
 export SparseVector
 export SparseMatrix
 
 #=====================================================================#
-# Abstract FST types and generic properties.
+# Constants.
 #=====================================================================#
 
-export
-    M,
-    α,
-    ω,
-    λ,
-    arcs,
-    narcs,
-    nstates,
-    states,
-    semiring
+# Does not export anything but sets the behavior.
+include("fst/constants.jl")
 
+#=====================================================================#
+# Generic FST interface.
+#=====================================================================#
 
-include("abstractfst.jl")
+export Arc
+export arcs, numarcs, numstates, states, semiring
+export initstate, isinit, finalweight, isfinal, finalstates
+export addstate!, addarc!, setinitstate!, setfinalstate!
+export deletestates!, deletestate!, deletearcs!, deletearc!
+
+include("fst/abstractfst.jl")
+
+#=====================================================================#
+# Concrete FST implementations
+#=====================================================================#
+
+export VectorFST
+export TensorFST
+
+export M, α, ω
+
+include("fst/vectorfst.jl")
+include("fst/tensorfst.jl")
+include("fst/fstconversion.jl")
 
 #=====================================================================#
 # Vizualisation.
@@ -32,29 +55,25 @@ include("abstractfst.jl")
 
 export draw
 
-include("graphviz.jl")
+include("fst/graphviz.jl")
 
 #=====================================================================#
 # FST operations
 #=====================================================================#
 
-include("ops.jl")
+#include("ops.jl")
 
 #=====================================================================#
 # Concrete types.
 #=====================================================================#
 
-export SparseFST
-
-include("fst.jl")
-
 #=====================================================================#
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export compile
+export loadsymbols, compile
 
-include("io.jl")
+include("fst/io.jl")
 
 
 end
