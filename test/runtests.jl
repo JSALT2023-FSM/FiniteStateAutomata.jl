@@ -15,3 +15,6 @@ end
     include("fst.jl")
 end
 
+@testset "Reading / Writing FSM format" begin
+    include("io.jl")
+end

@@ -18,11 +18,11 @@ sym3 3
 """
 function loadsymbols(lines)
 	symtable = Dict()
-	for line in lines #split(txt, "\n")
+	for line in lines
 		tokens = split(line)
 		length(tokens) == 0 && continue # skip emtpy lines
 		label, id = tokens
-		symtable[parse(Int, id)] = label
+		symtable[parse(Label, id)] = label
 	end
 	symtable
 end
@@ -35,98 +35,101 @@ loadsymbols(io::IOStream)= loadsymbols(eachline(io))
 
 Create a `SparseFST` object from a text-formatted FST definition file.
 """
-function compile(wfst::AbstractString;
+function compile(lines;
                  semiring=LogSemiring{Float32,1},
                 acceptor=false,
                 openfst_compat=false)
     offset = openfst_compat ? 1 : 0
 
-    K = semiring
-    arcs = acceptor ? Dict{Int,Any}() : Dict{Pair{Int, Int},Any}()
-    fstates = Int[]
-    fweights = K[]
-    Qset = Set{Int}()
+    S = semiring
+    arcs = Dict{State,Vector{Arc{S}}}()
+    fstates = State[]
+    fweights = S[]
+    Qset = Set{State}()
+    initstate = 0
 
-    lines = split(wfst, "\n")
-    for line in lines
+    init = false
+    for (i, line) in enumerate(lines)
         tokens = split(line)
         isempty(tokens) && continue
 
+        if ! init
+            initstate = parse(State, tokens[1]) + offset
+            init = true
+        end
+
         if 1 ≤ length(tokens) ≤ 2
-            state = parse(Int, tokens[1]) + offset
-            weight = length(tokens) == 1 ? one(K) : K(parse(Float64, tokens[2]))
+            state = parse(State, tokens[1]) + offset
+            weight = length(tokens) == 1 ? one(S) : S(parse(Float64, tokens[2]))
             push!(fstates, state)
             push!(fweights, weight)
             push!(Qset, state)
         else
-            src = parse(Int, tokens[1]) + offset
-            dest = parse(Int, tokens[2]) + offset
+            src = parse(State, tokens[1]) + offset
+            dest = parse(State, tokens[2]) + offset
             push!(Qset, src)
             push!(Qset, dest)
-
-            isym = parse(Int, tokens[3])
-            if ! acceptor
-                osym = parse(Int, tokens[4])
-                weight = length(tokens) == 4 ? one(K) : K(parse(Float64, tokens[5]))
-                arcs[isym => osym] = push!(
-                    get(arcs, isym => osym, []),
-                    (src, dest, weight)
-                )
+            isym = parse(Label, tokens[3])
+            if acceptor
+                osym = isym
+                weight = length(tokens) == 3 ? one(S) : S(parse(Float64, tokens[4]))
             else
-                weight = length(tokens) == 3 ? one(K) : K(parse(Float64, tokens[4]))
-                arcs[isym] = push!(
-                    get(arcs, isym => osym, []),
-                    (src, dest, weight)
-                )
+                osym = parse(State, tokens[4])
+                weight = length(tokens) == 4 ? one(S) : S(parse(Float64, tokens[5]))
+            end
+
+            arcs[src] = push!(
+                get(arcs, src, Arc{S}[]),
+                (dest, isym, osym, weight)
+            )
+        end
+    end
+
+
+    Q = length(Qset)
+    arclist = [get(arcs, src, Arc{S}[]) for src in 1:Q]
+    finalweights = zeros(S, Q)
+    finalweights[fstates] .= fweights
+    VectorFST(arclist, initstate, finalweights)
+end
+compile(io::IOStream; kwargs...) = compile(eachline(io); kwargs...)
+compile(txt::AbstractString; kwargs...) = compile(split(txt, "\n"); kwargs...)
+
+function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor = false)
+
+    offset = openfst_compat ? -1 : 0
+
+    for s in states(fst)
+        for (d, il, ol, w) in arcs(fst, s)
+            s += offset
+            d += offset
+            if acceptor
+                print(io, s, " ", d, " ", il)
+                isone(w) ? println(io) : println(io, " ", w)
+            else
+                print(io, s, " ", d, " ", il, " ", ol)
+                isone(w) ? println(io) : println(io, " ", w)
             end
         end
     end
 
-    initstate = parse(Int, split(first(lines))[1]) + offset
-    Q = length(Qset)
-
-    function spm(arclist, Q)
-        I, J, V = [], [], K[]
-        for (s, d, v) in arclist
-            push!(I, s)
-            push!(J, d)
-            push!(V, v)
-        end
-        sparse(I, J, V, Q, Q)
-    end
-
-    λ = collect(keys(arcs))
-    M = SparseMatrices([spm(arcs[l], Q) for l in λ]...)
-
-    SparseFST(
-        M,
-        sparsevec([initstate], one(K), Q),
-        sparsevec(fstates, fweights, Q),
-        λ
-    )
-end
-
-function Base.print(io::IO, fst::AbstractFST; openfst_compat = false)
-    if nnz(α(fst)) != 1 && ! isone(nonzeros(α(fst))) > 1
-        throw(ArgumentError("Can only print FST with a unique starting state with initial weight 1̄"))
-    end
-
-    offset = openfst_compat ? -1 : 0
-
-    for (s, d, l, w) in arcs(fst)
-        s += offset
-        d += offset
-        if fst isa Acceptor
-            println(io, s, " ", d, " ", l, " ", w)
-        else
-            println(io, s, " ", d, " ", first(l), " ", last(l), " ", w)
+    nfs = 0
+    for s in states(fst)
+        if ! iszero(finalweight(fst, s))
+            nfs += 1
         end
     end
 
-    I, V = findnz(ω(fst))
-    for (q, w) in zip(I, V)
-        q += offset
-        println(io, q, " ", w)
+    count = 1
+    for s in states(fst)
+        fw = finalweight(fst, s)
+        if ! iszero(fw)
+            isone(fw) ? print(io, s) : print(io, s, " ", fw)
+            if count < nfs
+                println(io)
+            end
+            count += 1
+        end
     end
 end
 
