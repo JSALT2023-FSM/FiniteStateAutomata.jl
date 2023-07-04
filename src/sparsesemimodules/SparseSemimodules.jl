@@ -8,29 +8,34 @@ using Adapt
 
 export
     # Types
-    SparseMatrixCSR,
-    SparseMatrices,
+    SparseMatrixCOO,
+    # SparseMatrixCSR,
+    # SparseMatrices,
 
     # Sparse API
-    getrowptr,
-    colvals,
-    rowvals,
-    nonzeros,
-    sparsevec,
-    sparse,
-    nzrange,
-    nnz,
-    findnz,
-    blockdiag
+    # getrowptr,
+    # colvals,
+    # rowvals,
+    # nonzeros,
+    # sparsevec,
+    # sparse,
+    # nzrange,
+    # nnz,
+    # findnz,
+    # blockdiag,
+    tocoo,
+    todense
 
 
 include("abstracttypes.jl")
 include("sparseaccumulator.jl")
 include("sparsevector.jl")
-include("sparsematrix_csr.jl")
-include("sparsematrices.jl")
-include("kron.jl")
-include("linalg.jl")
+include("sparsematrix_coo.jl")
+# include("sparsematrix_csr.jl")
+# include("sparsematrices.jl")
+include("kron_coo.jl")
+include("conversions.jl")
+# include("linalg.jl")
 
 #=====================================================================#
 # Power series of a matrix.

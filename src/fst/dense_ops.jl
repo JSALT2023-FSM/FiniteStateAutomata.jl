@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: CECILL-2.1
-
+ 
+# TODO add the type to indicate which ordering is using
 dense_composition(A, B)	 = dense_composition_kron(A, B)
 
 function dense_composition_matmul(A,B)

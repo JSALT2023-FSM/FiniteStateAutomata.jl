@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: CECILL-2.1
 
+# TODO: put some docstrings
+abstract type AbstractSparseArray{Tv,Ti,N} <: AbstractArray{Tv,N} end
+
+const AbstractSparseMatrix{Tv,Ti} = AbstractSparseArray{Tv,Ti,2}
+
+
 """
     abstract type AbstractSparseVector{S} <: AbstractVector{S}
 
