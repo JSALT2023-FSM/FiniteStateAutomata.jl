@@ -14,8 +14,9 @@ include("semirings/Semirings.jl")
 
 include("sparsesemimodules/SparseSemimodules.jl")
 
-export SparseVector
-export SparseMatrix
+export SparseMatrixCOO
+# export SparseVector
+# export SparseMatrix
 
 #=====================================================================#
 # Constants.
@@ -47,6 +48,9 @@ export M, α, ω
 
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
+
+export vector2dict, dict2coo
+
 include("fst/fstconversion.jl")
 
 #=====================================================================#
@@ -61,7 +65,13 @@ include("fst/graphviz.jl")
 # FST operations
 #=====================================================================#
 
-#include("ops.jl")
+export dense_composition, dense_composition_matmul, dense_composition_kron
+
+include("fst/dense_ops.jl")
+
+export sparse_composition_kron
+
+include("fst/sparse_ops.jl")
 
 #=====================================================================#
 # Concrete types.
