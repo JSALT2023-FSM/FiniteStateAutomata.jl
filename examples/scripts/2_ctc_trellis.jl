@@ -21,6 +21,12 @@ S = LogSemiring{Float32,1}
 # Number of states (# frames + 1) and the size of the alphabet (# tokens)[jk
 Q, L = size(ctc_logits, 1)+1, size(ctc_logits, 2)
 
+#=
+NOTE: In the following, we use a very naive approach by allocating
+dense tensor. You don't want to do that in practice as you will run
+out of memory even for small FSTs.
+=#
+
 # Arcs of the FST stored in a 4-dimensional tensor with dimension :
 # - 1: source state
 # - 2: destination state
@@ -41,9 +47,13 @@ end
 ω = zeros(S, Q)
 ω[end] = one(S)
 
+# Create the TensorFST
 ctc_fst = TensorFST(M, α, ω)
 
-open("ctc.svg", "w") do f
+# Save the FST to a svg file.
+path = "./ctc.svg"
+println("Saving fst to $path")
+open(path, "w") do f
     write(f, draw(ctc_fst, isymbols=symbol_mapping, osymbols=symbol_mapping) |> dot(:svg))
 end
 
