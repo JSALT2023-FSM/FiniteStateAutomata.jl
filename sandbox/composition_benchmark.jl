@@ -73,10 +73,10 @@ B = convert(TensorFST{S, Array{S,4}}, VectorFST(
 ));
 
 # ╔═╡ 3b3cb9f2-84e7-472b-836e-ec397a93166c
-@benchmark dense_composition_matmul(A, B)
+@benchmark dense_composition_sfo(A, B)
 
 # ╔═╡ 18a6a191-605f-4705-b1eb-60b6421c5b9c
-@benchmark dense_composition_kron(A, B)
+@benchmark dense_composition_lfo(A, B)
 
 # ╔═╡ a730886c-ab35-4008-8069-452cab13f9cf
 md"## Loading an ASR FST"
@@ -177,14 +177,14 @@ end
 draw(word_vector_fst, symbols = label_mapping)
 
 # ╔═╡ b87c3d9d-be46-47c1-b215-c28ffbe8ece0
-nn_word_fst = dense_composition_kron(nn_tensor_fst, word_tensor_fst);
-# nn_word_fst2 = dense_composition_matmul(nn_fst, word_fst);
+# nn_word_fst = dense_composition_lfo(nn_tensor_fst, word_tensor_fst);
+# nn_word_fst2 = dense_composition_sfo(nn_fst, word_fst);
 
 # ╔═╡ 3820427c-2c5b-49bc-b909-56ba0858c72b
-draw(nn_word_fst, symbols=label_mapping)
+# draw(nn_word_fst, symbols=label_mapping)
 
 # ╔═╡ de4afc37-2f02-4830-a9f1-6781bb958292
-comp = sparse_composition_kron(nn_vector_fst, word_vector_fst, nsym)
+comp = sparse_composition_sfo(nn_vector_fst, word_vector_fst, nsym)
 
 # ╔═╡ 1c144d3f-85e8-4d35-b34e-a24da9e63b0e
 draw(comp, symbols=label_mapping)

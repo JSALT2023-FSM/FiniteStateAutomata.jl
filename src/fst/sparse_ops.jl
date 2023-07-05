@@ -2,7 +2,9 @@
 
 #TODO remove nsymbols, missing getting number of symbols from vectorFST
 #TODO when using A and B in tensor format conversion should not be necesary
-function sparse_composition_kron(A, B, nsymbols)
+
+# sfo goes for state first ordering
+function sparse_composition_sfo(A, B, nsymbols)
 	S = semiring(A)
 	cooA = dict2coo(vector2dict(A), numstates(A),  nsymbols, S)
 	cooB = dict2coo(vector2dict(B), numstates(B),  nsymbols, S)

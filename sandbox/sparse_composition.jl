@@ -86,7 +86,7 @@ md"
 
 # ╔═╡ 1f665bf9-99a2-4244-a0a8-87d5c8a1fcb0
 begin
-	C = sparse_composition_kron(A, B, length(symbols))
+	C = sparse_composition_sfo(A, B, length(symbols))
 	draw(C; symbols)
 end
 

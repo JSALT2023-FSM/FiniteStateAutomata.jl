@@ -2,6 +2,8 @@
 
 module FiniteStateAutomata
 
+using FileIO
+
 #=====================================================================#
 # Semirings definition.
 #=====================================================================#
@@ -65,11 +67,11 @@ include("fst/graphviz.jl")
 # FST operations
 #=====================================================================#
 
-export dense_composition, dense_composition_matmul, dense_composition_kron
+export dense_composition, dense_composition_sfo, dense_composition_lfo
 
 include("fst/dense_ops.jl")
 
-export sparse_composition_kron
+export sparse_composition_sfo
 
 include("fst/sparse_ops.jl")
 
@@ -81,7 +83,7 @@ include("fst/sparse_ops.jl")
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export loadsymbols, compile
+export draw, dot, loadsymbols, compile
 
 include("fst/io.jl")
 
