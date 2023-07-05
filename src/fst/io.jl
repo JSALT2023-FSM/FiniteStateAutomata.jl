@@ -121,7 +121,7 @@ function compile(lines;
     arcs = Dict{State,Vector{Arc{S}}}()
     fstates = State[]
     fweights = S[]
-    Qset = Set{State}()
+    maxstate = 0
     initstate = 0
 
     init = false
@@ -139,12 +139,11 @@ function compile(lines;
             weight = length(tokens) == 1 ? one(S) : S(parse(Float64, tokens[2]))
             push!(fstates, state)
             push!(fweights, weight)
-            push!(Qset, state)
+            maxstate = max(maxstate, state)
         else
             src = parse(State, tokens[1]) + offset
             dest = parse(State, tokens[2]) + offset
-            push!(Qset, src)
-            push!(Qset, dest)
+            maxstate = max(maxstate, max(src,dest))
             isym = parse(Label, tokens[3])
             if acceptor
                 osym = isym
@@ -162,9 +161,8 @@ function compile(lines;
     end
 
 
-    Q = length(Qset)
-    arclist = [get(arcs, src, Arc{S}[]) for src in 1:Q]
-    finalweights = zeros(S, Q)
+    arclist = [get(arcs, src, Arc{S}[]) for src in 1:maxstate]
+    finalweights = zeros(S, maxstate)
     finalweights[fstates] .= fweights
     VectorFST(arclist, initstate, finalweights)
 end
