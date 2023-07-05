@@ -75,6 +75,31 @@ struct CuSparseVectorX{S} <: AbstractSparseVector{S}
     nzval::CuArray{S, 1}
 end
 
+function to_cpu(x::CuSparseVectorX{S}) where S
+    return SparseVector(x.n,
+                             Array(x.nzind), 
+                             Array(x.nzval))
+end
+
+function to_cpu(xᵀ::Transpose{S, <:CuSparseVectorX{S}}) where S
+    x = parent(xᵀ)
+    return SparseVector(x.n,
+                             Array(x.nzind), 
+                             Array(x.nzval))
+end
+
+function to_gpu(x::SparseVector{S}) where S
+    return CuSparseVectorX(x.n,
+                         CUDA.CuArray(x.nzind), 
+                         CUDA.CuArray(x.nzval))
+end
+
+function to_gpu(xᵀ::Transpose{S, <:SparseVector{S}}) where S
+    x = parent(xᵀ)
+    return transpose(CuSparseVectorX(x.n,
+                         CUDA.CuArray(x.nzind), 
+                         CUDA.CuArray(x.nzval)))
+end
 
 function Base.size(x::CuSparseVectorX{S}) where S
     return (x.n, )
@@ -192,7 +217,7 @@ function mult_spvspm!(y_out::CuArray{S}, xᵀ::Transpose{S,<:CuSparseVectorX}, A
     out = CuSparseVectorX(A.n, nzind, nzval)
     synchronize()    
 
-    return out
+    return transpose(out)
 end
 
 function Base.:*(xᵀ::Transpose{S,<:CuSparseVectorX}, A::CuSparseMatrixCSR{S}) where S
@@ -203,44 +228,26 @@ end
 
 
 
-CUDA.allowscalar(true)
 rng = MersenneTwister(1234)
 
 A = Float32.(rand(rng, [-1, 0, 0, 0], (10000, 10000)))
 x = Float32.(rand(rng, [-1, 0, 0, 0, 0,], (1, 10000))) 
 
-#A = Float32[-1.0 -2.0; 3.0 -4.0; 5.0 -6.0]
-#x = transpose(Float32[-1, 2, -3])
-#@show A
-#@show x
-
 xs = sparsevec(x)
 As = sparse(A)
 
 println("CPU")
-#@show (xs, parent(xs).nzind, parent(xs).nzval)
-#@show As, As.rowptr, As.colval, As.nzval
+ys = xs * As
 @btime xs * As
 
-cuxs = CuSparseVectorX(xs)
+cuxs = to_gpu(xs)
 cuas = to_gpu(As)
 
-#@show typeof(cuxs), cuxsI
-#@show typeof(cuas), cuas
-
-cuys = cuxs * cuas
 println("CUDA")
+cuys = cuxs * cuas
 @btime cuxs * cuas
-#@show typeof(cuys), cuys
 
-println("CUDA with buffer")
-y_out = CuArray(Array{Float32}(undef, As.n))
-mult_spvspm!(y_out, cuxs, cuas)
-@btime mult_spvspm!(y_out, cuxs, cuas)
-#@show typeof(cuys), cuys
-#o = reshape(Array(Float32.(cuys)), 1, :)
-#p = Float32.(Array(x*A))
 
-#@show o
-#@show p
-#@assert o == p
+o = to_cpu(cuys)
+p = ys
+@assert o == p
