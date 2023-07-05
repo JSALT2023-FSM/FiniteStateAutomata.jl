@@ -1,19 +1,5 @@
 # SPDX-License-Identifier: CECILL-2.1
 #
-using CUDA
-using FiniteStateAutomata
-using LinearAlgebra
-using Random
-using BenchmarkTools
-using Random
-
-include("abstracttypes.jl")
-
-import FiniteStateAutomata.nzrange
-import FiniteStateAutomata.colvals
-import FiniteStateAutomata.getrowptr
-import FiniteStateAutomata.nonzeros
-import FiniteStateAutomata.nnz
 
 struct CuSparseMatrixCSR{S} <: AbstractSparseMatrixCSR{S}
     m::Int
@@ -25,15 +11,15 @@ end
 
 function to_cpu(x::CuSparseMatrixCSR{S}) where S
     return SparseMatrixCSR(x.m, x.n,
-                             Array(x.rowptr), 
-                             Array(x.colval), 
+                             Array(x.rowptr),
+                             Array(x.colval),
                              Array(x.nzval))
 end
 
 function to_gpu(x::SparseMatrixCSR{S}) where S
     return CuSparseMatrixCSR(x.m, x.n,
-                             CUDA.CuArray(x.rowptr), 
-                             CUDA.CuArray(x.colval), 
+                             CUDA.CuArray(x.rowptr),
+                             CUDA.CuArray(x.colval),
                              CUDA.CuArray(x.nzval))
 end
 
@@ -51,7 +37,7 @@ CuSparseMatrixCSR(A::SparseMatrixCSR) = CuSparseMatrixCSR(
                                                    CuArray(A.colval),
                                                    CuArray(A.nzval)
                                                   )
-function nzrange(X::CuSparseMatrixCSR, r) 
+function nzrange(X::CuSparseMatrixCSR, r)
     q = Array(X.rowptr)
     return  q[r]:(q[r+1]-1)
 end
@@ -77,27 +63,27 @@ end
 
 function to_cpu(x::CuSparseVectorX{S}) where S
     return SparseVector(x.n,
-                             Array(x.nzind), 
-                             Array(x.nzval))
+                     Array(x.nzind),
+                     Array(x.nzval))
 end
 
 function to_cpu(xᵀ::Transpose{S, <:CuSparseVectorX{S}}) where S
     x = parent(xᵀ)
-    return SparseVector(x.n,
-                             Array(x.nzind), 
-                             Array(x.nzval))
+    return transpose(SparseVector(x.n,
+                             Array(x.nzind),
+                             Array(x.nzval)))
 end
 
 function to_gpu(x::SparseVector{S}) where S
     return CuSparseVectorX(x.n,
-                         CUDA.CuArray(x.nzind), 
+                         CUDA.CuArray(x.nzind),
                          CUDA.CuArray(x.nzval))
 end
 
 function to_gpu(xᵀ::Transpose{S, <:SparseVector{S}}) where S
     x = parent(xᵀ)
     return transpose(CuSparseVectorX(x.n,
-                         CUDA.CuArray(x.nzind), 
+                         CUDA.CuArray(x.nzind),
                          CUDA.CuArray(x.nzval)))
 end
 
@@ -128,7 +114,7 @@ function Base.getindex(x::CuSparseVectorX{S}, i::Int) where S
     isnothing(nzi) ? zero(S) : x.nzval[nzi]
 end
 
-         
+
 nnz(v::CuSparseVectorX) = length(v.nzval)
 
 function _k_cu_spmv!(m, n,
@@ -136,9 +122,9 @@ function _k_cu_spmv!(m, n,
         arowptr, acolval, anzval,
         yout_dense::CuDeviceVector{S, 1}
     ) where S
-   
+
     r = blockIdx().x # each block takes care of a single row
-    t = threadIdx().x 
+    t = threadIdx().x
     nof_threads = blockDim().x
     idx = t + (r - 1)*nof_threads
 
@@ -160,11 +146,11 @@ function _k_cu_spmv!(m, n,
     #offset = warpsize()/2
     #while offset > 0
     #     accum = accum ⊕ shfl_down_sync(CUDA.FULL_MASK, accum,  offset)
-    #     offset = offset/2 
+    #     offset = offset/2
     #end
     #yout_dense[r] = accum
     return
-end 
+end
 
 # more optimized function (the warp reads continuous memoryin col_idx)
 @inbounds function _k_cu_spmv2!(m, n,
@@ -172,9 +158,9 @@ end
         arowptr, acolval, anzval,
         yout_dense::CuDeviceVector{S, 1}
     ) where S
-   
+
     r = blockIdx().x # each block takes care of a single row
-    t = threadIdx().x 
+    t = threadIdx().x
     nof_threads = blockDim().x
 
     tid = t + (r - 1) * nof_threads
@@ -191,14 +177,23 @@ end
     end
 
     return
-end 
+end
 
 function mult_spvspm!(y_out::CuArray{S}, xᵀ::Transpose{S,<:CuSparseVectorX}, A::CuSparseMatrixCSR{S}) where S
     size(xᵀ, 2) != size(A, 1) && throw(DimensionMismatch())
     x = parent(xᵀ)
+
+    #Completely zero matrix
+    if length(x.nzval) == 0
+        nzval = CUDA.cu(S[])
+        nzind = CUDA.cu(Int[])
+        out = CuSparseVectorX(A.n, nzind, nzval)
+        return out
+    end
+
     kernel = @cuda launch=false _k_cu_spmv2!(A.m, A.n, x.nzind, x.nzval,
                                           A.rowptr, A.colval, A.nzval, y_out)
-   
+
     config = launch_configuration(kernel.fun)
 
     @assert length(x.nzval) < (2^31)
@@ -209,13 +204,13 @@ function mult_spvspm!(y_out::CuArray{S}, xᵀ::Transpose{S,<:CuSparseVectorX}, A
     end
 
     kernel(A.m, A.n, x.nzind, x.nzval,
-          A.rowptr, A.colval, A.nzval, y_out; 
+          A.rowptr, A.colval, A.nzval, y_out;
           threads=threads, blocks=blocks)
     nzind = findall(!iszero, y_out)
     nzval = y_out[nzind]
-    
+
     out = CuSparseVectorX(A.n, nzind, nzval)
-    synchronize()    
+    synchronize()
 
     return transpose(out)
 end
@@ -228,26 +223,3 @@ end
 
 
 
-rng = MersenneTwister(1234)
-
-A = Float32.(rand(rng, [-1, 0, 0, 0], (10000, 10000)))
-x = Float32.(rand(rng, [-1, 0, 0, 0, 0,], (1, 10000))) 
-
-xs = sparsevec(x)
-As = sparse(A)
-
-println("CPU")
-ys = xs * As
-@btime xs * As
-
-cuxs = to_gpu(xs)
-cuas = to_gpu(As)
-
-println("CUDA")
-cuys = cuxs * cuas
-@btime cuxs * cuas
-
-
-o = to_cpu(cuys)
-p = ys
-@assert o == p

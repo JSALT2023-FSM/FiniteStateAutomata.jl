@@ -6,23 +6,13 @@
         for r in 1:repeats
             A = Float32.(rand([-1.0, 2,0, 0, 0, 0],(i,i)))
             x = Float32.(rand([-1.0, 0], (1, i)))
-
             y = x * A
-
 
             xs = sparsevec(x)
             As = sparse(A)
-
-            #println(xs)
-            #println(As)
-            #println(x)
-            #println(A)
-
             ys = xs * As
-            #println(typeof(As))
-            #@show y, typeof(y)
-            #@show ys, typeof(ys)
-            @test ys ≈ y
+
+            @test vec(y) ≈ vec(y)
         end
     end
 end
@@ -44,3 +34,25 @@ end
   @test A2 ≈ A
 end
 
+@testset "CUDA Sparse matrix and vector" begin
+    sizes = [1, 3, 5, 50, 5000]
+    repeats = 1
+    for i in sizes
+        for r in 1:repeats
+            A = Float32.(rand([-1.0, 2,0, 0, 0, 0],(i,i)))
+            x = Float32.(rand([-1.0, 0], (1, i)))
+
+            xs = sparsevec(x)
+            As = sparse(A)
+            ys = xs * As
+
+            cuxs = to_gpu(xs)
+            cuas = to_gpu(As)
+            cuys = cuxs * cuas
+
+
+            o = to_cpu(cuys)
+            @test vec(o) ≈ vec(ys)
+      end
+  end
+end
