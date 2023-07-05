@@ -83,6 +83,22 @@ Returns iterator over final states.
 """
 finalstates(fst::AbstractFST) = filter(q -> isfinal(fst, q), states(fst))
 
+"""
+    isymbols(fst)
+
+Returns the input symbols mapping of `fst`. If no mapping is associated
+return an empty dicionary.
+"""
+isymbols(fst::AbstractFST)
+
+"""
+    osymbols(fst)
+
+Returns the output symbols mapping of `fst`. If no mapping is associated
+return an empty dicionary.
+"""
+osymbols(fst::AbstractFST)
+
 #=====================================================================#
 # Expanded FST interface.
 #=====================================================================#

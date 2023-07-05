@@ -96,9 +96,7 @@ compile(io::IOStream; kwargs...) = compile(eachline(io); kwargs...)
 compile(txt::AbstractString; kwargs...) = compile(split(txt, "\n"); kwargs...)
 
 function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor = false)
-
     offset = openfst_compat ? -1 : 0
-
     for s in states(fst)
         for (d, il, ol, w) in arcs(fst, s)
             s += offset

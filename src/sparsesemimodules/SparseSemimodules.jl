@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-using ChainRulesCore
 using LinearAlgebra
 #using Semirings
 using CUDA
