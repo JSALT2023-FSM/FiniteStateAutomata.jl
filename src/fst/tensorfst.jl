@@ -16,7 +16,7 @@ output label. The the type is parameterize by a tuple indicating the
 actual "orientation" of the tensor. `α` encodes the arcs leaving the
 super initial state `0` and `ω` encodes the final weights.
 """
-struct TensorFST{S,T<:AbstractArray{S,4},P<:Tuple{Int,Int,Int,Int}} <: ExpandedFST{S}
+struct TensorFST{S,T<:AbstractArray{S,4},P} <: ExpandedFST{S}
     M::T
     α::AbstractVector{S}
     ω::AbstractVector{S}
