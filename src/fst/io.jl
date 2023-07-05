@@ -1,6 +1,82 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 """
+    draw(fst[; isymbols=Dict(), osymbols=Dict(), openfst_compat=false])
+
+Return a string containg the dot formatted representation of `fst`.
+
+For a quick display in Pluto notebook:
+
+    draw(fst[; kwargs...]) |> dot([backend=svg|png]) |> HTML
+"""
+function draw(fst::AbstractFST;
+              isymbols = Dict(),
+              osymbols = Dict(),
+              openfst_compat = false)
+
+    buffer = IOBuffer()
+    ctx = IOContext(buffer, :compact => true)
+    _write_dot(ctx, fst, isymbols, osymbols, openfst_compat)
+    String(take!(buffer))
+end
+
+_getlabel(il, ol, isymbols, osymbols) = join([
+    get(isymbols, il, il),
+    get(osymbols, ol, ol),
+], ":")
+
+function _write_dot(io::IO, fst, isyms, osyms, openfst_compat)
+    println(io, "Digraph {")
+    println(io, "rankdir=LR;")
+
+    offset = openfst_compat ? -1 : 0
+
+    for q in states(fst)
+        fw = finalweight(fst, q)
+        q += offset
+        print(io, q + offset, " [label=\"")
+        (iszero(fw) || isone(fw)) ? print(io, q) : print(io, q, "/", fw)
+        print(io, "\", style=\"", isinit(fst, q) ? "bold" : "solid", "\", ")
+        println(io, "shape=\"", iszero(fw) ? "circle" : "doublecircle", "\"];")
+    end
+
+    for s in states(fst)
+        for (d, il, ol, w) in arcs(fst, s)
+            print(io, s + offset, " -> ", d + offset, " [label=\"")
+            print(io, get(isyms, il, il), ":", get(osyms, ol, ol))
+            ! isone(w) ? println(io, "/", w, "\"];") : println(io, "\"];")
+        end
+    end
+
+    println(io, "}")
+end
+
+struct Dot2SVG end
+function (::Dot2SVG)(str)
+    dir = mktempdir()
+    dotpath = joinpath(dir, "fst.dot")
+    svgpath = joinpath(dir, "fst.svg")
+    open(f -> write(f, str), dotpath, "w")
+    run(`dot -Tsvg $(dotpath) -o $(svgpath)`)
+    open(f -> read(f, String), svgpath)
+end
+
+struct Dot2PNG end
+function (::Dot2PNG)(str)
+    dir = mktempdir()
+    dotpath = joinpath(dir, "fst.dot")
+    pngpath = joinpath(dir, "fst.png")
+    open(f -> write(f, str), dotpath, "w")
+    run(`dot -Tpng $(dotpath) -o $(pngpath)`)
+    load(pngpath)
+end
+
+dot(backend) = dot(Val(backend))
+dot(::Val{:svg}) = Dot2SVG()
+dot(::Val{:png}) = Dot2PNG()
+
+
+"""
     loadsymbols(str)
 
 Load a symbol from a string `str` formatted as

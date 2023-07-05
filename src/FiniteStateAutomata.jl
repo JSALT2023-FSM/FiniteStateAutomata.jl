@@ -2,6 +2,8 @@
 
 module FiniteStateAutomata
 
+using FileIO
+
 #=====================================================================#
 # Semirings definition.
 #=====================================================================#
@@ -51,9 +53,7 @@ include("fst/tensorfst.jl")
 # Vizualisation.
 #=====================================================================#
 
-export draw
-
-include("fst/graphviz.jl")
+#include("fst/graphviz.jl")
 
 #=====================================================================#
 # FST operations
@@ -73,7 +73,7 @@ include("fst/graphviz.jl")
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export loadsymbols, compile
+export draw, dot, loadsymbols, compile
 
 include("fst/io.jl")
 
