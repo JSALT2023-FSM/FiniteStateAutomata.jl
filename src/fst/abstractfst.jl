@@ -83,6 +83,51 @@ Returns iterator over final states.
 finalstates(fst::AbstractFST) = filter(q -> isfinal(fst, q), states(fst))
 
 """
+    isymbols(fst)
+
+Returns the input symbols mapping of `fst`. If no mapping is associated
+return an empty dicionary.
+"""
+isymbols(fst::AbstractFST)
+
+"""
+    osymbols(fst)
+
+Returns the output symbols mapping of `fst`. If no mapping is associated
+return an empty dicionary.
+"""
+osymbols(fst::AbstractFST)
+
+#=====================================================================#
+# Expanded FST interface.
+#=====================================================================#
+
+"""
+    abstract type ExpandedFST{S} <: AbstractFST{S} end
+
+Base class for FST expanded in memory.
+"""
+abstract type ExpandedFST{S} <: AbstractFST{S} end
+
+"""
+    numstates(fst)
+
+Return the number of states in `fst`.
+"""
+numstates(fst::ExpandedFST) = length(states(fst))
+
+#=====================================================================#
+# Mutable FST interface.
+#=====================================================================#
+
+"""
+    abstract type MutableFST{S} <: ExpandedFST{S} end
+
+Base class for modifiable FST.
+"""
+abstract type MutableFST{S} <: ExpandedFST{S} end
+
+"""
     addstate!(fst, ...)
 
 Add empty state to `fst`

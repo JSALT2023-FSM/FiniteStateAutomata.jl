@@ -1,29 +1,19 @@
 # SPDX-License-Identifier: CECILL-2.1
 
-struct DrawableFST{S}
-    fst::AbstractFST{S}
-    isymbols::Dict
-    osymbols::Dict
-    openfst_compat::Bool
-end
-
-draw(fst::AbstractFST; symbols = Dict(), isymbols = symbols, osymbols = symbols, openfst_compat = false) =
-    DrawableFST(fst, isymbols, osymbols, openfst_compat)
+#=====================================================================#
+# Write the FST in dot graphviz format.
+#=====================================================================#
 
 _getlabel(il, ol, isymbols, osymbols) = join([
     get(isymbols, il, il),
     get(osymbols, ol, ol),
 ], ":")
 
-function Base.show(io::IO, dfst::DrawableFST)
-    fst = dfst.fst
-    isyms = dfst.isymbols
-    osyms = dfst.osymbols
-
+function _write_dot(io::IO, fst, isyms, osyms, openfst_compat)
     println(io, "Digraph {")
     println(io, "rankdir=LR;")
 
-    offset = dfst.openfst_compat ? -1 : 0
+    offset = openfst_compat ? -1 : 0
 
     for q in states(fst)
         fw = finalweight(fst, q)
@@ -37,33 +27,45 @@ function Base.show(io::IO, dfst::DrawableFST)
     for s in states(fst)
         for (d, il, ol, w) in arcs(fst, s)
             print(io, s + offset, " -> ", d + offset, " [label=\"")
-            print(io, isyms[il], ":", osyms[ol])
-            ! isone(w) ? print(io, "/", w, "\"];") : print(io, "\"];")
+            print(io, get(isyms, il, il), ":", get(osyms, ol, ol))
+            ! isone(w) ? println(io, "/", w, "\"];") : println(io, "\"];")
         end
     end
 
     println(io, "}")
 end
 
-function _show_svg(io::IO, fst::DrawableFST)
-    dotpath, dotfile = mktemp()
-    try
-        fileio = IOContext(dotfile, :compact => true, :limit => true)
-        show(fileio, MIME("text/plain"), fst)
-        close(dotfile)
-        svgpath, svgfile = mktemp()
-        try
-            run(`dot -Tsvg $(dotpath) -o $(svgpath)`)
-            xml = read(svgfile, String)
-            write(io, xml)
-        finally
-            close(svgfile)
-            rm(svgpath)
-        end
-    finally
-        rm(dotpath)
-    end
+#=====================================================================#
+# Backends for the dot graphviz representation:
+#   - svg
+#=====================================================================#
+
+struct DrawableFST
+    fst
+    isyms
+    osyms
+    openfst_compat
 end
 
-Base.show(io::IO, ::MIME"image/svg+xml", fst::DrawableFST) = _show_svg(io, fst)
+function draw(fst::AbstractFST; symbols = Dict(), isymbols = symbols, osymbols = symbols, openfst_compat = false)
+    DrawableFST(fst, isymbols, osymbols, openfst_compat)
+end
+
+function _show_svg(io, fst, isyms, osyms, openfst_compat)
+    dotpath, dotfile = mktemp()
+    fileio = IOContext(dotfile, :compact => true, :limit => true)
+    _write_dot(fileio, fst, isyms, osyms, openfst_compat)
+    close(dotfile)
+    svgpath, svgfile = mktemp()
+    run(`dot -Tsvg $(dotpath) -o $(svgpath)`)
+    xml = read(svgfile, String)
+    write(io, xml)
+    rm(svgpath)
+end
+
+Base.show(io::IO, ::MIME"image/svg+xml", fst::DrawableFST) =
+        _show_svg(io, fst.fst, fst.isyms, fst.osyms, fst.openfst_compat)
+
+Base.show(io::IO, ::MIME"text/vnd.graphviz", fst::DrawableFST) =
+    _write_dot(IOContext(io, :compact => true), fst.fst, fst.isyms, fst.osyms, fst.openfst_compat)
 

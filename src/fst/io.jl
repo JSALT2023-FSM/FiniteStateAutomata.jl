@@ -85,41 +85,19 @@ function compile(wfst::AbstractString;
     initstate = parse(Int, split(first(lines))[1]) + offset
     Q = length(Qset)
 
-    function spm(arclist, Q)
-        I, J, V = [], [], K[]
-        for (s, d, v) in arclist
-            push!(I, s)
-            push!(J, d)
-            push!(V, v)
-        end
-        sparse(I, J, V, Q, Q)
-    end
-
-    λ = collect(keys(arcs))
-    M = SparseMatrices([spm(arcs[l], Q) for l in λ]...)
-
-    SparseFST(
-        M,
-        sparsevec([initstate], one(K), Q),
-        sparsevec(fstates, fweights, Q),
-        λ
-    )
-end
-
-function Base.print(io::IO, fst::AbstractFST; openfst_compat = false)
-    if nnz(α(fst)) != 1 && ! isone(nonzeros(α(fst))) > 1
-        throw(ArgumentError("Can only print FST with a unique starting state with initial weight 1̄"))
-    end
-
+function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor = false)
     offset = openfst_compat ? -1 : 0
-
-    for (s, d, l, w) in arcs(fst)
-        s += offset
-        d += offset
-        if fst isa Acceptor
-            println(io, s, " ", d, " ", l, " ", w)
-        else
-            println(io, s, " ", d, " ", first(l), " ", last(l), " ", w)
+    for s in states(fst)
+        for (d, il, ol, w) in arcs(fst, s)
+            s += offset
+            d += offset
+            if acceptor
+                print(io, s, " ", d, " ", il)
+                isone(w) ? println(io) : println(io, " ", w)
+            else
+                print(io, s, " ", d, " ", il, " ", ol)
+                isone(w) ? println(io) : println(io, " ", w)
+            end
         end
     end
 
