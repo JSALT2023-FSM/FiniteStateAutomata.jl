@@ -1,6 +1,7 @@
 using SparseArrays
 using FiniteStateAutomata
-
+using ImageInTerminal
+using Sixel
 
 symbols = Dict(1 => "a", 2 => "b", 3 => "c")
 
