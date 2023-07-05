@@ -24,14 +24,14 @@ struct CuSparseMatrixCSR{S} <: AbstractSparseMatrixCSR{S}
 end
 
 function to_cpu(x::CuSparseMatrixCSR{S}) where S
-    return SparseMatrixCSR(x.m, x.n
+    return SparseMatrixCSR(x.m, x.n,
                              Array(x.rowptr), 
                              Array(x.colval), 
                              Array(x.nzval))
 end
 
 function to_gpu(x::SparseMatrixCSR{S}) where S
-    return CuSparseMatrixCSR(x.m, x.n
+    return CuSparseMatrixCSR(x.m, x.n,
                              CUDA.CuArray(x.rowptr), 
                              CUDA.CuArray(x.colval), 
                              CUDA.CuArray(x.nzval))
@@ -171,7 +171,7 @@ end
 function mult_spvspm!(y_out::CuArray{S}, xᵀ::Transpose{S,<:CuSparseVectorX}, A::CuSparseMatrixCSR{S}) where S
     size(xᵀ, 2) != size(A, 1) && throw(DimensionMismatch())
     x = parent(xᵀ)
-    kernel = @cuda launch=false _k_cu_spmv!(A.m, A.n, x.nzind, x.nzval,
+    kernel = @cuda launch=false _k_cu_spmv2!(A.m, A.n, x.nzind, x.nzval,
                                           A.rowptr, A.colval, A.nzval, y_out)
    
     config = launch_configuration(kernel.fun)
@@ -223,7 +223,7 @@ println("CPU")
 @btime xs * As
 
 cuxs = CuSparseVectorX(xs)
-cuas = CuSparseMatrixCSR(As)
+cuas = to_gpu(As)
 
 #@show typeof(cuxs), cuxsI
 #@show typeof(cuas), cuas
