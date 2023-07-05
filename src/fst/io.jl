@@ -117,11 +117,12 @@ function compile(wfst::AbstractString;
                 openfst_compat=false)
     offset = openfst_compat ? 1 : 0
 
-    K = semiring
-    arcs = acceptor ? Dict{Int,Any}() : Dict{Pair{Int, Int},Any}()
-    fstates = Int[]
-    fweights = K[]
-    Qset = Set{Int}()
+    S = semiring
+    arcs = Dict{State,Vector{Arc{S}}}()
+    fstates = State[]
+    fweights = S[]
+    maxstate = 0
+    initstate = 0
 
     lines = split(wfst, "\n")
     for line in lines
@@ -133,12 +134,19 @@ function compile(wfst::AbstractString;
             weight = length(tokens) == 1 ? one(K) : K(parse(Float64, tokens[2]))
             push!(fstates, state)
             push!(fweights, weight)
-            push!(Qset, state)
+            maxstate = max(maxstate, state)
         else
-            src = parse(Int, tokens[1]) + offset
-            dest = parse(Int, tokens[2]) + offset
-            push!(Qset, src)
-            push!(Qset, dest)
+            src = parse(State, tokens[1]) + offset
+            dest = parse(State, tokens[2]) + offset
+            maxstate = max(maxstate, max(src,dest))
+            isym = parse(Label, tokens[3])
+            if acceptor
+                osym = isym
+                weight = length(tokens) == 3 ? one(S) : S(parse(Float64, tokens[4]))
+            else
+                osym = parse(State, tokens[4])
+                weight = length(tokens) == 4 ? one(S) : S(parse(Float64, tokens[5]))
+            end
 
             isym = parse(Int, tokens[3])
             if ! acceptor
@@ -158,8 +166,14 @@ function compile(wfst::AbstractString;
         end
     end
 
-    initstate = parse(Int, split(first(lines))[1]) + offset
-    Q = length(Qset)
+
+    arclist = [get(arcs, src, Arc{S}[]) for src in 1:maxstate]
+    finalweights = zeros(S, maxstate)
+    finalweights[fstates] .= fweights
+    VectorFST(arclist, initstate, finalweights)
+end
+compile(io::IOStream; kwargs...) = compile(eachline(io); kwargs...)
+compile(txt::AbstractString; kwargs...) = compile(split(txt, "\n"); kwargs...)
 
 function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor = false)
     offset = openfst_compat ? -1 : 0
