@@ -65,7 +65,7 @@ include("fst/graphviz.jl")
 # FST operations
 #=====================================================================#
 
-export dense_composition
+export dense_composition, dense_composition_matmul, dense_composition_kron
 
 include("fst/dense_ops.jl")
 

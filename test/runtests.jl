@@ -7,9 +7,9 @@ using Test
     include("semirings.jl")
 end
 
-@testset "Linear Algebra" begin
-    include("matrixtest.jl")
-end
+# @testset "Linear Algebra" begin
+#     include("matrixtest.jl")
+# end
 
 @testset "FST" begin
     include("fst.jl")

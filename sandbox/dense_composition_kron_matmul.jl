@@ -15,6 +15,32 @@ begin
 	using Profile
 end
 
+# ╔═╡ 3f361965-9689-4438-9412-842f365839a1
+HTML("""
+<!-- the wrapper span -->
+<div>
+	<button id="myrestart" href="#">Restart</button>
+	
+	<script>
+		const div = currentScript.parentElement
+		const button = div.querySelector("button#myrestart")
+		const cell= div.closest('pluto-cell')
+		console.log(button);
+		button.onclick = function() { restart_nb() };
+		function restart_nb() {
+			console.log("Restarting Notebook");
+		        cell._internal_pluto_actions.send(                    
+		            "restart_process",
+                            {},
+                            {
+                                notebook_id: editor_state.notebook.notebook_id,
+                            }
+                        )
+		};
+	</script>
+</div>
+""")
+
 # ╔═╡ 8b30c1e2-f00d-4d8c-b91a-9d7401a4628f
 S = TropicalSemiring{Float32}
 
@@ -140,6 +166,7 @@ draw(C2; symbols)
 @benchmark dense_composition_kron(fstA, fstB)
 
 # ╔═╡ Cell order:
+# ╟─3f361965-9689-4438-9412-842f365839a1
 # ╠═0a906f46-1ee0-4814-860a-56e127b71593
 # ╠═8b30c1e2-f00d-4d8c-b91a-9d7401a4628f
 # ╠═7e5488a5-4de3-4543-91f5-09e8db4f5c36
