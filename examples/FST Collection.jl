@@ -102,12 +102,6 @@ vectorfst = VectorFST(
 # ╔═╡ 2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
 t = reshape([S(0.1) for i in 1:36], (2, 2, 3, 3))
 
-<<<<<<< HEAD
-# ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
-
-
-=======
->>>>>>> draw
 # ╔═╡ 6a70a757-f606-41f4-941d-49c7e2b814d8
 size(t)
 
@@ -129,8 +123,6 @@ draw(
 	isymbols=symtables[:latin], 
 	osymbols=symtables[:cyrillic]
 ) 
-<<<<<<< HEAD
-=======
 
 # ╔═╡ 8b543c88-4136-4c77-935f-0e617f273a65
 md"""
@@ -173,7 +165,6 @@ end
 
 # ╔═╡ 19e08213-151a-4945-a989-53e0b369d3e5
 
->>>>>>> draw
 
 # ╔═╡ Cell order:
 # ╠═a183e6f2-157e-11ee-0d03-ad978a190e29
@@ -192,19 +183,12 @@ end
 # ╠═5517d174-48cf-4c33-9646-e52c57c1ac4e
 # ╠═f6598817-db39-43d4-8614-86bf47e30f9f
 # ╠═2fc5a5c3-7d40-4b6b-a7da-a338608ffd25
-<<<<<<< HEAD
-# ╠═19e08213-151a-4945-a989-53e0b369d3e5
-=======
->>>>>>> draw
 # ╠═6a70a757-f606-41f4-941d-49c7e2b814d8
 # ╠═37d55fc1-dcdc-44d0-9a70-b3b4d7d796c5
 # ╠═8548092c-7902-4c38-b007-6799b6a346f8
 # ╠═3739bac6-b90e-444a-aa6f-03dd7f1e765b
-<<<<<<< HEAD
-=======
 # ╟─8b543c88-4136-4c77-935f-0e617f273a65
 # ╠═f67183da-92b1-421b-834e-bd4f3dd815d4
 # ╠═a8a3c4ec-ca78-4b0e-ad8f-338b48f5c956
 # ╠═8dbc2622-22b6-49df-8e7e-3c7e2e10e01b
 # ╠═19e08213-151a-4945-a989-53e0b369d3e5
->>>>>>> draw

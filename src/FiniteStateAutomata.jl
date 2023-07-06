@@ -36,11 +36,6 @@ export initstate, isinit, finalweight, isfinal, finalstates
 export addstate!, addarc!, setinitstate!, setfinalstate!
 export deletestates!, deletestate!, deletearcs!, deletearc!
 
-<<<<<<< HEAD
-
-include("fst/label.jl")
-=======
->>>>>>> draw
 include("fst/abstractfst.jl")
 
 #=====================================================================#
@@ -54,10 +49,7 @@ export M, α, ω
 
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
-<<<<<<< HEAD
-=======
 include("fst/fstconversion.jl")
->>>>>>> draw
 
 #=====================================================================#
 # Vizualisation.
