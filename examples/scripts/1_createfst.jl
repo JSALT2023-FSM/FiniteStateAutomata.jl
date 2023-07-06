@@ -1,13 +1,20 @@
+# SPDX-License-Identifier: CECILL-2.1
 
+# These two packages are just for plotting.
 using ImageInTerminal
 using Sixel
 
-
+# We just use the "FiniteStateAutomata" without installing it.
+using Pkg
+Pkg.develop(path="../../")
 using FiniteStateAutomata
 
-# Declare the semiring we want to use.
+# Semiring to use. Possible choices are:
+#   - LogSemiring{Float32|Float64,a} # a is the temperature parameter
+#   - TropicalSemiring{Float32|Float64} # equivalent to LogSemiring{Float32|Float64,Inf}
 S = LogSemiring{Float32,1}
 
+# Load the load symbol tables.
 symbols = open(loadsymbols, "../data/symboltables/emoticons.syms")
 
 # Compile a text-formatted FST
@@ -30,10 +37,7 @@ open("out.dot", "w") do f
     write(f, draw(fst1))
 end
 
-# On the notebook
-# draw(fst1) |> dot(:svg) |> HTML
-
-println("2. FST compiled from a string compatible with OpenFST")
+# Compiling a OpenFST compatible string.
 fst2 = compile(
     """
     0 1 1 1 -1
@@ -46,7 +50,7 @@ fst2 = compile(
     openfst_compat=true
 )
 
-println("2. FST compiled from a string with 0-based index")
+println("2. FST compiled from a string compatible with OpenFST (0-based state index)")
 draw(fst1) |> dot(:png) |> rawdata -> display(MIME("image/png"), rawdata)
 
 path = "../data/fsts/simple.txt"

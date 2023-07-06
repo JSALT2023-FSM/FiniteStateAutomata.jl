@@ -1,15 +1,24 @@
 # SPDX-License-Identifier: CECILL-2.1
 
 #=
+
 Create a FST based on the output of a neural network trained with
 the CTC-criterion for on utterance.
+
 =#
 
-using FiniteStateAutomata
+# Package for reading numpy binary file.
 using NPZ
 
-# Load the symbol mapping and the logits.
+# We just use the "FiniteStateAutomata" without installing it.
+using Pkg
+Pkg.develop(path="../../")
+using FiniteStateAutomata
+
+# Load the symbol mapping.
 symbol_mapping = open(loadsymbols, "../assets/libri_examples/ctc_map_int.txt")
+
+# Load the logits stored as a numpy array.
 ctc_logits = npzread("../assets/libri_examples/2830-3980-0002/logits.npy")
 
 # Semiring to use. Possible choices are:
@@ -17,14 +26,15 @@ ctc_logits = npzread("../assets/libri_examples/2830-3980-0002/logits.npy")
 #   - TropicalSemiring{Float32|Float64} # equivalent to LogSemiring{Float32|Float64,Inf}
 S = LogSemiring{Float32,1}
 
-
 # Number of states (# frames + 1) and the size of the alphabet (# tokens)[jk
 Q, L = size(ctc_logits, 1)+1, size(ctc_logits, 2)
 
 #=
+
 NOTE: In the following, we use a very naive approach by allocating
 dense tensor. You don't want to do that in practice as you will run
 out of memory even for small FSTs.
+
 =#
 
 # Arcs of the FST stored in a 4-dimensional tensor with dimension :
