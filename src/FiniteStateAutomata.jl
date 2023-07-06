@@ -51,7 +51,7 @@ export M, α, ω
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
 
-export vector2dict, dict2coo
+export vector2dict_lfo, vector2dict_sfo, dict2coo
 
 include("fst/fstconversion.jl")
 
@@ -59,15 +59,15 @@ include("fst/fstconversion.jl")
 # Vizualisation.
 #=====================================================================#
 
-export draw
+# export draw
 
-include("fst/graphviz.jl")
+# include("fst/graphviz.jl")
 
 #=====================================================================#
 # FST operations
 #=====================================================================#
 
-export dense_composition, dense_composition_sfo, dense_composition_lfo
+export dense_composition_sfo, dense_composition_lfo, sparse_composition_lfo, sparse_composition_lfo
 
 include("fst/dense_ops.jl")
 
@@ -83,7 +83,7 @@ include("fst/sparse_ops.jl")
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export draw, dot, loadsymbols, compile
+export draw, dot, loadsymbols, compile, Dot2SVG
 
 include("fst/io.jl")
 

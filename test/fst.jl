@@ -121,18 +121,116 @@ end
     )
     A = convert(TensorFST{S, Array{S,4}}, A)
     B = convert(TensorFST{S, Array{S,4}}, B)
-    C = dense_composition(A, B)
+    C = dense_composition_sfo(A, B)
 
     coo = findall(x->x!=zero(S),M(C))
+    print(coo)
+    # @test coo == [CartesianIndex(5, 12, 1, 2),
+    #         CartesianIndex(6, 12, 1, 2),
+    #         CartesianIndex(2, 9, 2, 2),
+    #         CartesianIndex(3, 9, 2, 2),
+    #         CartesianIndex(5, 6, 3, 2),
+    #         CartesianIndex(6, 6, 3, 2),
+    #         CartesianIndex(1, 5, 1, 3),
+    #         CartesianIndex(7, 11, 2, 3)]
 
-    @test coo == [CartesianIndex(5, 12, 1, 2),
-            CartesianIndex(6, 12, 1, 2),
-            CartesianIndex(2, 9, 2, 2),
-            CartesianIndex(3, 9, 2, 2),
-            CartesianIndex(5, 6, 3, 2),
-            CartesianIndex(6, 6, 3, 2),
-            CartesianIndex(1, 5, 1, 3),
-            CartesianIndex(7, 11, 2, 3)]
-
-
+    @test coo == [CartesianIndex(6, 12, 1, 2), 
+    CartesianIndex(10, 12, 1, 2), 
+    CartesianIndex(5, 11, 2, 2), 
+    CartesianIndex(9, 11, 2, 2), 
+    CartesianIndex(6, 10, 3, 2), 
+    CartesianIndex(10, 10, 3, 2), 
+    CartesianIndex(1, 6, 1, 3), 
+    CartesianIndex(3, 8, 2, 3)]
 end
+
+
+
+@testset "Sparse States First Composition" begin
+    S = TropicalSemiring{Float32}
+    nsymbols = 3
+    A = VectorFST(
+        [
+            Arc{S}[(2, 1, 2, S(0.1)), (3, 2, 1, S(0.2))],
+            Arc{S}[(2, 3, 1, S(0.3)), (4, 1, 1, S(0.4))],
+            Arc{S}[(4, 2, 2, S(0.5))],
+            Arc{S}[]
+        ],
+        1,
+        [zero(S),zero(S),zero(S),S(0.6)]
+    )
+    B = VectorFST(
+        [
+            Arc{S}[(2, 2, 3, S(0.3))],
+            Arc{S}[(3, 1, 2, S(0.4))],
+            Arc{S}[(3, 1, 2, S(0.6))],
+        ],
+        1,
+        S[zero(S),zero(S),S(0.7)]
+    )
+
+    C = sparse_composition_sfo(A, B, nsymbols)
+
+    truth = Vector{Tuple{Int64, Int64, Int64, TropicalSemiring{Float32}}}[
+        [(5, 1, 3, S(0.4))],
+        [(9, 2, 2, S(0.6))],
+        [(9, 2, 2, S(0.8))],
+        [],
+        [(12, 1, 2, S(0.8)), (6, 3, 2, S(0.70000005))],
+        [(12, 1, 2, S(1.0)), (6, 3, 2, S(0.90000004))],
+        [(11, 2, 3, S(0.8))],
+        [],
+        [],
+        [],
+        [],
+        []
+        ]
+
+    @test C.arcs == truth
+end
+
+@testset "Sparse Labels First Composition" begin
+    S = TropicalSemiring{Float32}
+    nsymbols = 3
+    A = VectorFST(
+        [
+            Arc{S}[(2, 1, 2, S(0.1)), (3, 2, 1, S(0.2))],
+            Arc{S}[(2, 3, 1, S(0.3)), (4, 1, 1, S(0.4))],
+            Arc{S}[(4, 2, 2, S(0.5))],
+            Arc{S}[]
+        ],
+        1,
+        [zero(S),zero(S),zero(S),S(0.6)]
+    )
+    B = VectorFST(
+        [
+            Arc{S}[(2, 2, 3, S(0.3))],
+            Arc{S}[(3, 1, 2, S(0.4))],
+            Arc{S}[(3, 1, 2, S(0.6))],
+        ],
+        1,
+        S[zero(S),zero(S),S(0.7)]
+    )
+
+    C = sparse_composition_lfo(A, B, nsymbols)
+    print(C.arcs)
+    
+    truth = Vector{Tuple{Int64, Int64, Int64, TropicalSemiring{Float32}}}[
+        [(5, 1, 3, S(0.4))],
+        [(9, 2, 2, S(0.6))],
+        [(9, 2, 2, S(0.8))],
+        [],
+        [(12, 1, 2, S(0.8)), (6, 3, 2, S(0.70000005))],
+        [(12, 1, 2, S(1.0)), (6, 3, 2, S(0.90000004))],
+        [(11, 2, 3, S(0.8))],
+        [],
+        [],
+        [],
+        [],
+        []
+        ]
+
+    @test C.arcs == truth
+    
+end
+
