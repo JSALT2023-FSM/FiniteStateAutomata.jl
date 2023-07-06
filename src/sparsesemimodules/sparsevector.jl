@@ -8,7 +8,7 @@ end
 
 # Create an uninitialized sparse vector with internal buffers to
 # store `nzc` non-zero values.
-SparseVector(S::Type{<:Semiring}, n, nzc) =
+SparseVector(S, n, nzc) =
     SparseVector(n, Vector{Int}(undef, nzc), Vector{S}(undef, nzc))
 
 function gather!(x::SparseVector, acc::SparseAccumulator)
@@ -42,6 +42,34 @@ function sparsevec(I::AbstractVector, V::AbstractVector{S}, n = maximum(I)) wher
     for i in 1:length(I) scatter!(acc, V[i], I[i]) end
     spv = SparseVector(S, n, nnz(acc))
     gather!(spv, acc)
+end
+
+function sparsevec(dense::AbstractMatrix{S}) where S
+    nzind = Vector{Int}([])
+    nzval = Vector{eltype(dense)}([])
+
+    @assert length(size(dense)) ==  2
+    @assert size(dense, 1) == 1 || size(dense, 2) == 1
+
+    if size(dense, 1) == 1
+        for i in 1:size(dense, 2)
+            if dense[1, i] != 0
+                push!(nzind, i)
+                push!(nzval, dense[i])
+            end
+        end
+        spv = transpose(SparseVector(size(dense, 2), nzind, nzval))
+    else
+        for i in 1:size(dense, 1)
+            if dense[i, 1] != 0
+                push!(nzind, i)
+                push!(nzval, dense[i])
+            end
+        end
+        spv = SparseVector(size(dense, 1), nzind, nzval)
+    end
+
+    spv
 end
 
 sparsevec(I::AbstractVector, val, n = maximum(I)) = sparsevec(I, repeat([val], n), n)

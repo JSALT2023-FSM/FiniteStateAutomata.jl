@@ -1,0 +1,5 @@
+[deps]
+FiniteStateAutomata = "fc9063f0-9721-496a-abcf-7f8e825377b5"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+NPZ = "15e1cf62-19b3-5cfa-8e77-841668bca605"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"

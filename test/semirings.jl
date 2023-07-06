@@ -1,5 +1,3 @@
-import LogExpFunctions: logaddexp
-import LinearAlgebra: dot
 
 @testset "Boolean semiring" begin
     x, y = one(BoolSemiring), zero(BoolSemiring)
@@ -56,16 +54,17 @@ end
 end
 
 @testset "Product semiring" begin
-    for T in [Float32, Float64]
-        P = ProbSemiring{T}
-        K = ProductSemiring{P}
-        x, y = K(P(2),P(3)), K(P(4),P(5))
-        @test val(x ⊕ y) ≈ (val(x)[0]+val(y)[0],val(x)[1]+val(y)[1])
-        # @test val(x ⊗ y) ≈ val(x) + val(y)
-        # @test val(x ⊘ y) ≈ val(x) - val(y)
-        # @test val(inv(x)) ≈ -val(x)
-        # @test val(zero(x)) == T(-Inf)
-        # @test val(one(x)) == T(0)
+    for F in [Float32, Float64]
+        P = ProbSemiring{F}
+        T = TropicalSemiring{F}
+        K = ProductSemiring{P,T}
+        x, y = K(P(2),T(3)), K(P(4),T(5))
+        @test val(x ⊕ y) ==	(val(x)[1]⊕val(y)[1],val(x)[2]⊕val(y)[2])
+        @test val(x ⊗ y) == (val(x)[1]⊗val(y)[1],val(x)[2]⊗val(y)[2])
+        @test val(x ⊘ y) == (val(x)[1]⊘val(y)[1],val(x)[2]⊘val(y)[2])
+        @test val(inv(x)) == (val(inv(x))[1],val(inv(x))[2])
+        @test val(zero(x)) == (zero(P),zero(T))
+        @test val(one(x)) == (one(P),one(T))
     end
 end
 

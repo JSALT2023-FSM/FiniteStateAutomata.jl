@@ -1,0 +1,40 @@
+name: Run tests
+
+on: 
+  push:
+    branches:
+      - master
+      - main
+      - openfast
+      - jsalt2023-workshop
+  pull_request:
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        version:
+          - 'nightly'
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macOS-latest
+        arch:
+          - x64
+          - x86
+        exclude:
+          - os: macOS-latest
+            arch: x86
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
+        # with:
+        #   annotate: true

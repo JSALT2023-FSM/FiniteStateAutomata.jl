@@ -94,11 +94,11 @@ sym3 3
 """
 function loadsymbols(lines)
 	symtable = Dict()
-	for line in lines #split(txt, "\n")
+	for line in lines
 		tokens = split(line)
 		length(tokens) == 0 && continue # skip emtpy lines
 		label, id = tokens
-		symtable[parse(Int, id)] = label
+		symtable[parse(Label, id)] = label
 	end
 	symtable
 end
@@ -111,7 +111,7 @@ loadsymbols(io::IOStream)= loadsymbols(eachline(io))
 
 Create a `SparseFST` object from a text-formatted FST definition file.
 """
-function compile(wfst::AbstractString;
+function compile(lines;
                  semiring=LogSemiring{Float32,1},
                 acceptor=false,
                 openfst_compat=false)
@@ -124,14 +124,19 @@ function compile(wfst::AbstractString;
     maxstate = 0
     initstate = 0
 
-    lines = split(wfst, "\n")
-    for line in lines
+    init = false
+    for (i, line) in enumerate(lines)
         tokens = split(line)
         isempty(tokens) && continue
 
+        if ! init
+            initstate = parse(State, tokens[1]) + offset
+            init = true
+        end
+
         if 1 ≤ length(tokens) ≤ 2
-            state = parse(Int, tokens[1]) + offset
-            weight = length(tokens) == 1 ? one(K) : K(parse(Float64, tokens[2]))
+            state = parse(State, tokens[1]) + offset
+            weight = length(tokens) == 1 ? one(S) : S(parse(Float64, tokens[2]))
             push!(fstates, state)
             push!(fweights, weight)
             maxstate = max(maxstate, state)
@@ -148,21 +153,10 @@ function compile(wfst::AbstractString;
                 weight = length(tokens) == 4 ? one(S) : S(parse(Float64, tokens[5]))
             end
 
-            isym = parse(Int, tokens[3])
-            if ! acceptor
-                osym = parse(Int, tokens[4])
-                weight = length(tokens) == 4 ? one(K) : K(parse(Float64, tokens[5]))
-                arcs[isym => osym] = push!(
-                    get(arcs, isym => osym, []),
-                    (src, dest, weight)
-                )
-            else
-                weight = length(tokens) == 3 ? one(K) : K(parse(Float64, tokens[4]))
-                arcs[isym] = push!(
-                    get(arcs, isym => osym, []),
-                    (src, dest, weight)
-                )
-            end
+            arcs[src] = push!(
+                get(arcs, src, Arc{S}[]),
+                (dest, isym, osym, weight)
+            )
         end
     end
 
@@ -191,10 +185,23 @@ function Base.print(io::IO, fst::AbstractFST; openfst_compat = false, acceptor =
         end
     end
 
-    I, V = findnz(ω(fst))
-    for (q, w) in zip(I, V)
-        q += offset
-        println(io, q, " ", w)
+    nfs = 0
+    for s in states(fst)
+        if ! iszero(finalweight(fst, s))
+            nfs += 1
+        end
+    end
+
+    count = 1
+    for s in states(fst)
+        fw = finalweight(fst, s)
+        if ! iszero(fw)
+            isone(fw) ? print(io, s) : print(io, s, " ", fw)
+            if count < nfs
+                println(io)
+            end
+            count += 1
+        end
     end
 end
 

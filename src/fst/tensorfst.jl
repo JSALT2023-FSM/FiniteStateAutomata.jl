@@ -54,9 +54,9 @@ finalweight(fst::TensorFST, q) = fst.ω[q]
 """
     M(fst)
 
- A four-dimensional tensor representing the arcs (source node, destination node, and weight)     
+ A four-dimensional tensor representing the arcs (source node, destination node, and weight)
 """
-M(fst::TensorFST)
+M(fst::TensorFST) = fst.M
 
 
 """
@@ -64,7 +64,7 @@ M(fst::TensorFST)
 
 Vector of the initial weights.
 """
-α(fst::TensorFST)
+α(fst::TensorFST) = fst.α
 
 
 """
@@ -72,22 +72,5 @@ Vector of the initial weights.
 
 Vector of the final weights.
 """
-ω(fst::TensorFST)
-
-
-M(fst::TensorFST) = fst.M
-α(fst::TensorFST) = fst.α
 ω(fst::TensorFST) = fst.ω
-
-numstates(fst::TensorFST) = size(fst.M, 1)
-
-numarcs(fst::TensorFST) = sum(!iszero, fst.M)
-
-states(fst::TensorFST) = 1:numstates(fst)
-
-arcs(fst::TensorFST, q) = [(coo[1], coo[2], coo[3], fst.M[q,coo]) for coo in findall(!iszero, fst.M[q, :, :, :])]
-
-initstate(fst::TensorFST) = findall(!iszero, fst.α)[1]
-
-finalweight(fst::AbstractFST, q) =  fst.ω[q]
 

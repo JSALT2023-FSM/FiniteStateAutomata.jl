@@ -67,28 +67,33 @@ deletearcs!(fst::VectorFST, q) = fst.arcs[q] = []
 #=======================#
 # TensorFST conversion  #
 #=======================#
-function labels(vfst::VectorFST{S, L}) where {S, L}
-    labels = L[]
-    for q in 1:length(vfst.states)
-        for (_, l,) in arcs(vfst, q)
-            push!(labels, l)
+function labels(vfst::VectorFST{S}) where S
+    isyms = Label[]
+    osyms = Label[]
+    for q in 1:length(vfst.arcs)
+        for (_, isym, osym,) in arcs(vfst, q)
+            push!(isyms, isym)
+            push!(osyms, osym)
         end
     end
-    labels
+    (isyms, osyms)
 end
 
 function densefst(vfst::VectorFST{S}) where S
-    isym = inputsymbol
-    osym = outputsymbol
     Q = numstates(vfst)
-    iL = maximum(isym, labels(vfst)) |> isym
-    oL = maximum(osym, labels(vfst)) |> osym
-    T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
+    isymbols = first
+    osymbols = last
+    iL = maximum(isymbols(labels(vfst)))
+    oL = maximum(osymbols(labels(vfst))) 
 
-    for (s, arcs) in enumerate(vfst.states)
-        for (d, l, w) in arcs
-            T[s, d, isym(l), osym(l)] = w
+    T = zeros(S, Q, Q, iL, oL) # shape Q x Q x L x L
+    for (src, arcs) in enumerate(vfst.arcs)
+        for (dest, isym, osym, w) in arcs
+            T[src, dest, isym, osym] = w
         end
     end
-    T
+    α = zeros(S, numstates(vfst))
+    α[vfst.initstate] = one(S)
+    ω = vfst.finalweights
+    TensorFST(T, α, ω)
 end
