@@ -85,7 +85,7 @@ md"
 
 # ╔═╡ 1f665bf9-99a2-4244-a0a8-87d5c8a1fcb0
 begin
-	C = sparse_composition_sfo(A, B, length(symbols))
+	C = sparse_composition_sod(A, B, length(symbols))
 	draw(C, isymbols=symbols, osymbols=symbols) |> Dot2SVG() |> HTML
 end
 
@@ -99,19 +99,12 @@ md"
 
 # ╔═╡ d762fb36-1c9c-4f1d-9e2d-683c74b92693
 begin   
-	C2 = sparse_composition_lfo(A, B, length(symbols))
+	C2 = sparse_composition_lod(A, B, length(symbols))
 	draw(C2, isymbols=symbols, osymbols=symbols) |> Dot2SVG() |> HTML
 end 
 
 # ╔═╡ 6ef546a1-a2d1-4a92-a190-6fd6eb43a59c
-print(C2.arcs==C.arcs)
-
-
-# ╔═╡ afb9eb5b-8c40-49a6-83d8-ad7eb8509e1e
-
-
-# ╔═╡ 1f4dc7ba-d149-4e7c-a18f-ef9926bcdccf
-print(C2.arcs)
+C2.arcs==C.arcs
 
 # ╔═╡ Cell order:
 # ╟─38eca186-37ed-4ae7-8341-3e28fee6ecc0
@@ -127,5 +120,3 @@ print(C2.arcs)
 # ╟─c5c8ecf4-db34-4146-bf60-22906abb452a
 # ╠═d762fb36-1c9c-4f1d-9e2d-683c74b92693
 # ╠═6ef546a1-a2d1-4a92-a190-6fd6eb43a59c
-# ╠═afb9eb5b-8c40-49a6-83d8-ad7eb8509e1e
-# ╠═1f4dc7ba-d149-4e7c-a18f-ef9926bcdccf

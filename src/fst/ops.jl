@@ -150,7 +150,7 @@ function _compose_ϵfree(match, A::AbstractFST, B::AbstractFST)
 	# Remove unreachable nodes the resulting FST
 	result = connect(pruned_AB)
 
-	# Transform the label (lA, lB)
+	# Transodrm the label (lA, lB)
 	# into new labels lA[1]:lB[2]
 	relabel(result) do l
 		lA, lB = l

@@ -48,7 +48,7 @@ S = TropicalSemiring{Float32}
 symbols = Dict(1 => "a", 2 => "b", 3 => "c")
 
 # ╔═╡ 08e20858-4f43-4614-9d64-fcf7a32c7fa8
-function dense_composition_sfo(A,B)
+function dense_composition_sod(A,B)
 	S = semiring(A)
 	MA, MB = M(A), M(B)
 
@@ -75,7 +75,7 @@ function dense_composition_sfo(A,B)
 end
 
 # ╔═╡ b3549577-dba3-4907-9e65-917918b02a97
-function dense_composition_lfo(fstA, fstB)	
+function dense_composition_lod(fstA, fstB)	
 	S = semiring(fstA)
 	MA, MB = M(fstA), M(fstB)
 
@@ -148,22 +148,22 @@ end
 md"Now with TensorFST"
 
 # ╔═╡ 835b438d-5496-42e3-9613-43ddad812802
-C = dense_composition_lfo(fstA, fstB)
+C = dense_composition_lod(fstA, fstB)
 
 # ╔═╡ 795ffba4-537c-4a31-90af-1f53794e075b
 draw(C; symbols)
 
 # ╔═╡ 4562b52c-9c6d-475e-a569-bbf0c68420e0
-C2 = dense_composition_sfo(fstA, fstB)
+C2 = dense_composition_sod(fstA, fstB)
 
 # ╔═╡ d1143422-d9d6-4102-aa00-0e317a447687
 draw(C2; symbols)
 
 # ╔═╡ 357c986e-3b01-4751-8b86-4aa00b04f8c3
-@benchmark dense_composition_sfo(fstA, fstB)
+@benchmark dense_composition_sod(fstA, fstB)
 
 # ╔═╡ b13d4338-6987-444f-a023-dc43a55a35fb
-@benchmark dense_composition_lfo(fstA, fstB)
+@benchmark dense_composition_lod(fstA, fstB)
 
 # ╔═╡ Cell order:
 # ╟─3f361965-9689-4438-9412-842f365839a1

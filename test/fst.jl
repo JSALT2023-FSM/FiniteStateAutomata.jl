@@ -121,7 +121,7 @@ end
     )
     A = convert(TensorFST{S, Array{S,4}}, A)
     B = convert(TensorFST{S, Array{S,4}}, B)
-    C = dense_composition_sfo(A, B)
+    C = dense_composition_sod(A, B)
 
     coo = findall(x->x!=zero(S),M(C))
     print(coo)
@@ -169,7 +169,7 @@ end
         S[zero(S),zero(S),S(0.7)]
     )
 
-    C = sparse_composition_sfo(A, B, nsymbols)
+    C = sparse_composition_sod(A, B, nsymbols)
 
     truth = Vector{Tuple{Int64, Int64, Int64, TropicalSemiring{Float32}}}[
         [(5, 1, 3, S(0.4))],
@@ -212,7 +212,7 @@ end
         S[zero(S),zero(S),S(0.7)]
     )
 
-    C = sparse_composition_lfo(A, B, nsymbols)
+    C = sparse_composition_lod(A, B, nsymbols)
     print(C.arcs)
     
     truth = Vector{Tuple{Int64, Int64, Int64, TropicalSemiring{Float32}}}[

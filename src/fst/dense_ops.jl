@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: CECILL-2.1
  
 # TODO add the type to indicate which ordering is using
-dense_composition(A, B)	 = dense_composition_lfo(A, B)
+dense_composition(A, B)	 = dense_composition_lod(A, B)
 
-# sfo goes for state first ordering
-function dense_composition_sfo(A,B)
+# sod goes for state first ordering
+function dense_composition_sod(A,B)
 	S = semiring(A)
 	MA, MB = M(A), M(B)
 
@@ -30,8 +30,8 @@ function dense_composition_sfo(A,B)
 	TensorFST(MC, kron(α(A), α(B)), kron(ω(A), ω(B)))
 end
 
-# lfo goes for state first ordering
-function dense_composition_lfo(A, B)	
+# lod goes for state first ordering
+function dense_composition_lod(A, B)	
 	S = semiring(A)
 	MA, MB = M(A), M(B)
 

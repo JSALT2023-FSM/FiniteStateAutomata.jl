@@ -3,14 +3,14 @@
 #TODO remove nsymbols, missing getting number of symbols from vectorFST
 #TODO when using A and B in tensor format conversion should not be necesary
 
-# sfo goes for state first ordering
-function sparse_composition_sfo(A, B, nsymbols)
+# sod goes for state outermost ordering
+function sparse_composition_sod(A, B, nsymbols)
 	S = semiring(A)
-	cooA = dict2coo(vector2dict_sfo(A), numstates(A),  nsymbols, S)
-	cooB = dict2coo(vector2dict_sfo(B), numstates(B),  nsymbols, S)
+	cooA = dict2coo(vector2dict_sod(A), numstates(A),  nsymbols, S)
+	cooB = dict2coo(vector2dict_sod(B), numstates(B),  nsymbols, S)
 	
 	cooC = kron(cooA, cooB)	
-	arcsC = coo_sfo2arcs(cooC, S)
+	arcsC = coo_sod2arcs(cooC, S)
 
 	initialA = zeros(S,numstates(A))
 	initialB = zeros(S,numstates(B))
@@ -21,13 +21,13 @@ function sparse_composition_sfo(A, B, nsymbols)
 	VectorFST(arcsC, initial, kron(A.finalweights, B.finalweights) )
 end
 
-# lfo goes for state first ordering
-function sparse_composition_lfo(A, B, nsymbols)	
+# lod goes for labels in outermost dimension
+function sparse_composition_lod(A, B, nsymbols)	
 	S = semiring(A)
     M = SparseMatrixCOO{S,Int}	
 	
-	cooA = dict2coo(vector2dict_lfo(A), nsymbols, numstates(A), S)
-	cooB = dict2coo(vector2dict_lfo(B), nsymbols, numstates(B), S)
+	cooA = dict2coo(vector2dict_lod(A), nsymbols, numstates(A), S)
+	cooB = dict2coo(vector2dict_lod(B), nsymbols, numstates(B), S)
 	
 	Q = numstates(A) * numstates(B)
 	
@@ -56,7 +56,7 @@ function sparse_composition_lfo(A, B, nsymbols)
 	end
 
 	cooC = SparseMatrixCOO{M, Int}(nsymbols, nsymbols, label_rows, label_cols, label_vals)
-	arcsC = coo_lfo2arcs(cooC, Q, S)
+	arcsC = coo_lod2arcs(cooC, Q, S)
 
 	initialA = zeros(S,numstates(A))
 	initialB = zeros(S,numstates(B))

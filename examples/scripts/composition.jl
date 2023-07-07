@@ -31,6 +31,6 @@ draw(A; isymbols=symbols, osymbols=symbols) |> dot(:png) |> rawdata -> display(M
 
 draw(B; isymbols=symbols, osymbols=symbols) |> dot(:png) |> rawdata -> display(MIME("image/png"), rawdata)
 
-C = sparse_composition_sfo(A, B, length(symbols))
+C = sparse_composition_sod(A, B, length(symbols))
 
 draw(C; isymbols=symbols, osymbols=symbols) |> dot(:png) |> rawdata -> display(MIME("image/png"), rawdata)

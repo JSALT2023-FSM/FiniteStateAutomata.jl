@@ -6,7 +6,7 @@ Base.convert(::Type{TensorFST{S, T}}, vfst::VectorFST{S}) where {S, T<:Array{S, 
 # helper convertion functions 
 # TODO: remove if unnceseary
 # TODO: S should be read from A
-function coo_sfo2arcs(A, S)
+function coo_sod2arcs(A, S)
     t = Vector{Tuple{Int,Int,Int,S}}
     nstates = A.m
     states = Vector{t}()
@@ -22,7 +22,7 @@ function coo_sfo2arcs(A, S)
     states
 end
 
-function coo_lfo2arcs(A, nstates, S)
+function coo_lod2arcs(A, nstates, S)
     t = Vector{Tuple{Int,Int,Int,S}}  
     states = Vector{t}()
     for i in 1:nstates
@@ -63,8 +63,8 @@ function dict2coo(dict_fst, outer_size, inner_size, S)
     SparseMatrixCOO{M, Int}(outer_size, outer_size, outer_rows, outer_cols, outer_vals)
 end
 
-# VectorFST to DictFST_lfo
-function vector2dict_lfo(A)
+# VectorFST to DictFST_lod
+function vector2dict_lod(A)
     S = semiring(A)
     d = Dict{Int,Dict}()
     for (s,arcs) in enumerate(A.arcs)
@@ -83,8 +83,8 @@ function vector2dict_lfo(A)
     d
 end
 
-# VectorFST to DictFST_sfo
-function vector2dict_sfo(A)
+# VectorFST to DictFST_sod
+function vector2dict_sod(A)
     S = semiring(A)
     d = Dict{Int,Dict}()
     for (s,arcs) in enumerate(A.arcs)
