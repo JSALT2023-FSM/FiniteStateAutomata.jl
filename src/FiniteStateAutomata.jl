@@ -71,7 +71,7 @@ include("fst/fstconversion.jl")
 # Loading/Saving FSTs.
 #=====================================================================#
 
-export draw, dot, loadsymbols, compile
+export draw, dot, loadsymbols, compile, Dot2SVG
 
 include("fst/io.jl")
 
