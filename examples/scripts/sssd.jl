@@ -38,5 +38,38 @@ open("ctc.svg", "w") do f
 end
 
 
+#This is for dense vectors
+function dense_dot(x::Vector{S}, y::Vector{S}) where S
+	semi_prod = x .⊗ y
+	res = semi_prod[1]
+	for i in 2:size(x)[1]
+		res = res .⊕ semi_prod[i]
+	end
+	res
+end
+
+begin
+	sum_ = sum(ctc_fst.M, dims=[3;4])
+	size_Q = numstates(ctc_fst)
+
+	T = reshape(reduce(hcat, sum(ctc_fst.M, dims=[3;4])), size_Q, size_Q)
+			
+	n = 0	
+	u = ctc_fst.α      # start vector
+	#ρ = u .⊗ ctc_fst.ω ##this is ρ??
+	w = dense_dot(u, ctc_fst.ω)
+
+	while (n < size_Q)
+		n += 1		
+		u = transpose(transpose(u) * T)		
+		w += dense_dot(u, ctc_fst.ω)
+		
+	end
+
+	w
+
+end
+
+
 
 
