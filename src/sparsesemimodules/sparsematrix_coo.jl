@@ -36,7 +36,12 @@ mutable struct SparseMatrixCOO{Tv, Ti <: Integer} <: AbstractSparseMatrixCOO{Tv,
     m < 0 && throwsz("rows", 'm', m)
     n < 0 && throwsz("columns", 'n', n)
     nnz = length(vals)
-    @lencheck nnz rows cols
+    # @lencheck nnz rows cols
+    
+    if !(nnz == length(rows) == length(cols))
+      print(nnz,  length(rows), length(cols) )
+      throw(AssertionError("lengths do not match"))
+    end
     new(Int(m), Int(n), rows, cols, vals)
     end
 end

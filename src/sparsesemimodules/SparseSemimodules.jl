@@ -9,6 +9,7 @@ using Adapt
 export
     # Types
     SparseMatrixCOO,
+    hasitem,
     # SparseMatrixCSR,
     # SparseMatrices,
 

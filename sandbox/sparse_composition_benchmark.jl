@@ -12,6 +12,7 @@ begin
 	using FiniteStateAutomata
     using PlutoUI, BenchmarkTools
 	using Profile
+	using ProfileCanvas
 	using NPZ
 end
 
@@ -43,7 +44,6 @@ HTML("""
 # ╔═╡ 6610af7b-f81b-421f-9bb3-49d44bfc9e60
 S = TropicalSemiring{Float32}
 
-
 # ╔═╡ 50ceeb69-1dbc-447f-8584-de72d9a08473
 symbols = Dict(1 => "a", 2 => "b", 3 => "c")
 
@@ -72,7 +72,6 @@ B = convert(TensorFST{S, Array{S,4}}, VectorFST(
 
 # ╔═╡ 9453ddc9-cdda-4aa6-ae1c-51392639b5a4
 @benchmark dense_composition_sod(A, B)
-
 
 # ╔═╡ 0da10c31-7c3a-4560-b5d5-6e05b43cf084
 @benchmark dense_composition_lod(A, B)
@@ -196,13 +195,91 @@ end
 @benchmark sparse_composition_sod(nn_vector_fst, word_vector_fst, nsym)
 
 # ╔═╡ 32081a1f-f442-45b0-8c22-b2ea47a99ffb
-map(length,nn_vector_fst.arcs)
-
-# ╔═╡ c4c87092-083b-48ed-8a33-bb43ddc00399
-vector2dict_sod(word_vector_fst)
+"States",numstates(nn_vector_fst), "arcs", sum(map(length,nn_vector_fst.arcs))
 
 # ╔═╡ 696a18fb-0619-4069-8699-e32a3be22819
-2
+begin
+	charlm = open(x-> compile(x,semiring=K, openfst_compat=true), "../../notebooks/charwotw.2.fst.txt") 
+	# setinitstate!(lm,1) 
+end
+
+# ╔═╡ a4a1e489-bb36-4589-b8d1-84578ee6b39d
+"States",numstates(charlm), "arcs", sum(map(length,charlm.arcs))
+
+# ╔═╡ f534b0c8-af0d-4fda-b2cf-9da726af36d3
+# draw(lm, isymbols=label_mapping, osymbols=label_mapping) |> Dot2PNG() |> HTML
+
+# ╔═╡ e930e517-66a0-4e77-8962-db9c0d11b2e5
+# open("../../notebooks/ctc_map.txt", "r") do f
+# 	print(read(f, String))
+# end
+
+# ╔═╡ 69e3408e-5f42-4a84-8174-29ed35b8ce7d
+@benchmark sparse_composition_sod(nn_vector_fst, charlm, nsym)
+
+# ╔═╡ f98b0a0a-7194-45ee-b43e-c1de9e59de38
+@benchmark sparse_composition_lod(nn_vector_fst, charlm, nsym)
+
+# ╔═╡ 5f1494f6-372a-414e-b960-5cd8d51d3b7e
+@benchmark sparse_composition_lod_mt(nn_vector_fst, charlm, nsym)   
+
+# ╔═╡ 5cb7529a-e9f5-4110-8730-63a8541017c3
+md"Bench with out conversions"
+
+# ╔═╡ b101405c-22a6-400b-8c33-3a2b3453f560
+begin
+	local A = nn_vector_fst
+	local B = charlm
+	local S = semiring(A)
+	Q = numstates(A) * numstates(B)
+	cooAsod = dict2coo(vector2dict_sod(A), numstates(A),  nsym, S)
+	cooBsod = dict2coo(vector2dict_sod(B), numstates(B),  nsym, S)
+end;
+
+# ╔═╡ a078eaf3-22c3-489f-9f18-e837c7aeea8b
+@benchmark cooC = kron(cooAsod, cooBsod)	
+
+# ╔═╡ 58a9f075-0266-4d98-a25a-f3726905d019
+begin
+	local A = nn_vector_fst
+	local B = charlm
+	local S = semiring(A)
+	cooAlod = dict2coo(vector2dict_lod(A), nsym, numstates(A), S)
+	cooBlod = dict2coo(vector2dict_lod(B), nsym, numstates(B), S)
+end;
+
+# ╔═╡ 1306d047-5e73-498e-a37c-d6a9207653ad
+# sparse_coo2dict_composition_lod_mt(cooAlod, cooBlod, semiring(nn_vector_fst), Q, nsym)
+
+# ╔═╡ 965a8d1a-d909-4f83-a334-205e703ffcbf
+@benchmark sparse_coo2dict_composition_lod_mt(cooAlod, cooBlod, semiring(nn_vector_fst), Q, nsym)
+
+# ╔═╡ 88e0f162-57a9-49ea-8b28-8b18430b4b4f
+# begin
+# 	function profile_test_sod(n)
+# 		for i = 1:n
+# 			 sparse_composition_sod(nn_vector_fst, charlm, nsym)
+# 		end
+# 	end
+	
+# 	function profile_test_lod(n)
+# 		for i = 1:n
+# 			 sparse_composition_lod(nn_vector_fst, charlm, nsym)
+# 		end
+# 	end
+# end
+
+# ╔═╡ 38b960c2-0bef-4069-bf5d-0b44649e4a25
+# @profview profile_test_sod(1);
+
+# ╔═╡ bca99001-10bb-44e8-ad7d-2f5a3f602502
+# @profview profile_test_sod(10)
+
+# ╔═╡ e62a648d-2667-4105-99aa-a8ba375f37d1
+# @profview profile_test_lod(1);
+
+# ╔═╡ 54253fbb-01bd-400c-bffb-5f62430093d7
+# @profview profile_test_lod(10)
 
 # ╔═╡ Cell order:
 # ╟─2c64ec0d-406b-4886-8e4d-8dc9caa22622
@@ -226,5 +303,21 @@ vector2dict_sod(word_vector_fst)
 # ╠═04d1e73f-fdb7-4e68-a5c9-438d4b7bb15f
 # ╠═09e889f8-1a0b-47ed-abcc-3907625ec417
 # ╠═32081a1f-f442-45b0-8c22-b2ea47a99ffb
-# ╠═c4c87092-083b-48ed-8a33-bb43ddc00399
 # ╠═696a18fb-0619-4069-8699-e32a3be22819
+# ╠═a4a1e489-bb36-4589-b8d1-84578ee6b39d
+# ╠═f534b0c8-af0d-4fda-b2cf-9da726af36d3
+# ╠═e930e517-66a0-4e77-8962-db9c0d11b2e5
+# ╠═69e3408e-5f42-4a84-8174-29ed35b8ce7d
+# ╠═f98b0a0a-7194-45ee-b43e-c1de9e59de38
+# ╠═5f1494f6-372a-414e-b960-5cd8d51d3b7e
+# ╟─5cb7529a-e9f5-4110-8730-63a8541017c3
+# ╠═b101405c-22a6-400b-8c33-3a2b3453f560
+# ╠═a078eaf3-22c3-489f-9f18-e837c7aeea8b
+# ╠═58a9f075-0266-4d98-a25a-f3726905d019
+# ╠═1306d047-5e73-498e-a37c-d6a9207653ad
+# ╠═965a8d1a-d909-4f83-a334-205e703ffcbf
+# ╠═88e0f162-57a9-49ea-8b28-8b18430b4b4f
+# ╠═38b960c2-0bef-4069-bf5d-0b44649e4a25
+# ╠═bca99001-10bb-44e8-ad7d-2f5a3f602502
+# ╠═e62a648d-2667-4105-99aa-a8ba375f37d1
+# ╠═54253fbb-01bd-400c-bffb-5f62430093d7

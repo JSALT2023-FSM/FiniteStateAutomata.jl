@@ -145,12 +145,12 @@ function compile(lines;
             src = parse(State, tokens[1]) + offset
             dest = parse(State, tokens[2]) + offset
             maxstate = max(maxstate, max(src,dest))
-            isym = parse(Label, tokens[3])
+            isym = parse(Label, tokens[3]) + offset
             if acceptor
                 osym = isym
                 weight = length(tokens) == 3 ? one(S) : S(parse(Float64, tokens[4]))
             else
-                osym = parse(State, tokens[4])
+                osym = parse(State, tokens[4]) + offset
                 weight = length(tokens) == 4 ? one(S) : S(parse(Float64, tokens[5]))
             end
 
