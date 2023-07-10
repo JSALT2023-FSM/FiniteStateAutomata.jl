@@ -74,3 +74,25 @@ Vector of the final weights.
 """
 ω(fst::TensorFST) = fst.ω
 
+
+
+"""
+    reorder(fst, order)
+
+Returns a new FST whose internal tensor `fst.M` has dimension permuted
+with `perm`.
+"""
+function reorder(fst::TensorFST{S,old_order}, order::NTuple{4,Symbol}) where {S,old_order}
+    perm = (
+        findfirst(x -> x == order[1], old_order),
+        findfirst(x -> x == order[2], old_order),
+        findfirst(x -> x == order[3], old_order),
+        findfirst(x -> x == order[4], old_order),
+    )
+    TensorFST{S,order}(
+        permutedims(fst.M,perm),
+        start(fst),
+        fst.ω
+    )
+end
+

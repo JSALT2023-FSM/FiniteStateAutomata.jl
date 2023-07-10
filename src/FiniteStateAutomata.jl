@@ -46,6 +46,7 @@ export VectorFST
 export TensorFST
 
 export M, α, ω
+export reorder
 
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
