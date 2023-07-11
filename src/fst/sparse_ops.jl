@@ -22,26 +22,18 @@ function sparse_composition_sod(A, B, nsymbols)
 end
 
 
-# lod goes for labels in outermost dimension
-function sparse_composition_lod(A, B, nsymbols)	
-	S = semiring(A)
-    M = SparseMatrixCOO{S,Int}	
-	
-	cooA = dict2coo(vector2dict_lod(A), nsymbols, numstates(A), S)
-	cooB = dict2coo(vector2dict_lod(B), nsymbols, numstates(B), S)
-	
-	Q = numstates(A) * numstates(B)
-	
-    label_rows = Vector{Int}()
-    label_cols = Vector{Int}()
-    label_vals = Vector{M}()
+function sparse_coo_composition_lod(cooA, cooB, S, nsymbols, Q)
+
+	M = SparseMatrixCOO{S,Int}	
+
+	label_rows = Vector{Int}()
+	label_cols = Vector{Int}()
+	label_vals = Vector{M}()
 
 	for x in 1:nsymbols
 		for z in 1:nsymbols	
-			# state_c = sparse([1],[1],[zero(S)],Q,Q)
 			kronresult_list = []
 			for y in 1:nsymbols
-				# @show y, cooA[x,y], cooB[y,z], hasitem(cooA,x,y), hasitem(cooB,y,z)
 				if hasitem(cooA,x,y) && hasitem(cooB,y,z)					
 					kronresult = kron(cooA[x,y], cooB[y,z])
 					# TODO quick version coo to csc to do addition, should handle proper coo+coo 
@@ -56,7 +48,21 @@ function sparse_composition_lod(A, B, nsymbols)
 		end		
 	end
 
-	cooC = SparseMatrixCOO{M, Int}(nsymbols, nsymbols, label_rows, label_cols, label_vals)
+	SparseMatrixCOO{M, Int}(nsymbols, nsymbols, label_rows, label_cols, label_vals)
+
+end
+
+# lod goes for labels in outermost dimension
+function sparse_composition_lod(A, B, nsymbols)	
+	S = semiring(A)
+	
+	cooA = dict2coo(vector2dict_lod(A), nsymbols, numstates(A), S)
+	cooB = dict2coo(vector2dict_lod(B), nsymbols, numstates(B), S)
+	
+	Q = numstates(A) * numstates(B)
+
+	cooC = sparse_coo_composition_lod(cooA, cooB, S, nsymbols, Q)
+
 	arcsC = coo_lod2arcs(cooC, Q, S)
 
 	initialA = zeros(S,numstates(A))

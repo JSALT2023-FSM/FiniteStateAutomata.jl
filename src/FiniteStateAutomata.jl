@@ -67,7 +67,7 @@ include("fst/fstconversion.jl")
 # FST operations
 #=====================================================================#
 
-export dense_composition_sod, dense_composition_lod, sparse_composition_lod, sparse_composition_lod_mt, sparse_coo_composition_lod_mt, sparse_composition_lod, sparse_coo2dict_composition_lod_mt
+export dense_composition_sod, dense_composition_lod, sparse_composition_lod, sparse_coo_composition_lod, sparse_composition_lod_mt, sparse_coo_composition_lod_mt, sparse_composition_lod, sparse_coo2dict_composition_lod_mt
 
 include("fst/dense_ops.jl")
 

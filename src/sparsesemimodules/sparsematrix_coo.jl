@@ -62,6 +62,8 @@ function SparseMatrixCOO(m::Integer, n::Integer, rows::Vector, cols::Vector, val
   end
 
 Base.size(A::SparseMatrixCOO) = (getfield(A, :m), getfield(A, :n))
+Base.zero(A::SparseMatrixCOO) = []
+
         
 # using matrix multiplication with csc, returns coo
 # missing matmul in csr from semimodules 
