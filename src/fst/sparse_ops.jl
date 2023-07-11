@@ -9,14 +9,31 @@ function sparse_composition_sod(A, B, nsymbols)
 	cooA = dict2coo(vector2dict_sod(A), numstates(A),  nsymbols, S)
 	cooB = dict2coo(vector2dict_sod(B), numstates(B),  nsymbols, S)
 	
-	cooC = kron(cooA, cooB)	
+	cooC = kron_coo(cooA, cooB)	
 	arcsC = coo_sod2arcs(cooC, S)
 
 	initialA = zeros(S,numstates(A))
 	initialB = zeros(S,numstates(B))
 	initialA[A.initstate] = 1
 	initialB[B.initstate] = 1
-	initial = findfirst(x->x!=zero(S),kron(initialA, initialB))
+	initial = findfirst(x->x!=zero(S), kron(initialA, initialB))
+	# TODO initial state
+	VectorFST(arcsC, initial, kron(A.finalweights, B.finalweights) )
+end
+
+function sparse_composition_sod_mt(A, B, nsymbols)
+	S = semiring(A)
+	cooA = dict2coo(vector2dict_sod(A), numstates(A),  nsymbols, S)
+	cooB = dict2coo(vector2dict_sod(B), numstates(B),  nsymbols, S)
+	
+	cooC = kron_coo_mt(cooA, cooB)	
+	arcsC = coo_sod2arcs(cooC, S)
+
+	initialA = zeros(S,numstates(A))
+	initialB = zeros(S,numstates(B))
+	initialA[A.initstate] = 1
+	initialB[B.initstate] = 1
+	initial = findfirst(x->x!=zero(S), kron(initialA, initialB))
 	# TODO initial state
 	VectorFST(arcsC, initial, kron(A.finalweights, B.finalweights) )
 end

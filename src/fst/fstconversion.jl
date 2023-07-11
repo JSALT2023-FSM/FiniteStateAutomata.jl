@@ -53,11 +53,40 @@ function dict2coo(dict_fst, outer_size, inner_size, S)
             inner_cols = Vector{Int}()
             inner_vals = Vector{S}()
             for (i1,i2,v) in o2dic
+                # TODO: create assert
+                # if i1>inner_size || i2>inner_size               
+                # end
                 push!(inner_rows, i1)
                 push!(inner_cols, i2)
                 push!(inner_vals, v)
             end
             push!(outer_vals, M(inner_size, inner_size, inner_rows, inner_cols, inner_vals))
+        end
+    end
+    SparseMatrixCOO{M, Int}(outer_size, outer_size, outer_rows, outer_cols, outer_vals)
+end
+
+function dict2coo_csc(dict_fst, outer_size, inner_size, S)
+    M = SparseMatrixCSC{S,Int}
+    outer_rows = Vector{Int}()
+    outer_cols = Vector{Int}()
+    outer_vals = Vector{M}()
+    for (o1, o1dic) in dict_fst
+        for (o2, o2dic) in o1dic
+            push!(outer_rows,o1)
+            push!(outer_cols,o2)
+            inner_rows = Vector{Int}()
+            inner_cols = Vector{Int}()
+            inner_vals = Vector{S}()
+            for (i1,i2,v) in o2dic
+                # TODO: create assert
+                # if i1>inner_size || i2>inner_size               
+                # end
+                push!(inner_rows, i1)
+                push!(inner_cols, i2)
+                push!(inner_vals, v)
+            end
+            push!(outer_vals, sparse(inner_rows, inner_cols, inner_vals,inner_size, inner_size))
         end
     end
     SparseMatrixCOO{M, Int}(outer_size, outer_size, outer_rows, outer_cols, outer_vals)

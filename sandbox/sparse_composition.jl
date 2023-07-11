@@ -77,6 +77,9 @@ draw(A, isymbols=symbols, osymbols=symbols) |> Dot2SVG() |> HTML
 # ╔═╡ 2d6277aa-d73f-43be-9a91-2e82218a5587
 draw(B, isymbols=symbols, osymbols=symbols) |> Dot2SVG() |> HTML
 
+# ╔═╡ c12bb3ec-c6cb-4467-b221-84cb812ff549
+draw(B, isymbols=symbols, osymbols=symbols) |> Dot2SVG() 
+
 # ╔═╡ b64e8b2b-9c69-4cce-9595-a04265c9a299
 md"
 ## FST Composition Example
@@ -114,6 +117,7 @@ C2.arcs==C.arcs
 # ╠═fd4f5379-7d6b-4962-8f07-ddedacf565a6
 # ╠═ddff62e9-b7ed-43b3-beaf-c46c8ebe61ec
 # ╠═2d6277aa-d73f-43be-9a91-2e82218a5587
+# ╠═c12bb3ec-c6cb-4467-b221-84cb812ff549
 # ╟─b64e8b2b-9c69-4cce-9595-a04265c9a299
 # ╠═1f665bf9-99a2-4244-a0a8-87d5c8a1fcb0
 # ╠═ee5d158a-5855-4b4d-be2f-591139ee487d

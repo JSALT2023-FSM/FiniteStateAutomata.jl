@@ -10,6 +10,9 @@ export
     # Types
     SparseMatrixCOO,
     hasitem,
+    kron_coo_noalloc,
+    kron_coo_mt,
+    kron_coo,
     # SparseMatrixCSR,
     # SparseMatrices,
 

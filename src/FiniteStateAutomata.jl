@@ -51,7 +51,7 @@ export M, α, ω
 include("fst/vectorfst.jl")
 include("fst/tensorfst.jl")
 
-export vector2dict_lod, vector2dict_sod, dict2coo
+export vector2dict_lod, vector2dict_sod, dict2coo, dict2coo_csc
 
 include("fst/fstconversion.jl")
 
@@ -67,11 +67,13 @@ include("fst/fstconversion.jl")
 # FST operations
 #=====================================================================#
 
-export dense_composition_sod, dense_composition_lod, sparse_composition_lod, sparse_coo_composition_lod, sparse_composition_lod_mt, sparse_coo_composition_lod_mt, sparse_composition_lod, sparse_coo2dict_composition_lod_mt
+export dense_composition_sod, dense_composition_lod
 
 include("fst/dense_ops.jl")
 
-export sparse_composition_sod
+export sparse_composition_sod,  sparse_composition_lod
+export sparse_coo_composition_lod
+export sparse_vec_composition_lod_mt, sparse_coo_composition_lod_mt, sparse_coo2dict_composition_lod_mt
 
 include("fst/sparse_ops.jl")
 
