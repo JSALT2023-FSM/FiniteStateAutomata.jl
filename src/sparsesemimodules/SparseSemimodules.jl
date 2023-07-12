@@ -43,6 +43,7 @@ export
     to_cpu,
     mult_spvspm!   # sparse vector/sparse matrix multiplication
                    # buffer (dense output vector must be provided)
+    mult_spmspm!
 
 #=====================================================================#
 # Power series of a matrix.

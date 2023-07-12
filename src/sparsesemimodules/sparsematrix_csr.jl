@@ -39,6 +39,9 @@ end
 Base.size(X::SparseMatrixCSR) = (X.m, X.n)
 
 function Base.getindex(X::SparseMatrixCSR{S}, i::Int, j::Int) where S
+    if nnz(X) == 0
+        return zero(S)
+    end
     ii = nzrange(X, i)
     isempty(ii) && return zero(S)
     nnzy = colvals(X)[ii]
