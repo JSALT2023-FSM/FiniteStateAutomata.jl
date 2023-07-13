@@ -52,6 +52,8 @@ export powerseries
 
 include("power.jl")
 
+include("speck.jl")
+export speck_spgemm
 
 #TODO: Move elsewhere
 findparam(ex::Type{<:AbstractArray{T}}) where {T} = T

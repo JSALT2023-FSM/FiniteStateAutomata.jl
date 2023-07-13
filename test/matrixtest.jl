@@ -1,13 +1,10 @@
-u:qa
-sing Random
+using Random
 using SparseArrays
 using CUDA
 
 @testset "CUDA Sparse matrix and vector" begin
-    #sizes = [1, 3, 5, 50, 512, 5000, 50000]
-    sizes = [512]
-    repeats = 1
-    @show "CUDA Sparse matrix and vector"
+    sizes = [1, 3, 5, 50, 512, 5000]
+    repeats = 10
     for i in sizes
         for r in 1:repeats
             A = sprand(Float32, i, i, 0.01);
@@ -20,8 +17,6 @@ using CUDA
             cuxs = to_gpu(xs)
             cuas = to_gpu(As)
             cuys = cuxs * cuas
-            CUDA.@time  cuxs * cuas
-
 
             o = to_cpu(cuys)
             @test vec(o) ≈ vec(ys)
@@ -30,33 +25,26 @@ using CUDA
 end
 
 @testset "CUDA Sparse matrix and matrix" begin
-    rng = Random.MersenneTwister(1234)
-    #sizes = [1, 3, 5, 50, 500, 5000]
-    sizes = [5000]
+    sizes = [1, 3, 5, 50, 500]
     repeats = 1
-    @show "CUDA Sparse matrix and matrix"
     for i in sizes
         for r in 1:repeats
             A = sprand(Float32, i, i, 0.01);
             B = sprand(Float32, i, i, 0.01);
-            
-            @show i, r
-            CUDA.@time w = A*B
+
             As = FiniteStateAutomata.sparse(A)
             Bs = FiniteStateAutomata.sparse(B)
-            #@time Ys = FiniteStateAutomata.sparse(As * Bs)
+
+            p = As * Bs
 
             cubs = to_gpu(Bs)
             cuas = to_gpu(As)
             cuys = cuas * cubs
-            CUDA.@time cuas * cubs
+            q = to_cpu(cuys)
 
-            o= to_cpu(cuys)
-            CUDA.@time p = A * B
-            #@show o
-            #@show p
+            o = Float32.(to_cpu(cuys))
+
             @test vec(o) ≈ vec(p)
-            #@test vec(o) ≈ vec(Ys)
       end
   end
 end
@@ -74,7 +62,7 @@ end
             As = FiniteStateAutomata.sparse(A)
             ys = xs * As
 
-            @test vec(y) ≈ vec(y)
+            @test vec(y) ≈ vec(ys)
         end
     end
 end

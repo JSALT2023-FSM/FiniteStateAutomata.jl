@@ -301,12 +301,11 @@ function _k_assign!(nzval::CUDA.CuDeviceVector{Float32, 1},
 
         nzval[row_offset + tid] = y_buffer[v]
         colval[row_offset + tid] = v
-        if tid == 1
-            rowptr[row]  = row_offset  + 1
-            rowptr[row+1]  = row_offset + k +1
-        end
     end
-    row_offset
+    if tid == 1
+        rowptr[row]  = row_offset  + 1
+        rowptr[row+1]  = row_offset + k +1
+    end
     return
 end
 
@@ -354,9 +353,9 @@ function mult_spmspm!(y_buffer::CuArray{S}, A::CuSparseMatrixCSR{S}, B::CuSparse
              y_buffer; blocks=blocks, threads=threads)
 
         out_nzind = findall(!iszero, y_buffer)
-        if length(out_nzind) == 0
-            continue
-        end
+        #if length(out_nzind) == 0
+        #    continue
+        #end
         threads = 512
         blocks = cld(length(out_nzind)+1, threads)
         @cuda threads=threads blocks=blocks _k_assign!(nzval, colval, rowptr,
@@ -364,7 +363,7 @@ function mult_spmspm!(y_buffer::CuArray{S}, A::CuSparseMatrixCSR{S}, B::CuSparse
                                              out_nzind, y_buffer)
         row_offset += length(out_nzind)
     end
-    return CuSparseMatrixCSR(A.m, B.n, rowptr, colval, nzval)
+    return CuSparseMatrixCSR(A.m, B.n, rowptr[1:(A.m+1)], colval[1:row_offset], nzval[1:row_offset])
 end
 
 
