@@ -8,6 +8,7 @@ using Test
 end
 
 @testset "Linear Algebra" begin
+    include("specktest.jl")
     include("matrixtest.jl")
 end
 
